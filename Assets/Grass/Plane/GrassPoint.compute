@@ -1,0 +1,39 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+struct GrassData
+{
+    float3 position;
+};
+RWStructuredBuffer<GrassData> GrassBuffer;
+
+int _GrassAmount;
+int _Scale;
+float3 _Position;
+Texture2D<float4> _HeightMap;
+SamplerState sampler_HeightMap;
+
+
+//Å©±â / °¹¼ö
+[numthreads(8, 8, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+    
+    uint AxisGrassCount = _Scale * _GrassAmount;
+    if (id.x >= AxisGrassCount && id.y >= AxisGrassCount)
+    {
+        return;
+    }
+
+    float dis = _Scale / (float)AxisGrassCount;
+    float2 minxz = _Poisiton.xz - _Scale * 0.5f;
+    minxz += float2(id.x * dis, id.y * dis);
+    GrassData grass;
+    grass.position = float3(minxz.x, _Position.y, minxz.z);
+
+    position[id.x + AxisGrassCount * id.y] = grass;
+}
