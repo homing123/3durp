@@ -42,7 +42,12 @@ Shader "Grass/Grass"
                     float4 posCS : SV_POSITION;
                     float4 option : TEXCOORD2;
                 };
-               
+                struct GrassData
+                {
+                    float3 position;
+                    };
+
+                    StructuredBuffer<GrassData> _GrassData;
                 //현재 noise 텍스쳐가 0.04 ~ 0.57 범위다
                 // -0.07 * 2 = 0~1이 된다. saturate 필수
                 //이거 처리 후에 평균값은 0.3정도 되는듯하다.
@@ -66,12 +71,13 @@ Shader "Grass/Grass"
                 float4 _GrassTex_ST;
                 float4 _NoiseTex_ST;
                 CBUFFER_END
-                VertexOut vs(appdata v)
+                VertexOut vs(appdata v, uint instanceID : SV_INSTANCEID)
                 {
                     VertexOut o;
-                    o.posWorld.xyz = TransformObjectToWorld(v.posModel.xyz);
+                    o.posWorld.xyz = _GrassData[instanceID].position + v.posModel.xyz;
+                   
                     o.uv = v.uv;
-                    o.posCS = TransformObjectToHClip(v.posModel.xyz);
+                    o.posCS = TransformWorldToHClip(o.posWorld);
                     o.option = float4(1, 1, 1, 1);
                     return o;
                 }

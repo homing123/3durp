@@ -25,6 +25,7 @@ public class GrassMaker : MonoBehaviour
 
     private void Start()
     {
+        InitMaterial();
         InitMesh();
         Update();
     }
@@ -34,12 +35,21 @@ public class GrassMaker : MonoBehaviour
         {
             InitCSBuffer();
             InitArgsBuffer();
+            UpdateMaterialBuffer();
             m_isInfoChanged = false;
         }
 
         DrawInstances();
     }
+    void InitMaterial()
+    {
+        m_GrassMaterial = new Material(m_GrassMaterial);
+    }
+    void UpdateMaterialBuffer()
+    {
+        m_GrassMaterial.SetBuffer("_GrassData", m_GrassBuffer);
 
+    }
     void InitMesh()
     {
         Mesh mesh = new Mesh();
@@ -47,14 +57,14 @@ public class GrassMaker : MonoBehaviour
         , new Vector3 (0.5f, 0.5f, 0)
         , new Vector3 (-0.5f, -0.5f, 0)
         , new Vector3 (0.5f, -0.5f, 0) };
-        mesh.SetIndices(new int[4] { 0, 1, 3, 2 }, MeshTopology.Quads, 0);
+        mesh.SetIndices(new int[6] { 0, 1, 2, 1,3,2 }, MeshTopology.Triangles, 0);
         mesh.uv = new Vector2[4] {
             new Vector2 (0,1), new Vector2 ( 1,1),new Vector2 (0,0) ,new Vector2 (1,0) };
         mesh.normals = new Vector3[4]
         {
             new Vector3(0,0,-1), new Vector3(0,0,-1), new Vector3(0,0,-1), new Vector3(0,0,-1)
         };
-
+        mesh.name = "GrassMesh";
         m_GrassMesh = mesh;
     }
     void InitArgsBuffer()
@@ -63,14 +73,18 @@ public class GrassMaker : MonoBehaviour
         {
             m_MeshBuffer.Release();
         }
+
+        int grassAxisCount = m_GrassAmount * m_Scale;
+        int grassCount = grassAxisCount * grassAxisCount;
         m_MeshBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
 
         m_MeshData[0] = (uint)m_GrassMesh.GetIndexCount(0);
-        m_MeshData[1] = (uint)0;
+        m_MeshData[1] = (uint)grassCount;
         m_MeshData[2] = (uint)m_GrassMesh.GetIndexStart(0);
         m_MeshData[3] = (uint)m_GrassMesh.GetBaseVertex(0);
         m_MeshData[4] = 0;
 
+        Debug.Log(grassCount + "°³ »ý¼º");
         m_MeshBuffer.SetData(m_MeshData);
     }
 
