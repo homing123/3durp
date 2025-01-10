@@ -1,22 +1,22 @@
 
-
-struct DomainOut
-{
-    float3 posWorld : TEXCOORD1;
-    float2 uv : TEXCOORD0;
-    float4 posCS : SV_POSITION;
-
-};
-
-[domain("tri")]
-DomainOut ds(PatchConstOutput patchConst, float3 uvw : SV_DomainLocation, const OutputPatch<HullOut, 3> patch)
-{
-    DomainOut o;
-    o.posWorld = patch[0].posWorld * uvw.x + patch[1].posWorld * uvw.y + patch[2].posWorld * uvw.z;
-    o.posCS = patch[0].posCS * uvw.x + patch[1].posCS * uvw.y + patch[2].posCS * uvw.z;
-    o.uv = patch[0].uv * uvw.x + patch[1].uv * uvw.y + patch[2].uv * uvw.z;
-    return o;
-}
+//
+//struct DomainOut
+//{
+//    float3 posWorld : TEXCOORD1;
+//    float2 uv : TEXCOORD0;
+//    float4 posCS : SV_POSITION;
+//
+//};
+//
+//[domain("tri")]
+//DomainOut ds(PatchConstOutput patchConst, float3 uvw : SV_DomainLocation, const OutputPatch<HullOut, 3> patch)
+//{
+//    DomainOut o;
+//    o.posWorld = patch[0].posWorld * uvw.x + patch[1].posWorld * uvw.y + patch[2].posWorld * uvw.z;
+//    o.posCS = patch[0].posCS * uvw.x + patch[1].posCS * uvw.y + patch[2].posCS * uvw.z;
+//    o.uv = patch[0].uv * uvw.x + patch[1].uv * uvw.y + patch[2].uv * uvw.z;
+//    return o;
+//}
 
 
 // 유니티에서 쿼드 테셀레이션은 지원하지 않는다고 하는거 같은데...

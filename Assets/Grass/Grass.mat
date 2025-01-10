@@ -23,11 +23,31 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _GrassMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GrassTex:
+        m_Texture: {fileID: 2800000, guid: 61f12689b55da474d912b5453a630d53, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: f9b02c3388357d64081c43a857ca7baa, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NoiseTex:
+        m_Texture: {fileID: 2800000, guid: 429f16e3bc455fb4eb9d3b337ef337fc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
-    m_Colors: []
+    m_Floats:
+    - _DryBias: 0
+    - _GrassSize: 0.2
+    - _GrassSizeRandomMul: 1
+    - _TessDivideValue: 1
+    - _TessMin: 1
+    - _TessRange: 1
+    m_Colors:
+    - _DryGrassColor: {r: 1, g: 1, b: 1, a: 1}
+    - _GrassColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

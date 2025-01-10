@@ -25,6 +25,7 @@ public class GrassMaker : MonoBehaviour
 
     private void Start()
     {
+        InitMesh();
         Update();
     }
     private void Update()
@@ -37,6 +38,24 @@ public class GrassMaker : MonoBehaviour
         }
 
         DrawInstances();
+    }
+
+    void InitMesh()
+    {
+        Mesh mesh = new Mesh();
+        mesh.vertices = new Vector3[4] {new Vector3(-0.5f, 0.5f, 0)
+        , new Vector3 (0.5f, 0.5f, 0)
+        , new Vector3 (-0.5f, -0.5f, 0)
+        , new Vector3 (0.5f, -0.5f, 0) };
+        mesh.SetIndices(new int[4] { 0, 1, 3, 2 }, MeshTopology.Quads, 0);
+        mesh.uv = new Vector2[4] {
+            new Vector2 (0,1), new Vector2 ( 1,1),new Vector2 (0,0) ,new Vector2 (1,0) };
+        mesh.normals = new Vector3[4]
+        {
+            new Vector3(0,0,-1), new Vector3(0,0,-1), new Vector3(0,0,-1), new Vector3(0,0,-1)
+        };
+
+        m_GrassMesh = mesh;
     }
     void InitArgsBuffer()
     {
@@ -63,16 +82,24 @@ public class GrassMaker : MonoBehaviour
         threadCount = threadCount + 1;
         threadCount = threadCount << 5;
 
-        m_GrassBuffer = new ComputeBuffer(grassAxisCount, sizeof(float) * 3);
+        m_GrassBuffer = new ComputeBuffer(grassAxisCount * grassAxisCount, sizeof(float) * 3);
 
         m_CSGrassPoint.SetInt("_GrassAmount", m_GrassAmount);
         m_CSGrassPoint.SetInt("_Scale", m_Scale);
-        m_CSGrassPoint.SetFloats("_GrassAmount", new float[3] { m_Position.x, m_Position.y, m_Position.z });
+        m_CSGrassPoint.SetVector("_Position", m_Position);
         m_CSGrassPoint.SetBuffer(0, "GrassBuffer", m_GrassBuffer);
         m_CSGrassPoint.Dispatch(0, threadCount, threadCount, 1);
 
 
         m_FieldBounds = new Bounds(m_Position, new Vector3(m_Scale, 5, m_Scale));
+
+        //GrassData[] arr_GrassBuffer = new GrassData[grassAxisCount * grassAxisCount];
+        //m_GrassBuffer.GetData(arr_GrassBuffer);
+
+        //for(int i=0;i< grassAxisCount * grassAxisCount; i++)
+        //{
+        //    Debug.Log(arr_GrassBuffer[i].position);
+        //}
     }
 
     void DrawInstances()
