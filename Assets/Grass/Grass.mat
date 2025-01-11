@@ -42,6 +42,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _DryBias: 0.05
+    - _GrassRandomPosMul: 0.38
     - _GrassSize: 0.14
     - _GrassSizeRandomMul: 3.37
     - _TessDivideValue: 1

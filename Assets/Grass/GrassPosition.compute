@@ -1,5 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#include "Util.compute"
+#pragma kernel GetPosition
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -8,31 +9,41 @@ struct GrassData
     float2 chunkUV;
     float3 position;
 };
-RWStructuredBuffer<GrassData> GrassBuffer;
+struct Log
+{
+    int ia;
+    int ib;
+    int ic;
+    int id;
+    int ie;
+};
+RWStructuredBuffer<GrassData> _GrassBuffer;
+RWStructuredBuffer<Log> _LogBuffer;
 int _GrassAmount;
 int _Scale;
 float3 _Position;
-Texture2D<float4> _HeightMap;
-SamplerState sampler_HeightMap;
 
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+[numthreads(32,32,1)]
+void GetPosition(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
     // TODO: insert actual code here!
-    
-
-    uint AxisGrassCount = _Scale * _GrassAmount;
-    if (id.x >= AxisGrassCount || id.y >= AxisGrassCount)
+    int AxisGrassCount = _Scale * _GrassAmount;
+    uint curIdx = GetTotalIdx(t_idx, g_id, uint3(32, 32, 1), uint(512));
+ 
+    if (curIdx >= uint(AxisGrassCount * AxisGrassCount))
     {
         return;
     }
+    
+    int grassIdxY = int(curIdx) / AxisGrassCount;
+    int grassIdxX = int(curIdx) % AxisGrassCount;
     GrassData grass;
     float dis = AxisGrassCount == 1 ? 0 : (float)_Scale / (AxisGrassCount - 1);
     float2 minxz = _Position.xz - _Scale * 0.5f;
-    minxz += float2(id.x * dis, id.y * dis);
+    minxz += float2(grassIdxX * dis, grassIdxY * dis);
     
     grass.position = float3(minxz.x, _Position.y, minxz.y);
     float duv = 1.0f / AxisGrassCount;
-    grass.chunkUV = float2(duv * id.x, duv * id.y);
-    GrassBuffer[id.x + AxisGrassCount * id.y] = grass;
+    grass.chunkUV = float2(duv * grassIdxX, duv * grassIdxY);
+    _GrassBuffer[curIdx] = grass;
 }

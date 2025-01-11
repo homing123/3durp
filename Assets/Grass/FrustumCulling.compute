@@ -1,0 +1,46 @@
+// Each #kernel tells which function to compile; you can have many kernels
+
+#pragma kernel FrustumCull
+
+#include "Util.compute"
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+struct GrassData
+{
+    float2 chunkuv;
+    float3 position;
+};
+RWStructuredBuffer<GrassData> _GrassBuffer;
+RWStructuredBuffer<uint> _DrawedBuffer;
+
+int _GrassAmount;
+int _Scale;
+float4x4 _MatVP;
+float3 _CamPos;
+float _RenderDis;
+
+RWStructuredBuffer<GrassData> _DrawGrassBuffer; 
+
+[numthreads(32, 32, 1)]
+void FrustumCull(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
+{
+    // TODO: insert actual code here!
+    uint totalIdx = GetTotalIdx(t_idx, g_id, uint3(32, 32, 1), uint(512));
+    uint grassTotalCount = uint(_GrassAmount * _Scale * _GrassAmount * _Scale);
+    if(totalIdx >= grassTotalCount)
+    {
+        return;
+    }
+    float3 posWS = _GrassBuffer[totalIdx].position;
+    float4 posCS = mul(_MatVP, float4(posWS, 1));
+    float3 posNDC;
+    posNDC.xy = posCS.xy / -posCS.w;
+    posNDC.z = -posCS.w;
+    
+    int isDrawed = posNDC.x > -1.2f && posNDC.x < 1.2f && posNDC.y > -1.2f && posNDC.y < -1.2f && posNDC.z > -0.2f && posNDC.z < 1.2f;
+    float dis = length(_CamPos - posWS);
+    isDrawed &= dis < _RenderDis;
+    
+    _DrawedBuffer[totalIdx] = isDrawed;
+}
+

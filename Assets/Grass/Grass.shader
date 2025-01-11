@@ -10,6 +10,8 @@ Shader "Grass/Grass"
         _GrassSize("GrassSize", Range(0.01, 1)) = 0.2
         _GrassSizeRandomMul("GrassSizeRandomMul", Range(0, 10)) = 1
 
+        _GrassRandomPosMul("RandomPosMul", Range(0, 3)) = 0.3
+
     }
         SubShader
         {
@@ -49,6 +51,7 @@ Shader "Grass/Grass"
                     };
 
                     StructuredBuffer<GrassData> _GrassData;
+                    StructuredBuffer<int> _DrawedBuffer;
                 //현재 noise 텍스쳐가 0.04 ~ 0.57 범위다
                 // -0.07 * 2 = 0~1이 된다. saturate 필수
                 //이거 처리 후에 평균값은 0.3정도 되는듯하다.
@@ -69,6 +72,7 @@ Shader "Grass/Grass"
                 half4 _DryGrassColor;
                 float _DryBias;
 
+                float _GrassRandomPosMul;
                 float4 _GrassTex_ST;
                 float4 _NoiseTex_ST;
                 CBUFFER_END
@@ -85,7 +89,7 @@ Shader "Grass/Grass"
 
                     randomNoise = GetNoiseToNormRange(randomNoise);
                     sizeNoise = GetNoiseToNormRange(sizeNoise);
-                    float posNoiseValue = (GetNoiseToNormRange(posNoise) * 2 - 1) * 3.0f;
+                    float posNoiseValue = (GetNoiseToNormRange(posNoise) * 2 - 1) * _GrassRandomPosMul;
 
                     float width = _GrassSize * (1 + sizeNoise * _GrassSizeRandomMul);
                     float height = _GrassSize * (1 + sizeNoise * _GrassSizeRandomMul);
@@ -109,8 +113,10 @@ Shader "Grass/Grass"
                     return o;
                 }
 
-                half4 fs(VertexOut i) : SV_Target
+                half4 fs(VertexOut i, int id : SV_INSTANCEID) : SV_Target
                 {
+                    int drawed = _DrawedBuffer[id];
+                    clip(drawed - 0.5f);
                     half4 col;
                     half4 texColor = tex2D(_GrassTex, i.uv);
                     clip(texColor.a - 0.5f);      

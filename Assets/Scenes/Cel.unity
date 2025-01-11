@@ -366,10 +366,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Position: {x: 0, y: 0, z: 0}
-  m_GrassAmount: 9
-  m_Scale: 15
+  m_GrassCountPerOne: 8
+  m_Scale: 16
   m_GrassMaterial: {fileID: 2100000, guid: 18fb8fc200c889a49b6e4a2767168ddb, type: 2}
+  m_RenderDis: 13
   m_CSGrassPoint: {fileID: 7200000, guid: 0f168f8e90b509a4a920149e9c861b4a, type: 3}
+  m_CSFrustumCulling: {fileID: 7200000, guid: 31435e4a6025b474f8199cca3946cf49, type: 3}
 --- !u!1 &309327141
 GameObject:
   m_ObjectHideFlags: 0
