@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class GrassMaker : MonoBehaviour
@@ -10,6 +11,7 @@ public class GrassMaker : MonoBehaviour
     Bounds m_FieldBounds;
     struct GrassData
     {
+        public Vector2 chunkUV;
         public Vector3 position;
     }
     public Vector3 m_Position;
@@ -29,6 +31,10 @@ public class GrassMaker : MonoBehaviour
         InitMesh();
         Update();
     }
+    private void OnDestroy()
+    {
+        Release();
+    }
     private void Update()
     {
         if(m_isInfoChanged == true)
@@ -43,7 +49,7 @@ public class GrassMaker : MonoBehaviour
     }
     void InitMaterial()
     {
-        m_GrassMaterial = new Material(m_GrassMaterial);
+        //m_GrassMaterial = new Material(m_GrassMaterial);
     }
     void UpdateMaterialBuffer()
     {
@@ -53,10 +59,10 @@ public class GrassMaker : MonoBehaviour
     void InitMesh()
     {
         Mesh mesh = new Mesh();
-        mesh.vertices = new Vector3[4] {new Vector3(-0.5f, 0.5f, 0)
-        , new Vector3 (0.5f, 0.5f, 0)
-        , new Vector3 (-0.5f, -0.5f, 0)
-        , new Vector3 (0.5f, -0.5f, 0) };
+        mesh.vertices = new Vector3[4] {new Vector3(-0.5f, 1f, 0)
+        , new Vector3 (0.5f, 1f, 0)
+        , new Vector3 (-0.5f, 0f, 0)
+        , new Vector3 (0.5f, 0f, 0) };
         mesh.SetIndices(new int[6] { 0, 1, 2, 1,3,2 }, MeshTopology.Triangles, 0);
         mesh.uv = new Vector2[4] {
             new Vector2 (0,1), new Vector2 ( 1,1),new Vector2 (0,0) ,new Vector2 (1,0) };
@@ -69,11 +75,6 @@ public class GrassMaker : MonoBehaviour
     }
     void InitArgsBuffer()
     {
-        if(m_MeshBuffer != null)
-        {
-            m_MeshBuffer.Release();
-        }
-
         int grassAxisCount = m_GrassAmount * m_Scale;
         int grassCount = grassAxisCount * grassAxisCount;
         m_MeshBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
@@ -95,8 +96,9 @@ public class GrassMaker : MonoBehaviour
         int threadCount = grassAxisCount >> 5;
         threadCount = threadCount + 1;
         threadCount = threadCount << 5;
+        int structSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(GrassData));
 
-        m_GrassBuffer = new ComputeBuffer(grassAxisCount * grassAxisCount, sizeof(float) * 3);
+        m_GrassBuffer = new ComputeBuffer(grassAxisCount * grassAxisCount, structSize);
 
         m_CSGrassPoint.SetInt("_GrassAmount", m_GrassAmount);
         m_CSGrassPoint.SetInt("_Scale", m_Scale);
@@ -119,5 +121,11 @@ public class GrassMaker : MonoBehaviour
     void DrawInstances()
     {
         Graphics.DrawMeshInstancedIndirect(m_GrassMesh, 0, m_GrassMaterial, m_FieldBounds, m_MeshBuffer);
+    }
+
+    void Release()
+    {
+        m_GrassBuffer.Release();
+        m_MeshBuffer.Release();
     }
 }

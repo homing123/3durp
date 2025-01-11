@@ -41,13 +41,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _DryBias: 0
-    - _GrassSize: 0.2
-    - _GrassSizeRandomMul: 1
+    - _DryBias: 0.05
+    - _GrassSize: 0.14
+    - _GrassSizeRandomMul: 3.37
     - _TessDivideValue: 1
     - _TessMin: 1
     - _TessRange: 1
     m_Colors:
-    - _DryGrassColor: {r: 1, g: 1, b: 1, a: 1}
+    - _DryGrassColor: {r: 0.8527324, g: 0.9529412, b: 0.43137252, a: 1}
     - _GrassColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

@@ -5,6 +5,7 @@
 // with cs.SetTexture
 struct GrassData
 {
+    float2 chunkUV;
     float3 position;
 };
 RWStructuredBuffer<GrassData> GrassBuffer;
@@ -31,6 +32,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     minxz += float2(id.x * dis, id.y * dis);
     
     grass.position = float3(minxz.x, _Position.y, minxz.y);
-
+    float duv = 1.0f / AxisGrassCount;
+    grass.chunkUV = float2(duv * id.x, duv * id.y);
     GrassBuffer[id.x + AxisGrassCount * id.y] = grass;
 }
