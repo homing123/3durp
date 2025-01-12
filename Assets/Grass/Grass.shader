@@ -43,6 +43,7 @@ Shader "Grass/Grass"
                     float2 uv : TEXCOORD0;
                     float4 posCS : SV_POSITION;
                     float4 option : TEXCOORD2;
+                    uint id : SV_INSTANCEID;
                 };
                 struct GrassData
                 {
@@ -110,13 +111,14 @@ Shader "Grass/Grass"
                     o.uv = v.uv;
                     o.posCS = TransformWorldToHClip(o.posWorld);
                     o.option = float4(sizeNoise, randomNoise, 1, 1);
+                    o.id = instanceID;
                     return o;
                 }
 
-                half4 fs(VertexOut i, int id : SV_INSTANCEID) : SV_Target
+                half4 fs(VertexOut i) : SV_Target
                 {
-                    int drawed = _DrawedBuffer[id];
-                    clip(drawed - 0.5f);
+                    int drawed = _DrawedBuffer[i.id];
+                    clip(drawed == 0 ? -1 : 1);
                     half4 col;
                     half4 texColor = tex2D(_GrassTex, i.uv);
                     clip(texColor.a - 0.5f);      

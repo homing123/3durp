@@ -37,7 +37,7 @@ void FrustumCull(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
     posNDC.xy = posCS.xy / -posCS.w;
     posNDC.z = -posCS.w;
     
-    int isDrawed = posNDC.x > -1.2f && posNDC.x < 1.2f && posNDC.y > -1.2f && posNDC.y < -1.2f && posNDC.z > -0.2f && posNDC.z < 1.2f;
+    int isDrawed = posNDC.x > -1.2f && posNDC.x < 1.2f && posNDC.y > -1.2f && posNDC.y < 1.2f && posNDC.z > -0.2f;
     float dis = length(_CamPos - posWS);
     isDrawed &= dis < _RenderDis;
     

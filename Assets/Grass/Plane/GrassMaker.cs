@@ -20,6 +20,8 @@ public class GrassMaker : MonoBehaviour
     ComputeBuffer m_ArgsBuffer;
     Mesh m_GrassMesh;
     Bounds m_FieldBounds;
+
+    public GameObject m_TestObj;
     struct GrassData
     {
         public Vector2 chunkUV;
@@ -194,6 +196,19 @@ public class GrassMaker : MonoBehaviour
             }
         }
         Debug.Log(count);
+
+        //Vector3 testObjPos = m_TestObj.transform.position;
+        //Vector4 testWorldPos = new Vector4(testObjPos.x, testObjPos.y, testObjPos.z, 1);
+
+
+        //Vector4 posView = v * testWorldPos;
+        //Vector4 posClip = VP * testWorldPos;
+        //Vector3 posNDC;
+        //posNDC.x = posClip.x / -posClip.w;
+        //posNDC.y = posClip.y / -posClip.w;
+        //posNDC.z = -posClip.w;
+
+        //Debug.Log($"view : {posView} posClip : {posClip} posNDC : {posNDC}");
     }
 
     void DrawInstances()
