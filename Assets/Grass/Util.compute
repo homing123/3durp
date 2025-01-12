@@ -1,4 +1,5 @@
 
+
 uint GetTotalIdx(uint groupidx, uint3 groupid, uint3 threadMax, uint groupMaxX)
 {
     uint threadPerGroup = threadMax.x * threadMax.y * threadMax.z;

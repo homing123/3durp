@@ -1,4 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
+#define ThreadMax 256
+#define GroupMax 512
 #include "Util.compute"
 #pragma kernel GetPosition
 
@@ -9,26 +11,18 @@ struct GrassData
     float2 chunkUV;
     float3 position;
 };
-struct Log
-{
-    int ia;
-    int ib;
-    int ic;
-    int id;
-    int ie;
-};
+
 RWStructuredBuffer<GrassData> _GrassBuffer;
-RWStructuredBuffer<Log> _LogBuffer;
 int _GrassAmount;
 int _Scale;
 float3 _Position;
 
-[numthreads(32,32,1)]
+[numthreads(ThreadMax,1,1)]
 void GetPosition(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
     // TODO: insert actual code here!
     int AxisGrassCount = _Scale * _GrassAmount;
-    uint curIdx = GetTotalIdx(t_idx, g_id, uint3(32, 32, 1), uint(512));
+    uint curIdx = GetTotalIdx(t_idx, g_id, uint3(ThreadMax, 1, 1), GroupMax);
  
     if (curIdx >= uint(AxisGrassCount * AxisGrassCount))
     {

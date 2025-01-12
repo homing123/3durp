@@ -1,6 +1,8 @@
 // Each #kernel tells which function to compile; you can have many kernels
-
+#define ThreadMax 256
+#define GroupMax 512
 #pragma kernel FrustumCull
+#pragma kernel PrefixSum
 
 #include "Util.compute"
 // Create a RenderTexture with enableRandomWrite flag and set it
@@ -19,14 +21,14 @@ float4x4 _MatVP;
 float3 _CamPos;
 float _RenderDis;
 
-RWStructuredBuffer<GrassData> _DrawGrassBuffer; 
 
-[numthreads(32, 32, 1)]
+
+[numthreads(ThreadMax, 1, 1)]
 void FrustumCull(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
     // TODO: insert actual code here!
-    uint totalIdx = GetTotalIdx(t_idx, g_id, uint3(32, 32, 1), uint(512));
-    uint grassTotalCount = uint(_GrassAmount * _Scale * _GrassAmount * _Scale);
+    uint totalIdx = GetTotalIdx(t_idx, g_id, uint3(ThreadMax, 1, 1), GroupMax);
+    uint grassTotalCount =_GrassAmount * _Scale * _GrassAmount * _Scale;
     if(totalIdx >= grassTotalCount)
     {
         return;
@@ -43,4 +45,40 @@ void FrustumCull(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
     
     _DrawedBuffer[totalIdx] = isDrawed;
 }
+
+groupshared uint _prefixSumTemp[ThreadMax * 2];
+RWStructuredBuffer<uint> _DrawedSumBuffer;
+
+[numthreads(ThreadMax,1,1)]
+void PrefixSum(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
+{
+    uint totalIdx = GetTotalIdx(t_idx, g_id, uint3(ThreadMax, 1, 1), GroupMax);
+    uint grassTotalCount = _GrassAmount * _Scale * _GrassAmount * _Scale;
+    uint g_idx = g_id.y * ThreadMax + g_id.x;
+
+    _prefixSumTemp[t_idx] = totalIdx >= grassTotalCount ? 0 :  _DrawedBuffer[totalIdx];
+
+    int outputBegin = 0;
+    int inputBegin = ThreadMax;
+    GroupMemoryBarrierWithGroupSync();
+
+    for (int stride = 1; stride < ThreadMax; stride <<= 1)
+    {
+        _prefixSumTemp[inputBegin + t_idx] = t_idx < stride ? _prefixSumTemp[outputBegin + t_idx] : _prefixSumTemp[outputBegin + t_idx] + _prefixSumTemp[outputBegin + t_idx - stride];
+
+        int temp = outputBegin;
+        outputBegin = inputBegin;
+        inputBegin = temp;
+
+        GroupMemoryBarrierWithGroupSync();
+    }
+
+    if (totalIdx < grassTotalCount)
+    {
+        _DrawedSumBuffer[totalIdx] = _prefixSumTemp[outputBegin + t_idx];
+    }
+
+}
+
+
 
