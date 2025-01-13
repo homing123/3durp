@@ -41,14 +41,28 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _DryBias: 0.13
-    - _GrassRandomPosMul: 0.28
-    - _GrassSize: 0.182
+    - _DryBias: 0.079
+    - _GrassRandomPosMul: 0.39
+    - _GrassSize: 0.176
     - _GrassSizeRandomMul: 0.95
     - _TessDivideValue: 1
     - _TessMin: 1
     - _TessRange: 1
+    - _WindAFrequency: 0.57
+    - _WindAIntensity: 0.45
+    - _WindBFrequency: 0.42
+    - _WindBIntensity: -0.53
+    - _WindCFrequency: 0.58
+    - _WindCIntensity: 0.42
     m_Colors:
+    - _BendingInfo: {r: -1, g: -4.42, b: 0.12, a: 0.25}
+    - _BendingPos: {r: 0, g: 0, b: 0, a: 0}
     - _DryGrassColor: {r: 0.8527324, g: 0.9529412, b: 0.43137252, a: 1}
+    - _DryTilingOffset: {r: 5.6, g: 6.05, b: 1.2, a: 0.06}
     - _GrassColor: {r: 1, g: 1, b: 1, a: 1}
+    - _PosTilingOffset: {r: 12.5, g: 14.34, b: 1.49, a: 0.24}
+    - _ScaleTilingOffset: {r: 5.03, g: 4.24, b: 0.25, a: 0.03}
+    - _WindATilingWrap: {r: 7.61, g: 5.69, b: 0.05, a: 0.04}
+    - _WindBTilingWrap: {r: 2.98, g: 2.12, b: 0.09, a: 0.07}
+    - _WindCTilingWrap: {r: 5.64, g: 2.7, b: 0.06, a: 0.04}
   m_BuildTextureStacks: []

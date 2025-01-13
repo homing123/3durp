@@ -21,7 +21,6 @@ public class GrassMaker : MonoBehaviour
     Mesh m_GrassMesh;
     Bounds m_FieldBounds;
 
-    public GameObject m_TestObj;
     struct GrassData
     {
         public Vector2 chunkUV;
@@ -33,7 +32,8 @@ public class GrassMaker : MonoBehaviour
     public Material m_GrassMaterial;
 
     public float m_RenderDis;
-
+    public Texture2D m_NoiseTexture;
+    [SerializeField] float m_RandomPosMul;
 
     [SerializeField] ComputeShader m_CSGrassPoint;
     [SerializeField] ComputeShader m_CSFrustumCulling;
@@ -149,10 +149,12 @@ public class GrassMaker : MonoBehaviour
         m_DrawedIdxBuffer = new ComputeBuffer(m_GrassCount, sizeof(int));
         m_DrawedGrassBuffer = new ComputeBuffer(m_GrassCount, structSize);
 
+        m_CSGrassPoint.SetTexture(0, "_NoiseTex", m_NoiseTexture);
         m_CSGrassPoint.SetInt("_GrassAmount", m_GrassCountPerOne);
         m_CSGrassPoint.SetInt("_Scale", m_Scale);
         m_CSGrassPoint.SetVector("_Position", m_Position);
         m_CSGrassPoint.SetBuffer(0, "_GrassBuffer", m_GrassBuffer);
+        m_CSGrassPoint.SetFloats("_RandomPosMul", m_RandomPosMul);
         m_CSGrassPoint.Dispatch(0, m_GroupX, 1, 1);
 
         m_CSFrustumCulling.SetInt("_GroupCount", m_GroupX);

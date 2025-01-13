@@ -12,32 +12,43 @@ struct GrassData
     float3 position;
 };
 
+Texture2D<float4> _NoiseTex;
+SamplerState sampler_NoiseTex;
+
 RWStructuredBuffer<GrassData> _GrassBuffer;
 int _GrassAmount;
 int _Scale;
 float3 _Position;
-
+float _RandomPosMul;
 [numthreads(ThreadMax,1,1)]
 void GetPosition(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
     // TODO: insert actual code here!
-    int AxisGrassCount = _Scale * _GrassAmount;
+    uint AxisGrassCount = _Scale * _GrassAmount;
     uint curIdx = GetTotalIdx(t_idx, g_id, uint3(ThreadMax, 1, 1), GroupMax);
  
-    if (curIdx >= uint(AxisGrassCount * AxisGrassCount))
+    if (curIdx >= AxisGrassCount * AxisGrassCount)
     {
         return;
     }
-    
-    int grassIdxY = int(curIdx) / AxisGrassCount;
-    int grassIdxX = int(curIdx) % AxisGrassCount;
+
+    uint grassIdxY = uint(curIdx) / AxisGrassCount;
+    uint grassIdxX = uint(curIdx) % AxisGrassCount;
     GrassData grass;
     float dis = AxisGrassCount == 1 ? 0 : (float)_Scale / (AxisGrassCount - 1);
     float2 minxz = _Position.xz - _Scale * 0.5f;
-    minxz += float2(grassIdxX * dis, grassIdxY * dis);
-    
-    grass.position = float3(minxz.x, _Position.y, minxz.y);
-    float duv = 1.0f / AxisGrassCount;
-    grass.chunkUV = float2(duv * grassIdxX, duv * grassIdxY);
+    float2 maxxz = _Position.xz + _Scale * 0.5f;
+    float3 curPos = float3(0, 0, 0);
+    curPos.xz = minxz + float2(grassIdxX * dis, grassIdxY * dis);
+    curPos.y = _Position.y;
+    float2 uv = (curPos.xz - minxz) / (maxxz - minxz); //before the addition randompos
+    float4 noiseTilingOffset = float4(12.5f, 14.34f, 1.49f, 0.24f);
+    float noiseValue = _NoiseTex.SampleLevel(sampler_NoiseTex, uv * noiseTilingOffset.xy + noiseTilingOffset.zw, 0).r;
+    curPos += float3(noiseValue * _RandomPosMul, noiseValue * _RandomPosMul * 0.05f, noiseValue * _RandomPosMul); //addtion randomPos
+
+    uv = (curPos.xz - minxz) / (maxxz - minxz); //affter the addition randompos
+    grass.position = curPos;
+    grass.chunkUV = uv;
+
     _GrassBuffer[curIdx] = grass;
 }

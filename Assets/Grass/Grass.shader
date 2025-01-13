@@ -3,6 +3,9 @@ Shader "Grass/Grass"
     Properties
     {
         _NoiseTex("Noise", 2D) = "white" {}
+        _PosTilingOffset("PosTilingOffset", Vector) = (0,0,0,0)
+        _ScaleTilingOffset("ScaleTilingOffset", Vector) = (0,0,0,0)
+        _DryTilingOffset("DryTilingOffset", Vector) = (0,0,0,0)
         _GrassTex("GrassTex", 2D) = "white" {}
         _GrassColor("GrassColor", Color) = (1,1,1,1)
         _DryGrassColor("DryGrassColor", Color) = (1,1,1,1)
@@ -11,6 +14,18 @@ Shader "Grass/Grass"
         _GrassSizeRandomMul("GrassSizeRandomMul", Range(0, 10)) = 1
 
         _GrassRandomPosMul("RandomPosMul", Range(0, 3)) = 0.3
+
+        _WindATilingWrap("WindATilingWrap", Vector) = (0,0,0,0)
+        _WindAFrequency("WindAFrequency", float) = 0
+        _WindAIntensity("WindAIntensity", float) = 0
+        _WindBTilingWrap("WindBTilingWrap", Vector) = (0,0,0,0)
+        _WindBFrequency("WindBFrequency", float) = 0
+        _WindBIntensity("WindBIntensity", float) = 0
+        _WindCTilingWrap("WindCTilingWrap", Vector) = (0,0,0,0)
+        _WindCFrequency("WindCFrequency", float) = 0
+        _WindCIntensity("WindCIntensity", float) = 0
+
+        _BendingInfo("BendingInfo", Vector) = (0,0,0,0) //x, y = worldPos(x,z), z = radius, w = bendingPower
 
     }
         SubShader
@@ -66,6 +81,9 @@ Shader "Grass/Grass"
                 sampler2D _NoiseTex;
                 CBUFFER_START(UnityPerMaterial)
 
+                float4 _ScaleTilingOffset;
+                float4 _DryTilingOffset;
+
                 float _GrassSize;
                 float _GrassSizeRandomMul;
                 half4 _GrassColor;
@@ -75,41 +93,60 @@ Shader "Grass/Grass"
                 float _GrassRandomPosMul;
                 float4 _GrassTex_ST;
                 float4 _NoiseTex_ST;
+
+                float4 _WindATilingWrap;
+                float _WindAFrequency;
+                float _WindAIntensity;
+                float4 _WindBTilingWrap;
+                float _WindBFrequency;
+                float _WindBIntensity;
+                float4 _WindCTilingWrap;
+                float _WindCFrequency;
+                float _WindCIntensity;
+
+                float4 _BendingInfo;
                 CBUFFER_END
                 VertexOut vs(appdata v, uint instanceID : SV_INSTANCEID)
                 {
-                    float4 sizeST = float4(0.6,0.55, 0.123, 0.757);
-                    float4 posST = float4(5, 5, 0, 0);
-                    float4 randomST = float4(10, 10, 0, 0);
                     float2 chunkUV = _GrassData[instanceID].chunkUV;
 
-                    float randomNoise = tex2Dlod(_NoiseTex, float4(chunkUV * randomST.xy + randomST.zw, 0, 0)).r;
-                    float sizeNoise = tex2Dlod(_NoiseTex, float4(chunkUV * sizeST.xy + sizeST.zw, 0, 0)).r;
-                    float posNoise = tex2Dlod(_NoiseTex, float4(chunkUV * posST.xy + posST.zw, 0, 0)).r;
+                    float dryNoise = tex2Dlod(_NoiseTex, float4(chunkUV * _DryTilingOffset.xy + _DryTilingOffset.zw, 0, 0)).r;
+                    float sizeNoise = tex2Dlod(_NoiseTex, float4(chunkUV * _ScaleTilingOffset.xy + _ScaleTilingOffset.zw, 0, 0)).r;
 
-                    randomNoise = GetNoiseToNormRange(randomNoise);
+                    dryNoise = GetNoiseToNormRange(dryNoise);
                     sizeNoise = GetNoiseToNormRange(sizeNoise);
-                    float posNoiseValue = (GetNoiseToNormRange(posNoise) * 2 - 1) * _GrassRandomPosMul;
 
                     float width = _GrassSize * (1 + sizeNoise * _GrassSizeRandomMul);
                     float height = _GrassSize * (1 + sizeNoise * _GrassSizeRandomMul);
-                    float3 randomAddPosWS = float3(posNoiseValue, posNoiseValue * 0.05f, posNoiseValue);
 
                     VertexOut o;
-                    float3 originPosWS = _GrassData[instanceID].position;
-                    float3 posWS = originPosWS + randomAddPosWS;
+                    float3 pivotPosWS = _GrassData[instanceID].position;
                     float3 camPosWS = GetCameraPositionWS(); 
 
-                    float3 bill_front = normalize(posWS - camPosWS);
+                    float3 bill_front = normalize(pivotPosWS - camPosWS);
                     float3 bill_up = float3(0, 1, 0);
                     float3 bill_right = normalize(cross(bill_up, bill_front));
 
-                    float4 option = float4(sizeNoise, randomNoise, 0, 0);
+                    float3 posWS = pivotPosWS + v.posModel.x * bill_right * width + v.posModel.y * bill_up * height;
 
-                    o.posWorld = posWS + v.posModel.x * bill_right * width + v.posModel.y * bill_up * height;
+                    //wind
+                    float wind = 0;
+                    wind += (sin(_Time.y * _WindAFrequency + dryNoise * _WindATilingWrap.x + dryNoise * _WindATilingWrap.y) * _WindATilingWrap.z + _WindATilingWrap.w) * _WindAIntensity;
+                    wind += (sin(_Time.y * _WindBFrequency + dryNoise * _WindBTilingWrap.x + dryNoise * _WindBTilingWrap.y) * _WindBTilingWrap.z + _WindBTilingWrap.w) * _WindBIntensity;
+                    wind += (sin(_Time.y * _WindCFrequency + dryNoise * _WindCTilingWrap.x + dryNoise * _WindCTilingWrap.y) * _WindCTilingWrap.z + _WindCTilingWrap.w) * _WindCIntensity;
+                    wind *= v.uv.y;
+                    float3 windOffset = bill_right * wind;
+                    posWS += windOffset;
+
+                    //bending
+                    float bendingDis = length(_BendingInfo.xy - posWS.xz);
+                    float bendingOffset = bendingDis < _BendingInfo.z ? _BendingInfo.w : 0;
+                    posWS.y -= bendingOffset;
+
+                    o.posWorld = posWS;
                     o.uv = v.uv;
                     o.posCS = TransformWorldToHClip(o.posWorld);
-                    o.option = float4(sizeNoise, randomNoise, 1, 1);
+                    o.option = float4(sizeNoise, dryNoise, 1, 1);
                     o.id = instanceID;
                     return o;
                 }
@@ -121,28 +158,28 @@ Shader "Grass/Grass"
                     clip(texColor.a - 0.5f);      
                     
                     float heightFactor = i.option.x;
-                    float randomValue = i.option.y;
+                    float dryNoise = i.option.y;
                     
-                    float dryColorFactor = saturate(heightFactor * 0.5f + randomValue * 0.5f);
+                    float dryColorFactor = saturate(heightFactor * 0.5f + dryNoise * 0.5f);
                     float4 dryColor = _DryGrassColor * dryColorFactor + texColor * (1 - dryColorFactor);
                     
                     //randomValue >= _DryBias 일땐 0~0.5 = 검, 0.5~1 = 초 인데
                     //거기서 - randomValue * heightFactor 를 해주기 때문에 즉 크기비례해서 값을 낮추기 때문에 
                     //즉 클수록 검정쪽으로 빼주는게 큼
-                    if (randomValue - randomValue * heightFactor >= _DryBias)
+                    if (dryNoise - dryNoise * heightFactor >= _DryBias)
                     {
                        col.rgb = texColor.rgb;
                     }
                     else
                     {
-                       col.rgb = half4(0, heightFactor, 0, 1);
+                       col.rgb = half3(0, heightFactor, 0);
                        if (i.uv.y < 0.6)
                        {
                            col.rgb = texColor.rgb;
                        }
                        else
                        {
-                           float uvFactorBias = (randomValue - 0.3f) * 0.2f;
+                           float uvFactorBias = (dryNoise - 0.3f) * 0.2f;
                            float uvy = saturate((i.uv.y - 0.6f + uvFactorBias) * 2.5f);
                            col.rgb = dryColor * uvy + (1 - uvy) * texColor.rgb;
                        }
