@@ -49,10 +49,9 @@ Shader "Grass/Grass"
                 {
                     float2 chunkUV;
                     float3 position;
-                    };
+                };
 
-                    StructuredBuffer<GrassData> _GrassData;
-                    StructuredBuffer<int> _DrawedBuffer;
+                StructuredBuffer<GrassData> _GrassData;
                 //현재 noise 텍스쳐가 0.04 ~ 0.57 범위다
                 // -0.07 * 2 = 0~1이 된다. saturate 필수
                 //이거 처리 후에 평균값은 0.3정도 되는듯하다.
@@ -117,8 +116,6 @@ Shader "Grass/Grass"
 
                 half4 fs(VertexOut i) : SV_Target
                 {
-                    int drawed = _DrawedBuffer[i.id];
-                    clip(drawed == 0 ? -1 : 1);
                     half4 col;
                     half4 texColor = tex2D(_GrassTex, i.uv);
                     clip(texColor.a - 0.5f);      

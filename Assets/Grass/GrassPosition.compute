@@ -1,5 +1,5 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#define ThreadMax 256
+#define ThreadMax 512
 #define GroupMax 512
 #include "Util.compute"
 #pragma kernel GetPosition
