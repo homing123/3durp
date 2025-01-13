@@ -242,33 +242,6 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
---- !u!1 &228678845 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2178592577851963425, guid: fbd34215e598c5a41a9ef998ab706d26,
-    type: 3}
-  m_PrefabInstance: {fileID: 275798868355907744}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &228678847
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 228678845}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c2309a5a3b293048acbe11a489beab9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Position: {x: 0, y: 0, z: 0}
-  m_GrassCountPerOne: 10
-  m_Scale: 32
-  m_GrassMaterial: {fileID: 2100000, guid: 18fb8fc200c889a49b6e4a2767168ddb, type: 2}
-  m_RenderDis: 13
-  m_NoiseTexture: {fileID: 2800000, guid: 429f16e3bc455fb4eb9d3b337ef337fc, type: 3}
-  m_RandomPosMul: 0.39
-  m_CSGrassPoint: {fileID: 7200000, guid: 0f168f8e90b509a4a920149e9c861b4a, type: 3}
-  m_CSFrustumCulling: {fileID: 7200000, guid: 31435e4a6025b474f8199cca3946cf49, type: 3}
 --- !u!1 &309327141
 GameObject:
   m_ObjectHideFlags: 0
@@ -445,6 +418,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Speed: 1.3
   m_RotSpeed: 720
+  m_BendingRadius: 0.5
+  m_BendingTime: 0.5
 --- !u!1001 &275798868355907744
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -453,6 +428,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 118147126256115746, guid: fbd34215e598c5a41a9ef998ab706d26,
+        type: 3}
+      propertyPath: m_GrassMat
+      value: 
+      objectReference: {fileID: 2100000, guid: 18fb8fc200c889a49b6e4a2767168ddb, type: 2}
+    - target: {fileID: 118147126256115746, guid: fbd34215e598c5a41a9ef998ab706d26,
+        type: 3}
+      propertyPath: m_CSBending
+      value: 
+      objectReference: {fileID: 7200000, guid: 42b196629d3959a4aba4d0bc25d028b5, type: 3}
+    - target: {fileID: 118147126256115746, guid: fbd34215e598c5a41a9ef998ab706d26,
+        type: 3}
+      propertyPath: m_BendingPower
+      value: 0.63
+      objectReference: {fileID: 0}
+    - target: {fileID: 118147126256115746, guid: fbd34215e598c5a41a9ef998ab706d26,
+        type: 3}
+      propertyPath: m_BendingRenderDis
+      value: 13
+      objectReference: {fileID: 0}
     - target: {fileID: 2178592577851963425, guid: fbd34215e598c5a41a9ef998ab706d26,
         type: 3}
       propertyPath: m_Name
@@ -508,24 +503,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4756463973309926181, guid: fbd34215e598c5a41a9ef998ab706d26,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -20
-      objectReference: {fileID: 0}
-    - target: {fileID: 4756463973309926181, guid: fbd34215e598c5a41a9ef998ab706d26,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2178592577851963425, guid: fbd34215e598c5a41a9ef998ab706d26,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 228678847}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fbd34215e598c5a41a9ef998ab706d26, type: 3}
 --- !u!1001 &1068952862526279124
 PrefabInstance:

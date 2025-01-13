@@ -33,6 +33,9 @@ public class Util
             return angle - 360;
         }
         return angle;
-
+    }
+    public static int StructSize(System.Type type)
+    {
+        return System.Runtime.InteropServices.Marshal.SizeOf(type);
     }
 }

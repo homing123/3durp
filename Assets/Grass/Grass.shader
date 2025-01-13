@@ -13,8 +13,6 @@ Shader "Grass/Grass"
         _GrassSize("GrassSize", Range(0.01, 1)) = 0.2
         _GrassSizeRandomMul("GrassSizeRandomMul", Range(0, 10)) = 1
 
-        _GrassRandomPosMul("RandomPosMul", Range(0, 3)) = 0.3
-
         _WindATilingWrap("WindATilingWrap", Vector) = (0,0,0,0)
         _WindAFrequency("WindAFrequency", float) = 0
         _WindAIntensity("WindAIntensity", float) = 0
@@ -25,7 +23,7 @@ Shader "Grass/Grass"
         _WindCFrequency("WindCFrequency", float) = 0
         _WindCIntensity("WindCIntensity", float) = 0
 
-        _BendingInfo("BendingInfo", Vector) = (0,0,0,0) //x, y = worldPos(x,z), z = radius, w = bendingPower
+  
 
     }
         SubShader
@@ -66,7 +64,9 @@ Shader "Grass/Grass"
                     float3 position;
                 };
 
-                StructuredBuffer<GrassData> _GrassData;
+                StructuredBuffer<GrassData> _GrassBuffer;
+
+                StructuredBuffer<float> _BendingTexBuffer;
                 //현재 noise 텍스쳐가 0.04 ~ 0.57 범위다
                 // -0.07 * 2 = 0~1이 된다. saturate 필수
                 //이거 처리 후에 평균값은 0.3정도 되는듯하다.
@@ -90,7 +90,6 @@ Shader "Grass/Grass"
                 half4 _DryGrassColor;
                 float _DryBias;
 
-                float _GrassRandomPosMul;
                 float4 _GrassTex_ST;
                 float4 _NoiseTex_ST;
 
@@ -104,11 +103,11 @@ Shader "Grass/Grass"
                 float _WindCFrequency;
                 float _WindCIntensity;
 
-                float4 _BendingInfo;
+                float _BendingRenderDis;
                 CBUFFER_END
                 VertexOut vs(appdata v, uint instanceID : SV_INSTANCEID)
                 {
-                    float2 chunkUV = _GrassData[instanceID].chunkUV;
+                    float2 chunkUV = _GrassBuffer[instanceID].chunkUV;
 
                     float dryNoise = tex2Dlod(_NoiseTex, float4(chunkUV * _DryTilingOffset.xy + _DryTilingOffset.zw, 0, 0)).r;
                     float sizeNoise = tex2Dlod(_NoiseTex, float4(chunkUV * _ScaleTilingOffset.xy + _ScaleTilingOffset.zw, 0, 0)).r;
@@ -120,7 +119,7 @@ Shader "Grass/Grass"
                     float height = _GrassSize * (1 + sizeNoise * _GrassSizeRandomMul);
 
                     VertexOut o;
-                    float3 pivotPosWS = _GrassData[instanceID].position;
+                    float3 pivotPosWS = _GrassBuffer[instanceID].position;
                     float3 camPosWS = GetCameraPositionWS(); 
 
                     float3 bill_front = normalize(pivotPosWS - camPosWS);
@@ -139,9 +138,15 @@ Shader "Grass/Grass"
                     posWS += windOffset;
 
                     //bending
-                    float bendingDis = length(_BendingInfo.xy - posWS.xz);
-                    float bendingOffset = bendingDis < _BendingInfo.z ? _BendingInfo.w : 0;
-                    posWS.y -= bendingOffset;
+                    float2 bendingTexMinxz = camPosWS.xz - _BendingRenderDis;
+                    float2 bendinguv = (posWS.xz - bendingTexMinxz) / (_BendingRenderDis * 2);
+                    if (bendinguv.x >= 0 && bendinguv.x <= 1 && bendinguv.y >= 0 && bendinguv.y <= 1)
+                    {
+                        int2 bendingTexIdx = int2(bendinguv.x * 512, bendinguv.y * 512);
+                        float bendingValue = _BendingTexBuffer[bendingTexIdx.x + 512 * bendingTexIdx.y];
+
+                        posWS.y -= bendingValue;
+                    }
 
                     o.posWorld = posWS;
                     o.uv = v.uv;

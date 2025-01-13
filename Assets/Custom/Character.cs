@@ -7,6 +7,8 @@ public class Character : MonoBehaviour
 
     [SerializeField] float m_Speed;
     [SerializeField] float m_RotSpeed;
+    [SerializeField] float m_BendingRadius;
+    [SerializeField] float m_BendingTime;
     // Start is called before the first frame update
     void Start()
     {
@@ -65,6 +67,13 @@ public class Character : MonoBehaviour
                 }
                 moveDir.Normalize();
                 transform.position += moveDir * Time.deltaTime * m_Speed;
+                GrassBendingM.Ins.AddBending(new BendingData()
+                {
+                    pos = new Vector2(transform.position.x, transform.position.z),
+                    radius = m_BendingRadius,
+                    time = m_BendingTime
+                });
+                //GrassBendingM.Ins.SetBendingPos(transform.position);
             }
         }
     }

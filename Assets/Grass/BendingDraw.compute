@@ -1,0 +1,46 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#include "Util.compute"
+#pragma kernel DrawBendingBuffer
+#define TexWidth 512
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+struct BendingData
+{
+    float2 pos;
+    float radius;
+    float time;
+};
+RWStructuredBuffer<float> _BendingTexBuffer;
+uint _BendingDataCount;
+float2 _CamPos;
+float _RenderDis;
+float _BendingPower;
+
+StructuredBuffer<BendingData> _BendingBuffer;
+
+[numthreads(512,1,1)]
+void DrawBendingBuffer(uint t_id : SV_GroupIndex, uint3 g_id : SV_GroupID)
+{
+    uint idx = t_id + g_id.x * TexWidth;
+    float d = _RenderDis * 2 / TexWidth;
+    float2 minxz = _CamPos - float2(_RenderDis, _RenderDis);
+    
+    float2 posWS = minxz + d * float2(t_id, g_id.x);
+
+    for (uint i = 0; i < _BendingDataCount; i++)
+    {
+        BendingData curData = _BendingBuffer[i];
+        float2 v = curData.pos - posWS;
+        float disSquare = v.x * v.x + v.y * v.y;
+        _BendingTexBuffer[idx] = disSquare < curData.radius * curData.radius ? saturate(pow(curData.time, 2)) * _BendingPower : 0;
+        //if (disSquare < radius * radius)
+        //{
+        //    
+        //    float timeSquare = saturate(pow(curData.time, 2));
+        //    _BendingTexBuffer[idx] = timeSquare * _BendingPower;
+        //}
+    }
+   
+}

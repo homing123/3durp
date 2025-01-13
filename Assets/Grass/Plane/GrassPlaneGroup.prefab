@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3767674149358713732}
+  - component: {fileID: 5142259091106689435}
+  - component: {fileID: 118147126256115746}
   m_Layer: 0
   m_Name: GrassPlaneGroup
   m_TagString: Untagged
@@ -36,6 +38,39 @@ Transform:
   - {fileID: 2155383165419959772}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5142259091106689435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2178592577851963425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c2309a5a3b293048acbe11a489beab9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Position: {x: 0, y: 0, z: 0}
+  m_GrassCountPerOne: 10
+  m_Scale: 32
+  m_GrassMaterial: {fileID: 2100000, guid: 18fb8fc200c889a49b6e4a2767168ddb, type: 2}
+  m_RenderDis: 13
+  m_NoiseTexture: {fileID: 2800000, guid: 429f16e3bc455fb4eb9d3b337ef337fc, type: 3}
+  m_RandomPosMul: 0.39
+  m_CSGrassPoint: {fileID: 7200000, guid: 0f168f8e90b509a4a920149e9c861b4a, type: 3}
+  m_CSFrustumCulling: {fileID: 7200000, guid: 31435e4a6025b474f8199cca3946cf49, type: 3}
+--- !u!114 &118147126256115746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2178592577851963425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d7b3e18dce566a4fa79750d46c77467, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1955800105534283910
 PrefabInstance:
   m_ObjectHideFlags: 0

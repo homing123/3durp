@@ -55,7 +55,7 @@ Material:
     - _WindCFrequency: 0.58
     - _WindCIntensity: 0.42
     m_Colors:
-    - _BendingInfo: {r: -1, g: -4.42, b: 0.12, a: 0.25}
+    - _BendingInfo: {r: -2.8605397, g: 8.636442, b: 0, a: 0}
     - _BendingPos: {r: 0, g: 0, b: 0, a: 0}
     - _DryGrassColor: {r: 0.8527324, g: 0.9529412, b: 0.43137252, a: 1}
     - _DryTilingOffset: {r: 5.6, g: 6.05, b: 1.2, a: 0.06}
