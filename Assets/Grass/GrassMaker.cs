@@ -122,7 +122,7 @@ public class GrassMaker : MonoBehaviour
         m_GrassCount = m_GrassAxisCount * m_GrassAxisCount;
         if(m_GrassCount > ThreadMax * GroupMaxX)
         {
-            Debug.Log("TooLarge");
+            Debug.Log("TooLarge " + m_GrassCount);
             return;
             //int remain = m_GrassCount % (ThreadMax * GroupMaxX);
             //int diminish = m_GrassCount / (ThreadMax * GroupMaxX);

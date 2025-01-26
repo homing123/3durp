@@ -1,11 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public class BendingData
+public struct BendingData
 {
     public Vector2 pos;
     public float radius;
     public float time;
+    public BendingData(Vector2 _pos, float _radius, float _time)
+    {
+        pos = _pos;
+        radius = _radius;
+        time = _time;
+    }
 }
 public class GrassBendingM : MonoBehaviour
 {
@@ -34,8 +40,10 @@ public class GrassBendingM : MonoBehaviour
         {
             if(data.pos == m_BendingList[i].pos)
             {
-                m_BendingList[i].radius = data.radius > m_BendingList[i].radius ? data.radius : m_BendingList[i].radius;
-                m_BendingList[i].time = data.time > m_BendingList[i].time ? data.time : m_BendingList[i].time;
+                float radius = data.radius > m_BendingList[i].radius ? data.radius : m_BendingList[i].radius;
+                float time = data.time > m_BendingList[i].time ? data.time : m_BendingList[i].time;
+                Vector2 pos = data.pos;
+                m_BendingList[i] = new BendingData(pos, radius, time);
                 return;
             }
         }
@@ -67,27 +75,44 @@ public class GrassBendingM : MonoBehaviour
         m_BendingBuffer = new ComputeBuffer(BendingDataMaxCount, sizeof(float) * 4);
         m_CSBending.SetBuffer(0, "_BendingTexBuffer", m_BendingTexBuffer);
         m_CSBending.SetBuffer(0, "_BendingBuffer", m_BendingBuffer);
+        m_GrassMat.SetBuffer("_BendingTexBuffer", m_BendingTexBuffer);
+
     }
     void UpdateBendingTex()
     {
+        m_BendingBuffer.SetData(m_BendingList.ToArray());
         m_CSBending.SetInt("_BendingDataCount", m_BendingList.Count);
-        m_CSBending.SetVector("_CamPos", Camera.main.transform.position);
+        m_CSBending.SetVector("_CamPos", new Vector2(Camera.main.transform.position.x, Camera.main.transform.position.z));
         m_CSBending.SetFloat("_RenderDis", m_BendingRenderDis);
         m_CSBending.SetFloat("_BendingPower", m_BendingPower);
         m_CSBending.Dispatch(0, TexWidth, 1, 1);
 
-        m_GrassMat.SetBuffer("_BendingTexBuffer", m_BendingTexBuffer);
         m_GrassMat.SetFloat("_BendingRenderDis", m_BendingRenderDis);
+
+        //float[] arr_tex = new float[512 * 512];
+        //m_BendingTexBuffer.GetData(arr_tex);
+        //for(int i=0;i<512 * 512;i++)
+        //{
+        //    if (arr_tex[i] > 0)
+        //    {
+        //        Debug.Log($"{i} {arr_tex[i]}");
+        //    }
+        //}
     }
     void UpdateBendingDataList()
     {
         for (int i = 0; i < m_BendingList.Count; i++)
         {
-            m_BendingList[i].time -= Time.deltaTime;
-            if (m_BendingList[i].time <= 0)
+            float time = m_BendingList[i].time;
+            time -= Time.deltaTime;
+            if (time <= 0)
             {
                 m_BendingList.RemoveAt(i);
                 i--;
+            }
+            else
+            {
+                m_BendingList[i] = new BendingData(m_BendingList[i].pos, m_BendingList[i].radius, time);
             }
 
         }

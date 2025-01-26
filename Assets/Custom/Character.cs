@@ -2,6 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum E_RunType
+{
+    slow,
+    normal,
+    fast,
+    ninja
+}
+public enum E_Anim
+{
+    Idle,
+    run
+}
 public class Character : MonoBehaviour
 {
 
@@ -9,10 +21,21 @@ public class Character : MonoBehaviour
     [SerializeField] float m_RotSpeed;
     [SerializeField] float m_BendingRadius;
     [SerializeField] float m_BendingTime;
+    [SerializeField] Animator m_Anim;
+    [SerializeField] E_RunType m_RunType;
+
+    E_Anim m_CurAnim = E_Anim.Idle;
+
+    const string AnimTrigger_Idle = "Idle";
+    const string AnimTrigger_NormalRun = "NormalRun";
+    const string AnimTrigger_SlowRun = "SlowRun";
+    const string AnimTrigger_FastRun = "FastRun";
+    const string AnimTrigger_NinjaRun = "NinjaRun";
+
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -67,14 +90,52 @@ public class Character : MonoBehaviour
                 }
                 moveDir.Normalize();
                 transform.position += moveDir * Time.deltaTime * m_Speed;
-                GrassBendingM.Ins.AddBending(new BendingData()
-                {
-                    pos = new Vector2(transform.position.x, transform.position.z),
-                    radius = m_BendingRadius,
-                    time = m_BendingTime
-                });
-                //GrassBendingM.Ins.SetBendingPos(transform.position);
+
+                ChangeAnim(E_Anim.run);
             }
+            else
+            {
+                ChangeAnim(E_Anim.Idle);
+            }
+
+            GrassBendingM.Ins.AddBending(new BendingData()
+            {
+                pos = new Vector2(transform.position.x, transform.position.z),
+                radius = m_BendingRadius,
+                time = m_BendingTime
+            });
         }
     }
+
+    void ChangeAnim(E_Anim anim)
+    {
+        if(anim != m_CurAnim)
+        {
+            switch(anim)
+            {
+                case E_Anim.Idle:
+                    m_Anim.SetTrigger(AnimTrigger_Idle);
+                    break;
+                case E_Anim.run:
+                    switch(m_RunType)
+                    {
+                        case E_RunType.slow:
+                            m_Anim.SetTrigger(AnimTrigger_SlowRun);
+                            break;
+                        case E_RunType.normal:
+                            m_Anim.SetTrigger(AnimTrigger_NormalRun);
+                            break;
+                        case E_RunType.fast:
+                            m_Anim.SetTrigger(AnimTrigger_FastRun);
+                            break;
+                        case E_RunType.ninja:
+                            m_Anim.SetTrigger(AnimTrigger_NinjaRun);
+                            break;
+                    }
+                    break;
+            }
+            m_CurAnim = anim;
+        }
+    }
+
 }

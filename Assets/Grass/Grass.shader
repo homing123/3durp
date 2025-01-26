@@ -128,25 +128,31 @@ Shader "Grass/Grass"
 
                     float3 posWS = pivotPosWS + v.posModel.x * bill_right * width + v.posModel.y * bill_up * height;
 
-                    //wind
-                    float wind = 0;
-                    wind += (sin(_Time.y * _WindAFrequency + dryNoise * _WindATilingWrap.x + dryNoise * _WindATilingWrap.y) * _WindATilingWrap.z + _WindATilingWrap.w) * _WindAIntensity;
-                    wind += (sin(_Time.y * _WindBFrequency + dryNoise * _WindBTilingWrap.x + dryNoise * _WindBTilingWrap.y) * _WindBTilingWrap.z + _WindBTilingWrap.w) * _WindBIntensity;
-                    wind += (sin(_Time.y * _WindCFrequency + dryNoise * _WindCTilingWrap.x + dryNoise * _WindCTilingWrap.y) * _WindCTilingWrap.z + _WindCTilingWrap.w) * _WindCIntensity;
-                    wind *= v.uv.y;
-                    float3 windOffset = bill_right * wind;
-                    posWS += windOffset;
-
                     //bending
                     float2 bendingTexMinxz = camPosWS.xz - _BendingRenderDis;
                     float2 bendinguv = (posWS.xz - bendingTexMinxz) / (_BendingRenderDis * 2);
+                    float bendingValue = 0;
                     if (bendinguv.x >= 0 && bendinguv.x <= 1 && bendinguv.y >= 0 && bendinguv.y <= 1)
                     {
                         int2 bendingTexIdx = int2(bendinguv.x * 512, bendinguv.y * 512);
-                        float bendingValue = _BendingTexBuffer[bendingTexIdx.x + 512 * bendingTexIdx.y];
+                        bendingValue = _BendingTexBuffer[bendingTexIdx.x + 512 * bendingTexIdx.y];
 
                         posWS.y -= bendingValue;
                     }
+
+                    if (bendingValue == 0)
+                    {
+                        //wind
+                        float wind = 0;
+                        wind += (sin(_Time.y * _WindAFrequency + dryNoise * _WindATilingWrap.x + dryNoise * _WindATilingWrap.y) * _WindATilingWrap.z + _WindATilingWrap.w) * _WindAIntensity;
+                        wind += (sin(_Time.y * _WindBFrequency + dryNoise * _WindBTilingWrap.x + dryNoise * _WindBTilingWrap.y) * _WindBTilingWrap.z + _WindBTilingWrap.w) * _WindBIntensity;
+                        wind += (sin(_Time.y * _WindCFrequency + dryNoise * _WindCTilingWrap.x + dryNoise * _WindCTilingWrap.y) * _WindCTilingWrap.z + _WindCTilingWrap.w) * _WindCIntensity;
+                        wind *= v.uv.y;
+                        float3 windOffset = bill_right * wind;
+                        posWS += windOffset;
+                    }
+
+                  
 
                     o.posWorld = posWS;
                     o.uv = v.uv;
@@ -160,7 +166,7 @@ Shader "Grass/Grass"
                 {
                     half4 col;
                     half4 texColor = tex2D(_GrassTex, i.uv);
-                    clip(texColor.a - 0.5f);      
+                    clip(0.7 - (texColor.r + texColor.g + texColor.b));      
                     
                     float heightFactor = i.option.x;
                     float dryNoise = i.option.y;
