@@ -41,10 +41,15 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Ambient: 0.184
     - _DryBias: 0.306
     - _GrassRandomPosMul: 0.39
     - _GrassSize: 0.176
     - _GrassSizeRandomMul: 0.95
+    - _OcclusionBias: 1
+    - _OcclusionHeightBottom: 0.03
+    - _OcclusionHeightTop: 0.05
+    - _OcclusionStrength: 0.244
     - _TessDivideValue: 1
     - _TessMin: 1
     - _TessRange: 1

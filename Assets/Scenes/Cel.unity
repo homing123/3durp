@@ -142,10 +142,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 120
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &55737033 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5569008813136703269, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -164,10 +160,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 55
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &57909089 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1375034773325532031, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -186,10 +178,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 122
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &67061950 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 914497907247644696, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -208,10 +196,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 164
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &76192773 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3864835607561340695, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -230,10 +214,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 14
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &92570789 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 717222110616777025, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -252,10 +232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 127
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &98482667 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7467498433197537639, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -274,10 +250,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 90
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &99973729 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 521301436997103669, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -296,10 +268,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 136
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &103028841 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3410283326550435659, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -318,10 +286,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 67
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &106289142 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8294743938902123964, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -340,10 +304,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 60
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &117148043 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2036133590081877928, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -362,10 +322,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 0
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &145195092 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3325480668940123881, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -384,10 +340,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 75
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &160451376 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3667595618477878960, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -406,10 +358,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 87
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &161042531
 GameObject:
   m_ObjectHideFlags: 0
@@ -498,13 +446,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 161042531}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40673202, y: -0.24614422, z: 0.11477822, w: 0.87224317}
-  m_LocalPosition: {x: 0.73, y: 2.04, z: -0.16}
+  m_LocalRotation: {x: 0.83226275, y: -0.053069007, z: -0.389438, w: 0.39097378}
+  m_LocalPosition: {x: -1.318, y: 1.986, z: -5.777}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: -31.518, z: 0}
+  m_LocalEulerAnglesHint: {x: 142.45, y: 60.454002, z: 29.703995}
 --- !u!114 &161042534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -546,10 +494,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 111
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &189048498 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4147394335029198065, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -568,10 +512,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 22
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &191570441 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5005756598670471180, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -590,10 +530,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 66
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &192857704 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2015138232849655887, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -612,10 +548,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 79
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &226731959 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6987680896295275495, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -634,10 +566,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 133
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &234850952 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 198829580900219971, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -656,10 +584,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 96
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &237111899 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2839592159557853241, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -678,10 +602,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 89
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &264267550 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 646343522255652161, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -700,10 +620,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 61
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &265940736 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6595592685484202340, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -722,10 +638,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 103
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &285404968 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2610917152041725081, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -744,10 +656,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 108
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &290801331 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1972784135619949093, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -766,10 +674,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 2
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &295164427 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4549468941108504659, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -788,10 +692,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 138
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &296975673 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6981735470910722051, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -810,10 +710,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 143
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &305556094 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7667230094513249964, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -832,10 +728,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 97
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &309327141
 GameObject:
   m_ObjectHideFlags: 0
@@ -987,11 +879,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Character: {fileID: 717213122}
-  m_Height: 1.13
-  m_Distance: 1.02
-  m_RotX: 24.4
+  m_Height: 1.09
+  m_Distance: 1.41
+  m_RotX: 17.6
   m_Speed: 1.92
-  m_MouseSensitivity: 160
+  m_MouseSensitivity: 720
 --- !u!1 &337344762 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2397401078802011046, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1010,10 +902,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 49
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &357881738 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7026908168106455360, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1032,10 +920,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 4
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &359999563 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2811668452080627614, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1054,10 +938,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 169
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &368176223 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6584121065394819055, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1076,10 +956,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 109
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &371443103 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1803601290781765060, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1098,10 +974,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 151
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &426646857 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3156530275176616509, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1120,10 +992,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 149
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &434616063 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3427110181015826453, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1142,10 +1010,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 53
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &443179818 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6207671739764900015, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1164,10 +1028,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 156
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &445761007 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2581445108239584564, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1186,10 +1046,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 27
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &449588280 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3452683324172758251, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1208,10 +1064,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 91
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &455245563 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4144006358692194651, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1230,10 +1082,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 167
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &485175569 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 601893685683283466, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1252,10 +1100,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 31
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &485567632 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3896362607397491062, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1274,10 +1118,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 51
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &492447298 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7028566843199545633, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1296,10 +1136,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 146
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &503872767 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4935586174152256495, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1318,10 +1154,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 64
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &512379513 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8137162790479456179, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1340,10 +1172,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 45
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &516035107 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2086984599032845590, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1362,10 +1190,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 99
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &538817447 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8771762969023825265, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1384,10 +1208,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 40
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &546613547 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4060679984560859292, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1406,10 +1226,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 123
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &550273281 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1513343731264038795, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1428,10 +1244,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 17
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &553550373 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7432131841983440758, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1450,10 +1262,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 12
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &561269813 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5357827983922342015, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1472,10 +1280,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 9
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &598763196 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8192148846410300005, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1494,10 +1298,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 130
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &606903165 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2298448073032375320, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1516,10 +1316,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 32
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &630111486 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2114313453502542106, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1538,10 +1334,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 98
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &633248788 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2236294884433314047, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1560,10 +1352,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 84
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &647343199 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5303856863845931789, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1582,10 +1370,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 93
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &656344316 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2741732986216445608, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1604,10 +1388,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 8
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &665298799 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8989628901378195532, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1626,10 +1406,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 35
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &682070297 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1434339952433226985, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1648,10 +1424,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 47
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &687985927 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5414332431660482770, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1670,10 +1442,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 62
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &693400255 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3144092973457730181, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1692,10 +1460,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 81
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &699924140 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6914894925742215790, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1714,10 +1478,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 58
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &715685984 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1379244454012123966, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1736,10 +1496,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 145
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &717213120 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8298890504007170068, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -1797,667 +1553,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dbcb8f64d6a7a640a973b2df934eb10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nextEdgeMaterial_Pass4: {fileID: 1286162658}
-  nextEdgeMaterial_Pass8: {fileID: 1491077627}
-  nextEdgePass: 0
-  nextEdgeSize: 1
-  nextEdgeColor: {r: 0.4, g: 1, b: 1, a: 1}
-  supportNEXTEdge: 0
-  importScale: 0.01
-  initializeOnAwake: 0
-  postfixRenderQueue: 1
-  renderQueueAfterSkybox: 0
-  updateWhenOffscreen: 1
-  animEnabled: 1
-  animSyncToAudio: 1
-  modelFile: {fileID: 4900000, guid: fc55e02bfc9bc134490363237de2908d, type: 3}
-  indexFile: {fileID: 4900000, guid: fea22e69d7db5fc4181a5c5bd1782c34, type: 3}
-  vertexFile: {fileID: 4900000, guid: eb4e448ed59c72b4aa78bb6a9eaf4f17, type: 3}
-  audioSource: {fileID: 0}
-  animDelayedAwakeFrame: 1
-  boneInherenceEnabled: 0
-  boneMorphEnabled: 0
-  pphEnabled: 1
-  pphEnabledNoAnimation: 1
-  pphShoulderEnabled: 1
-  pphShoulderFixRate: 0.7
-  ikEnabled: 0
-  fullBodyIKEnabled: 0
-  vertexMorphEnabled: 1
-  materialMorphEnabled: 1
-  blendShapesEnabled: 1
-  xdefEnabled: 0
-  xdefNormalEnabled: 0
-  xdefMobileEnabled: 0
-  generatedColliderMargin: 0.01
-  tessEnabled: 1
-  tessEdgeLengthRate: 1
-  tessPhongStrengthRate: 1
-  tessExtrusionAmountRate: 1
-  physicsEngine: 0
-  bulletPhysics:
-    joinLocalWorld: 1
-    useOriginalScale: 1
-    useCustomResetTime: 0
-    resetMorphTime: 1.8
-    resetWaitTime: 1.2
-    worldProperty:
-      accurateStep: 1
-      framePerSecond: 0
-      resetFrameRate: 0
-      limitDeltaFrames: 0
-      axisSweepDistance: 0
-      gravityScale: 10
-      gravityNoise: 0
-      gravityDirection: {x: 0, y: -1, z: 0}
-      vertexScale: 8
-      importScale: 0.01
-      worldSolverInfoNumIterations: 0
-      worldSolverInfoSplitImpulse: 1
-      worldAddFloorPlane: 0
-      optimizeSettings: 1
-      multiThreading: 1
-      multiThreadingSynchronize: 1
-      parallelDispatcher: 0
-      parallelSolver: 0
-    mmdModelProperty:
-      worldScale: 0
-      importScale: 0
-      lossyScale: {x: 1, y: 1, z: 1}
-      keepIKTargetBoneFlag: -1
-      forceIKResetBoneFlag: -1
-      enableIKSecondPassFlag: -1
-      secondPassLimitAngle: -1
-      enableIKInnerLockFlag: -1
-      enableIKInnerLockKneeFlag: -1
-      innerLockKneeClamp: -1
-      innerLockKneeRatioL: -1
-      innerLockKneeRatioU: -1
-      innerLockKneeScale: -1
-      enableIKMuscleFlag: -1
-      enableIKMuscleHipFlag: -1
-      enableIKMuscleFootFlag: -1
-      muscleHipUpperXAngle: -1
-      muscleHipLowerXAngle: -1
-      muscleHipInnerYAngle: -1
-      muscleHipOuterYAngle: -1
-      muscleHipInnerZAngle: -1
-      muscleHipOuterZAngle: -1
-      muscleFootUpperXAngle: -1
-      muscleFootLowerXAngle: -1
-      muscleFootInnerYAngle: -1
-      muscleFootOuterYAngle: -1
-      muscleFootInnerZAngle: -1
-      muscleFootOuterZAngle: -1
-      rigidBodyIsAdditionalDamping: 1
-      rigidBodyIsEnableSleeping: 0
-      rigidBodyIsUseCcd: 1
-      rigidBodyCcdMotionThreshold: 0.1
-      rigidBodyShapeScale: 1
-      rigidBodyMassRate: 1
-      rigidBodyLinearDampingRate: 1
-      rigidBodyAngularDampingRate: 1
-      rigidBodyRestitutionRate: 1
-      rigidBodyFrictionRate: 1
-      rigidBodyAntiJitterRate: 1
-      rigidBodyAntiJitterRateOnKinematic: 1
-      rigidBodyPreBoneAlignmentLimitLength: 0.01
-      rigidBodyPreBoneAlignmentLossRate: 0.01
-      rigidBodyPostBoneAlignmentLimitLength: 0.01
-      rigidBodyPostBoneAlignmentLossRate: 0.01
-      rigidBodyLinearDampingLossRate: -1
-      rigidBodyLinearDampingLimit: -1
-      rigidBodyAngularDampingLossRate: -1
-      rigidBodyAngularDampingLimit: -1
-      rigidBodyLinearVelocityLimit: -1
-      rigidBodyAngularVelocityLimit: -1
-      rigidBodyIsUseForceAngularVelocityLimit: 1
-      rigidBodyIsUseForceAngularAccelerationLimit: 1
-      rigidBodyForceAngularVelocityLimit: 600
-      rigidBodyIsAdditionalCollider: 0
-      rigidBodyAdditionalColliderBias: 0.99
-      rigidBodyIsForceTranslate: 1
-      jointRootAdditionalLimitAngle: -1
-      jointAdditionalLimitAngle: -1
-      jointAdditionalLimitForcibly: 0
-  rigidBodyList:
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  animList: []
-  editorViewPage: 2
-  editorViewMorphBits: 15
-  editorViewRigidBodies: 0
-  editorViewMorphNameType: 0
 --- !u!1 &721911699 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 347612911947646988, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2476,10 +1571,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 38
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &750268244 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8158531591130979662, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2498,10 +1589,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 15
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &763340908 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5284548638461067411, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2520,10 +1607,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 48
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &774051952 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4902681601719693014, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2542,10 +1625,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 131
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &779646639 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 282538214958695486, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2564,10 +1643,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 116
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &788306520 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7621065489882699764, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2586,10 +1661,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 83
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &796532652 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4573651901249700521, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2608,10 +1679,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 114
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &805537846 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6058933843826857890, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2630,10 +1697,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 150
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &805740079 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8915626413530800079, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2652,10 +1715,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 33
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &808415513 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1715015817052588740, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2674,10 +1733,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 5
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &824261616 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5844708555711439145, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2696,10 +1751,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 19
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &842369883 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 827861045821812063, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2718,10 +1769,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 72
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &853638445 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5774494482689076946, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2740,10 +1787,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 21
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &857047809 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7636140636579000050, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2762,10 +1805,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 94
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &867800767 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3820748424836510908, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2784,10 +1823,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 6
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &872163398 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6472512235622636635, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2806,10 +1841,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 65
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &877560121 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4902702003981929010, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2828,10 +1859,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 26
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &899735602 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9192304834222974886, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2850,10 +1877,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 1
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &920761039 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6848039626123354000, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2872,10 +1895,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 102
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &927772655 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4625738175431441236, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2894,10 +1913,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 34
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &929053473 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3948388360482387930, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2916,10 +1931,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 152
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &930148321 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 499053097959516345, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2938,10 +1949,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 63
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &940252282 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4475909472106864355, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2960,10 +1967,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 147
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &943957436 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2375738869333123991, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -2982,10 +1985,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 56
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &962514719 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1189735066659153313, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3004,10 +2003,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 95
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &976502786 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8545533604514925032, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3026,10 +2021,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 74
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &982361294 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 133360721049696233, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3048,10 +2039,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 171
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1017945658 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4320164772999259301, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3070,10 +2057,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 52
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1075615134 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8566462648405343020, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3092,10 +2075,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 129
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1100806437 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4524167332757297288, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3114,10 +2093,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 118
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1111378062 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7875521149633805511, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3136,10 +2111,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 36
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1114084574 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7708687171422850099, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3158,10 +2129,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 160
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1134760570 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8546192888353100558, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3180,10 +2147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 29
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1162065766 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5633193362116471595, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3202,10 +2165,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 69
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1164839825 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 609324373843471483, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3224,10 +2183,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 3
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1167331936 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6800684712849877697, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3246,10 +2201,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 82
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1168887240 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2777434511473700773, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3268,10 +2219,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 113
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1173583596 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7351417844421300248, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3290,10 +2237,111 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 76
-  ikEnabled: 0
-  ikWeight: 1
+--- !u!1 &1194403985
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1194403989}
+  - component: {fileID: 1194403988}
+  - component: {fileID: 1194403987}
+  - component: {fileID: 1194403986}
+  m_Layer: 0
+  m_Name: Cube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &1194403986
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1194403985}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &1194403987
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1194403985}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1194403988
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1194403985}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1194403989
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1194403985}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.54, y: -0.327, z: -5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1196350632 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 988250745583426659, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3312,10 +2360,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 125
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1207823610 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7089860740604115078, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3334,10 +2378,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 54
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1236779079 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7345720112864563242, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3356,10 +2396,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 68
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1280444222 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1073112537681383548, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3378,40 +2414,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 25
-  ikEnabled: 0
-  ikWeight: 1
---- !u!21 &1286162658
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: MMD4Mecanim/MMDLit-NEXTEdge-Pass4
-  m_Shader: {fileID: 4800000, guid: 684f8af9b4ff4bc459588db5b0f6275d, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2001
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs: []
-    m_Ints: []
-    m_Floats:
-    - _EdgeSize: 0.005
-    - _PostfixRenderQueue: 1
-    m_Colors:
-    - _EdgeColor: {r: 0.39999998, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1 &1293741034 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7860793226504998735, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3430,10 +2432,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 115
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1293827021 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5933350185487995558, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3452,10 +2450,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 119
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1323660093 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2935588997080751790, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3474,10 +2468,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 42
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1328655309 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8945981358612311056, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3496,10 +2486,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 165
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1331153151 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7669617719628755375, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3518,10 +2504,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 128
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1333693071 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7595772986430716681, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3540,10 +2522,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 78
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1348756725 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3604176708920464027, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3562,10 +2540,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 50
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1362458886 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6472031706150419101, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3584,10 +2558,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 107
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1383206301 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4176959479177403392, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3606,10 +2576,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 71
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1398564891 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1934110954353859505, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3628,10 +2594,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 13
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1404574539 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8430176406197146502, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3650,10 +2612,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 80
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1405567620 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2037702810962715953, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3672,10 +2630,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 44
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1418640856 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6695385938520378887, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3694,10 +2648,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 159
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1428502452 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9147139481584094692, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3716,10 +2666,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 92
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1430456964 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2356254164069023119, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3738,10 +2684,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 24
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1442995492 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1822474326530443871, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3760,10 +2702,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 77
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1449782332 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7665362700143761525, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3782,10 +2720,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 173
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1477501135 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3794383819992008769, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3804,10 +2738,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 10
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1479383072 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 634482616177797475, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3826,40 +2756,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 132
-  ikEnabled: 0
-  ikWeight: 1
---- !u!21 &1491077627
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: MMD4Mecanim/MMDLit-NEXTEdge-Pass8
-  m_Shader: {fileID: 4800000, guid: ff1e1d0bbf6980244a107d25ff535f9a, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2001
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs: []
-    m_Ints: []
-    m_Floats:
-    - _EdgeSize: 0.005
-    - _PostfixRenderQueue: 1
-    m_Colors:
-    - _EdgeColor: {r: 0.39999998, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1 &1498761251 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1925952698267137782, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3878,10 +2774,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 101
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1504004542 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2760200131243758889, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3900,10 +2792,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 23
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1512658037 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2144600729047232372, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3922,10 +2810,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 172
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1541911940 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5265545566158567582, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3944,10 +2828,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 135
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1563579361 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4116370953813513172, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3966,10 +2846,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 168
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1584773341 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5261481087652033792, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3988,10 +2864,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 59
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1585389179 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1331466937165496464, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4010,10 +2882,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 43
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1587762968 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9194200829448363761, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4032,10 +2900,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 100
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1624846622 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5702662933436456023, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4054,10 +2918,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 73
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1657663445 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5574227128877042617, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4076,10 +2936,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 70
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1679374319 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5290009091197525467, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4098,10 +2954,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 140
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1687423530 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8915344792687586549, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4120,10 +2972,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 163
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1687424673 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3580775818805502935, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4142,10 +2990,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 37
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1688961416 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2558759623566086394, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4164,10 +3008,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 110
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1690975054 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5801356247737027353, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4186,10 +3026,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 46
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1699043466 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2999985494269699919, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4208,10 +3044,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 148
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1721170248 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 966982947131861175, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4230,10 +3062,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 155
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1730090943 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7078213847015708029, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4252,10 +3080,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 85
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1762302409 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3630959549462715117, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4274,10 +3098,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 28
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1772754281 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2153083327900664350, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4296,10 +3116,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 106
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1803441007 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7735558184967166305, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4318,10 +3134,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 16
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1807859701 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8730927896987328052, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4340,10 +3152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 121
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1819284838 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4660877114867546423, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4362,10 +3170,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 7
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1820261192 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2762283442338971389, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4384,10 +3188,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 124
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1838588189 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3827934052340287082, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4406,10 +3206,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 18
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1848183365 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4999780417738656564, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4428,10 +3224,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 139
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1866907475 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4988445335409952825, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4450,10 +3242,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 117
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1872012549 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3976066743928030138, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4472,10 +3260,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 112
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1875421956 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5243263157143063631, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4494,10 +3278,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 170
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1883493909 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8979347786528583688, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4516,10 +3296,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 161
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1886470912 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8233568056357080618, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4538,10 +3314,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 39
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1916870521 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5365074147418106480, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4560,10 +3332,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 41
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1920807869 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4292695262770015566, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4582,10 +3350,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 153
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1925584060 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5478060715928264364, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4604,10 +3368,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 88
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1931714327 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2147520635779001057, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4626,10 +3386,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 105
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1936285345 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7555490179431221695, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4648,10 +3404,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 30
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1946004885 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9029862268363681001, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4670,10 +3422,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 166
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1955069896 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6044671767306799886, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4692,10 +3440,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 20
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1959000363 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3586728633960674748, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4714,10 +3458,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 126
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1977501172 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7514815693294285082, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4736,10 +3476,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 104
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2029753678 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3981824064878377769, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4758,10 +3494,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 11
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2044218838 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2555218143473432213, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4780,10 +3512,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 134
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2045884936 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6384586147938376085, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4802,10 +3530,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 86
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2057746293 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9069073948328248025, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4824,10 +3548,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 141
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2068496562 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4757853171024435053, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4846,10 +3566,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 142
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2072185166 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6194990228778550332, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4868,10 +3584,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 157
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2074012409 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6290218475248546674, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4890,10 +3602,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 57
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2083673422 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5093035851095119645, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4912,10 +3620,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 162
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2089560592 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1082227671762896456, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4934,10 +3638,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 158
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2115702540 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3006146388635737872, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4956,10 +3656,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 154
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2133779044 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6735673600812056788, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -4978,10 +3674,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 137
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2137090188 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4200541264822670956, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -5000,10 +3692,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482af93b30da7a048816a8ecabda762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 717213125}
-  boneID: 144
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1001 &275798868355907744
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6060,3 +4748,4 @@ SceneRoots:
   - {fileID: 2747345106187710383}
   - {fileID: 1068952862526279124}
   - {fileID: 275798868355907744}
+  - {fileID: 1194403989}

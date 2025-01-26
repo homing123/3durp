@@ -12,6 +12,10 @@ Shader "Grass/Grass"
         _DryBias("DryBias", Range(0,1)) = 0
         _GrassSize("GrassSize", Range(0.01, 1)) = 0.2
         _GrassSizeRandomMul("GrassSizeRandomMul", Range(0, 10)) = 1
+        _Ambient("Ambient", Range(0,1)) = 0
+        _OcclusionHeightTop("OcclusionHeightTop", float) = 0
+        _OcclusionHeightBottom("OcclusionHeightBottom", float) = 0
+        _OcclusionStrength("OcclusionStrength", Range(0,1)) = 0
 
         _WindATilingWrap("WindATilingWrap", Vector) = (0,0,0,0)
         _WindAFrequency("WindAFrequency", float) = 0
@@ -56,6 +60,8 @@ Shader "Grass/Grass"
                     float2 uv : TEXCOORD0;
                     float4 posCS : SV_POSITION;
                     float4 option : TEXCOORD2;
+                    float4 shadowCoord : TEXCOORD3;
+
                     uint id : SV_INSTANCEID;
                 };
                 struct GrassData
@@ -74,9 +80,15 @@ Shader "Grass/Grass"
                 {
                     return saturate((noiseValue - 0.07f) * 2);
                 }
-
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+                #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+                #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+                #pragma multi_compile _ _ADDITIONAL_LIGHTS
+                #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+                #pragma multi_compile _ _SHADOWS_SOFT
+                
                 sampler2D _GrassTex;
                 sampler2D _NoiseTex;
                 CBUFFER_START(UnityPerMaterial)
@@ -89,6 +101,10 @@ Shader "Grass/Grass"
                 half4 _GrassColor;
                 half4 _DryGrassColor;
                 float _DryBias;
+                float _Ambient;
+                float _OcclusionHeightTop;
+                float _OcclusionHeightBottom;
+                float _OcclusionStrength;
 
                 float4 _GrassTex_ST;
                 float4 _NoiseTex_ST;
@@ -159,44 +175,44 @@ Shader "Grass/Grass"
                     o.posCS = TransformWorldToHClip(o.posWorld);
                     o.option = float4(sizeNoise, dryNoise, 1, 1);
                     o.id = instanceID;
+                    o.shadowCoord = TransformWorldToShadowCoord(o.posWorld);
                     return o;
                 }
 
                 half4 fs(VertexOut i) : SV_Target
                 {
-                    half4 col;
+                    half4 col = half4(0,0,0,1);
                     half4 texColor = tex2D(_GrassTex, i.uv);
                     clip(0.7 - (texColor.r + texColor.g + texColor.b));      
                     
                     float heightFactor = i.option.x;
                     float dryNoise = i.option.y;
                     
-                    float dryColorFactor = saturate(heightFactor * 0.5f + dryNoise * 0.5f);
+                    float dryColorFactor = saturate(heightFactor * 0.5f + dryNoise * 0.5f); //키가 클수록 마른정도가 높고, 랜덤하게도 마르기때문에 반반
                     float4 dryColor = _DryGrassColor * dryColorFactor + texColor * (1 - dryColorFactor);
                     
-                    //randomValue >= _DryBias 일땐 0~0.5 = 검, 0.5~1 = 초 인데
-                    //거기서 - randomValue * heightFactor 를 해주기 때문에 즉 크기비례해서 값을 낮추기 때문에 
+                    //dryNoise >= _DryBias 일땐 0~0.5 = 검, 0.5~1 = 초 인데
+                    //거기서 - dryNoise * heightFactor 를 해주기 때문에 즉 크기비례해서 값을 낮추기 때문에 
                     //즉 클수록 검정쪽으로 빼주는게 큼
-                    if (dryNoise - dryNoise * heightFactor >= _DryBias)
-                    {
-                       col.rgb = texColor.rgb;
-                    }
-                    else
-                    {
-                       col.rgb = half3(0, heightFactor, 0);
-                       if (i.uv.y < 0.6)
-                       {
-                           col.rgb = texColor.rgb;
-                       }
-                       else
-                       {
-                           float uvFactorBias = (dryNoise - 0.3f) * 0.2f;
-                           float uvy = saturate((i.uv.y - 0.6f + uvFactorBias) * 2.5f);
-                           col.rgb = dryColor * uvy + (1 - uvy) * texColor.rgb;
-                       }
-                        /* heightFactor 가 높으면 높을수록 변색의 정도가 큼 변색의 정도는 변색 범위와 색깔 모두에 영향을 미침
-                         uv.y가 일정 이상부터 변색이 시작되며 색깔비중이 uv.y가 높을수록 진해짐*/
-                    }
+                    
+                    float dryFactor = 0;
+                    dryFactor = dryNoise - dryNoise * heightFactor >= _DryBias ? 0 : 1;
+                    dryFactor = dryFactor * (i.uv.y < 0.6 ? 0 : 1);
+                    float uvFactorBias = (dryNoise - 0.3f) * 0.2f;
+                    dryFactor = dryFactor * saturate((i.uv.y - 0.6f + uvFactorBias) * 2.5f);
+                    half3 albedo = dryColor * dryFactor + (1 - dryFactor) * texColor.rgb;
+
+                    float occ_bottom = _OcclusionHeightBottom + heightFactor * 0.025f; //땅 높이 대비로 바꿔야함
+                    float occ_top = _OcclusionHeightTop + heightFactor * 0.05;
+                    float occFactor = saturate((occ_top - i.posWorld.y) / (occ_top - occ_bottom));
+                    albedo = albedo - albedo * occFactor * _OcclusionStrength;
+                    Light mainLight = GetMainLight(i.shadowCoord);
+
+                    float ndotl = saturate(dot(mainLight.direction, float3(0,1,0)));
+                    half3 diffuse = albedo * ndotl * mainLight.shadowAttenuation;
+                    half3 ambientInShadow = albedo * ndotl * _Ambient * (1 - mainLight.shadowAttenuation);
+
+                    col.rgb = diffuse + ambientInShadow;     
                     return col;
                 }
                 ENDHLSL
@@ -204,7 +220,26 @@ Shader "Grass/Grass"
 
         }
 }
-
+               
+                    // if (dryNoise - dryNoise * heightFactor >= _DryBias)
+                    // {
+                    //    col.rgb = texColor.rgb;
+                    // }
+                    // else
+                    // {
+                    //    if (i.uv.y < 0.6)
+                    //    {
+                    //        col.rgb = texColor.rgb;
+                    //    }
+                    //    else
+                    //    {
+                    //        float uvFactorBias = (dryNoise - 0.3f) * 0.2f;
+                    //        float uvy = saturate((i.uv.y - 0.6f + uvFactorBias) * 2.5f);
+                    //        col.rgb = dryColor * uvy + (1 - uvy) * texColor.rgb;
+                    //    }
+                    //     /* heightFactor 가 높으면 높을수록 변색의 정도가 큼 변색의 정도는 변색 범위와 색깔 모두에 영향을 미침
+                    //      uv.y가 일정 이상부터 변색이 시작되며 색깔비중이 uv.y가 높을수록 진해짐*/
+                    // }
 
 
 /* [maxvertexcount(4)]
