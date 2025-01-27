@@ -119,7 +119,9 @@ Shader "Grass/Grass"
                 float _WindCFrequency;
                 float _WindCIntensity;
 
-                float _BendingRenderDis;
+                float _BendingTexInterval;
+                int _CamGridPosx;
+                int _CamGridPosz;
                 CBUFFER_END
                 VertexOut vs(appdata v, uint instanceID : SV_INSTANCEID)
                 {
@@ -148,21 +150,23 @@ Shader "Grass/Grass"
                     float3 posWS = pivotPosWS + v.posModel.x * bill_right * width + v.posModel.y * bill_up * height;
 
                     //bending
-                    float2 bendingTexMinxz = camPosWS.xz - _BendingRenderDis;
-                    float2 bendinguv = (posWS.xz - bendingTexMinxz) / (_BendingRenderDis * 2);
+                    int bendingTexWidth = 512;
+                    float2 bendingTexMinxz = int2(_CamGridPosx, _CamGridPosz) - bendingTexWidth * _BendingTexInterval * 0.5f;
+                    float2 bendinguv = (posWS.xz - bendingTexMinxz) / (_BendingTexInterval * bendingTexWidth);
                     float bendingValue = 0;
                     if (bendinguv.x >= 0 && bendinguv.x <= 1 && bendinguv.y >= 0 && bendinguv.y <= 1)
                     {
-                        int2 bendingTexIdx = int2(bendinguv.x * 512, bendinguv.y * 512);
-                        bendingValue = _BendingTexBuffer[bendingTexIdx.x + 512 * bendingTexIdx.y];
+                        int2 bendingTexIdx = int2(bendinguv.x * bendingTexWidth, bendinguv.y * bendingTexWidth);
+                        bendingValue = _BendingTexBuffer[bendingTexIdx.x + bendingTexWidth * bendingTexIdx.y];
 
                         //현재 위치를 시드로 가지는 랜덤방향으로 1 = 90도 회전 0 = 회전 x = 이게 노이즈임
                         //0~1값을 각도로 바꿔서 360도를 커버치는거임
                         float radian = bendingNoise * 3.141592f * 2;
                         float2 bendingAddPos = float2(cos(radian), sin(radian)) * posWS.y;
-                        //posWS -= float3(bendingAddPos.x, posWS.y * 0.8f, bendingAddPos.y) * bendingValue;
+                        posWS -= float3(bendingAddPos.x, posWS.y * 0.8f, bendingAddPos.y) * bendingValue;
                         
-                        posWS.y = posWS.y + posWS.y * bendingValue * 10;
+                        //posWS.y = posWS.y + posWS.y * bendingValue * 5;
+
                         //posWS.y -= bendingValue;
                     }
 

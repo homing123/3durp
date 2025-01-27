@@ -1,5 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #include "Util.compute"
+#pragma kernel MoveBendingBuffer
 #pragma kernel DrawBendingBuffer
 #define TexWidth 512
 
@@ -12,34 +13,52 @@ struct BendingData
     float radius;
 };
 RWStructuredBuffer<float> _BendingTexBuffer;
+RWStructuredBuffer<float> _BendingTexBuffer2;
 uint _BendingDataCount;
-float2 _CamPos;
-float _RenderDis;
+float _TexInterval;
+float3 _CamPos;
+int2 _CamGridPos;
+int2 _CamGridMove;
+
 
 StructuredBuffer<BendingData> _BendingBuffer;
+
+[numthreads(512, 1, 1)]
+void MoveBendingBuffer(uint t_id : SV_GroupIndex, uint3 g_id : SV_GroupID)
+{
+    uint idx = t_id + g_id.x * TexWidth;
+    int2 beforePosition = int2(t_id - _CamGridMove.x * 10, g_id.x - _CamGridMove.y * 10);
+    if (beforePosition.x >= 0 && beforePosition.x < TexWidth && beforePosition.y >= 0 && beforePosition.y < TexWidth)
+    {
+        _BendingTexBuffer[beforePosition.y * TexWidth + beforePosition.x] = _BendingTexBuffer2[idx];
+    }
+    else
+    {
+        _BendingTexBuffer[idx] = 0;
+    }
+}
 
 [numthreads(512,1,1)]
 void DrawBendingBuffer(uint t_id : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
     uint idx = t_id + g_id.x * TexWidth;
-    float d = _RenderDis * 2 / TexWidth;
-    float2 minxz = _CamPos - float2(_RenderDis, _RenderDis);
+    float axisDis = TexWidth * _TexInterval;
+    float2 minxz = _CamGridPos - axisDis * 0.5f;
+    float2 posWS = minxz + _TexInterval * float2(t_id, g_id.x);
     
-    float2 posWS = minxz + d * float2(t_id, g_id.x);
-
     for (uint i = 0; i < _BendingDataCount; i++)
     {
         BendingData curData = _BendingBuffer[i];
         float2 v = curData.pos.xz - posWS;
         float disSquare = v.x * v.x + v.y * v.y;
-        if(disSquare < curData.radius * curData.radius)
+        if (disSquare < curData.radius * curData.radius)
         {
             _BendingTexBuffer[idx] = 1;
         }
-        else
-        {
-            _BendingTexBuffer[idx] = _BendingTexBuffer[idx] < 0.02f ? 0 : _BendingTexBuffer[idx] * 0.96f;
-        }
     }
-   
+    
+  
+    _BendingTexBuffer[idx] = _BendingTexBuffer[idx] < 0.02f ? 0 : _BendingTexBuffer[idx] * 0.96f;
+    _BendingTexBuffer2[idx] = _BendingTexBuffer[idx];
 }
+
