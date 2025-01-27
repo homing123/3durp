@@ -8,15 +8,13 @@
 
 struct BendingData
 {
-    float2 pos;
+    float3 pos;
     float radius;
-    float time;
 };
 RWStructuredBuffer<float> _BendingTexBuffer;
 uint _BendingDataCount;
 float2 _CamPos;
 float _RenderDis;
-float _BendingPower;
 
 StructuredBuffer<BendingData> _BendingBuffer;
 
@@ -32,15 +30,16 @@ void DrawBendingBuffer(uint t_id : SV_GroupIndex, uint3 g_id : SV_GroupID)
     for (uint i = 0; i < _BendingDataCount; i++)
     {
         BendingData curData = _BendingBuffer[i];
-        float2 v = curData.pos - posWS;
+        float2 v = curData.pos.xz - posWS;
         float disSquare = v.x * v.x + v.y * v.y;
-        _BendingTexBuffer[idx] = disSquare < curData.radius * curData.radius ? saturate(pow(curData.time, 2)) * _BendingPower : 0;
-        //if (disSquare < radius * radius)
-        //{
-        //    
-        //    float timeSquare = saturate(pow(curData.time, 2));
-        //    _BendingTexBuffer[idx] = timeSquare * _BendingPower;
-        //}
+        if(disSquare < curData.radius * curData.radius)
+        {
+            _BendingTexBuffer[idx] = 1;
+        }
+        else
+        {
+            _BendingTexBuffer[idx] = _BendingTexBuffer[idx] < 0.02f ? 0 : _BendingTexBuffer[idx] * 0.96f;
+        }
     }
    
 }

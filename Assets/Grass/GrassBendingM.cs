@@ -1,17 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public struct BendingData
+
+struct BendingObject
 {
-    public Vector2 pos;
+    public Transform transform;
     public float radius;
-    public float time;
-    public BendingData(Vector2 _pos, float _radius, float _time)
+
+    public BendingObject(Transform _transform, float _radius)
     {
-        pos = _pos;
+        transform = _transform;
         radius = _radius;
-        time = _time;
     }
+}
+struct BendingBuffer
+{
+    public Vector3 pos;
+    public float radius;
+    public BendingBuffer(BendingObject obj)
+    {
+        pos = obj.transform.position;
+        radius = obj.radius;
+    }
+
 }
 public class GrassBendingM : MonoBehaviour
 {
@@ -22,46 +33,22 @@ public class GrassBendingM : MonoBehaviour
     }
 
     const int TexWidth = 512;
-    const int BendingDataMaxCount = 32;
+    const int BendingObjectMaxCount = 8;
 
     ComputeBuffer m_BendingBuffer;
     ComputeBuffer m_BendingTexBuffer;
 
-    List<BendingData> m_BendingList = new List<BendingData>(BendingDataMaxCount);
-
+    List<BendingObject> L_BendingObjs = new List<BendingObject>();
 
     [SerializeField] ComputeShader m_CSBending;
     [SerializeField] Material m_GrassMat;
     [SerializeField] float m_BendingRenderDis;
-    [SerializeField] float m_BendingPower;
-    public void AddBending(BendingData data)
+    public void AddBending(Transform tf, float radius)
     {
-        for(int i=0;i<m_BendingList.Count;i++)
+        if(L_BendingObjs.Count < BendingObjectMaxCount)
         {
-            if(data.pos == m_BendingList[i].pos)
-            {
-                float radius = data.radius > m_BendingList[i].radius ? data.radius : m_BendingList[i].radius;
-                float time = data.time > m_BendingList[i].time ? data.time : m_BendingList[i].time;
-                Vector2 pos = data.pos;
-                m_BendingList[i] = new BendingData(pos, radius, time);
-                return;
-            }
+            L_BendingObjs.Add(new BendingObject(tf, radius));
         }
-        if(m_BendingList.Count >= BendingDataMaxCount)
-        {
-            float timeMin = 1;
-            int idx = 0;
-            for (int i = 0; i < m_BendingList.Count; i++)
-            {
-                if (m_BendingList[i].time < timeMin)
-                {
-                    timeMin = m_BendingList[i].time;
-                    idx = i;
-                }
-            }
-            m_BendingList.RemoveAt(idx);
-        }
-        m_BendingList.Add(data);
     }
 
     private void Start()
@@ -72,7 +59,7 @@ public class GrassBendingM : MonoBehaviour
     void InitCSBuffer()
     {
         m_BendingTexBuffer = new ComputeBuffer(TexWidth * TexWidth, sizeof(float));
-        m_BendingBuffer = new ComputeBuffer(BendingDataMaxCount, sizeof(float) * 4);
+        m_BendingBuffer = new ComputeBuffer(BendingObjectMaxCount, sizeof(float) * 4);
         m_CSBending.SetBuffer(0, "_BendingTexBuffer", m_BendingTexBuffer);
         m_CSBending.SetBuffer(0, "_BendingBuffer", m_BendingBuffer);
         m_GrassMat.SetBuffer("_BendingTexBuffer", m_BendingTexBuffer);
@@ -80,11 +67,15 @@ public class GrassBendingM : MonoBehaviour
     }
     void UpdateBendingTex()
     {
-        m_BendingBuffer.SetData(m_BendingList.ToArray());
-        m_CSBending.SetInt("_BendingDataCount", m_BendingList.Count);
+        List<BendingBuffer> l_buffer = new List<BendingBuffer>();
+        for(int i=0;i<L_BendingObjs.Count;i++)
+        {
+            l_buffer.Add(new BendingBuffer(L_BendingObjs[i]));
+        }
+        m_BendingBuffer.SetData(l_buffer.ToArray());
+        m_CSBending.SetInt("_BendingDataCount", l_buffer.Count);
         m_CSBending.SetVector("_CamPos", new Vector2(Camera.main.transform.position.x, Camera.main.transform.position.z));
         m_CSBending.SetFloat("_RenderDis", m_BendingRenderDis);
-        m_CSBending.SetFloat("_BendingPower", m_BendingPower);
         m_CSBending.Dispatch(0, TexWidth, 1, 1);
 
         m_GrassMat.SetFloat("_BendingRenderDis", m_BendingRenderDis);
@@ -99,28 +90,16 @@ public class GrassBendingM : MonoBehaviour
         //    }
         //}
     }
-    void UpdateBendingDataList()
-    {
-        for (int i = 0; i < m_BendingList.Count; i++)
-        {
-            float time = m_BendingList[i].time;
-            time -= Time.deltaTime;
-            if (time <= 0)
-            {
-                m_BendingList.RemoveAt(i);
-                i--;
-            }
-            else
-            {
-                m_BendingList[i] = new BendingData(m_BendingList[i].pos, m_BendingList[i].radius, time);
-            }
-
-        }
-    }
+    int rate = 2;
+    int curRate = 0;
     private void Update()
     {
-        UpdateBendingDataList();
-        UpdateBendingTex();
+        curRate++;
+        if (curRate >= rate)
+        {
+            curRate = 0;
+            UpdateBendingTex();
+        }
     }
     private void OnDestroy()
     {

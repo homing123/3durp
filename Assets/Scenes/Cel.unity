@@ -3713,7 +3713,7 @@ PrefabInstance:
     - target: {fileID: 118147126256115746, guid: fbd34215e598c5a41a9ef998ab706d26,
         type: 3}
       propertyPath: m_BendingPower
-      value: 0.63
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 118147126256115746, guid: fbd34215e598c5a41a9ef998ab706d26,
         type: 3}

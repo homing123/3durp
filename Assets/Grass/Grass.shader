@@ -127,9 +127,12 @@ Shader "Grass/Grass"
 
                     float dryNoise = tex2Dlod(_NoiseTex, float4(chunkUV * _DryTilingOffset.xy + _DryTilingOffset.zw, 0, 0)).r;
                     float sizeNoise = tex2Dlod(_NoiseTex, float4(chunkUV * _ScaleTilingOffset.xy + _ScaleTilingOffset.zw, 0, 0)).r;
+                    float4 bendingTilingOffset = float4(20,20,0,0);
+                    float bendingNoise = tex2Dlod(_NoiseTex, float4(chunkUV * bendingTilingOffset.xy + bendingTilingOffset.zw,0,0)).r;
 
                     dryNoise = GetNoiseToNormRange(dryNoise);
                     sizeNoise = GetNoiseToNormRange(sizeNoise);
+                    bendingNoise = GetNoiseToNormRange(bendingNoise);
 
                     float width = _GrassSize * (1 + sizeNoise * _GrassSizeRandomMul);
                     float height = _GrassSize * (1 + sizeNoise * _GrassSizeRandomMul);
@@ -153,7 +156,14 @@ Shader "Grass/Grass"
                         int2 bendingTexIdx = int2(bendinguv.x * 512, bendinguv.y * 512);
                         bendingValue = _BendingTexBuffer[bendingTexIdx.x + 512 * bendingTexIdx.y];
 
-                        posWS.y -= bendingValue;
+                        //현재 위치를 시드로 가지는 랜덤방향으로 1 = 90도 회전 0 = 회전 x = 이게 노이즈임
+                        //0~1값을 각도로 바꿔서 360도를 커버치는거임
+                        float radian = bendingNoise * 3.141592f * 2;
+                        float2 bendingAddPos = float2(cos(radian), sin(radian)) * posWS.y;
+                        //posWS -= float3(bendingAddPos.x, posWS.y * 0.8f, bendingAddPos.y) * bendingValue;
+                        
+                        posWS.y = posWS.y + posWS.y * bendingValue * 10;
+                        //posWS.y -= bendingValue;
                     }
 
                     if (bendingValue == 0)

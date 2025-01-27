@@ -20,7 +20,6 @@ public class Character : MonoBehaviour
     [SerializeField] float m_Speed;
     [SerializeField] float m_RotSpeed;
     [SerializeField] float m_BendingRadius;
-    [SerializeField] float m_BendingTime;
     [SerializeField] Animator m_Anim;
     [SerializeField] E_RunType m_RunType;
 
@@ -35,7 +34,7 @@ public class Character : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        GrassBendingM.Ins.AddBending(transform, m_BendingRadius);
     }
 
     // Update is called once per frame
@@ -97,13 +96,6 @@ public class Character : MonoBehaviour
             {
                 ChangeAnim(E_Anim.Idle);
             }
-
-            GrassBendingM.Ins.AddBending(new BendingData()
-            {
-                pos = new Vector2(transform.position.x, transform.position.z),
-                radius = m_BendingRadius,
-                time = m_BendingTime
-            });
         }
     }
 

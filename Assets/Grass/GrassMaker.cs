@@ -1,9 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using Unity.VisualScripting;
+
 using UnityEngine;
-using UnityEngine.Rendering.UI;
 
 public class GrassMaker : MonoBehaviour
 {
