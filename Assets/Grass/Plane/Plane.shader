@@ -9,6 +9,7 @@ Shader "Plane/Grass"
         _NoiseTex("NoiseTex", 2D) = "white"{}
         _NoiseBias("NoiseBias" , Range(0,1)) = 1
     
+        _Skybox("Skybox", cube) = "white" {}
     }
     SubShader
     {
@@ -32,6 +33,7 @@ Shader "Plane/Grass"
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile_fog
 
             struct appdata
             {
@@ -42,12 +44,14 @@ Shader "Plane/Grass"
             struct v2f
             {
                 float4 posCS : SV_POSITION;
-                float2 uv : TEXCOORD;
+                float3 posWS : TEXCOORD3;
+                float2 uv : TEXCOORD0;
                 float4 shadowCoord : TEXCOORD2;
+                float fogFactor : TEXCOORD1;
                 float3 normal : NORMAL;
             };
             sampler2D _NoiseTex;
-
+            samplerCUBE _Skybox;
             CBUFFER_START(UnityPerMaterial)
             float4 _Color;
             float _Ambient;
@@ -55,6 +59,7 @@ Shader "Plane/Grass"
             float4 _NoiseTex_ST;
             float4 _NoiseColor;
             float _NoiseBias;
+
             CBUFFER_END
 
             v2f vert(appdata i)
@@ -65,6 +70,12 @@ Shader "Plane/Grass"
                 VertexPositionInputs vInputs = GetVertexPositionInputs(i.posModel.xyz);
                 o.shadowCoord = GetShadowCoord(vInputs);
                 o.normal = i.normal;
+                o.posWS = TransformObjectToWorld(i.posModel.xyz);
+                o.fogFactor = ComputeFogFactor(o.posCS.z);
+
+                //only built in
+                //UNITY_TRANSFER_FOG(o,o.posCS); //o안의 fog값에 필요한 변수들을 알아서 채워줌 설정에 따라 달라지기 때문에 매크로로 묶어둔거라고함
+
                 return o;
             }
 
@@ -83,6 +94,15 @@ Shader "Plane/Grass"
                 half3 ambientInShadow = albedo * mainLight.color * ndotl * (1 - mainLight.shadowAttenuation) * _Ambient;
                 col.rgb = diffuse + ambientInShadow;
 
+                //col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 
+
+                float3 camPosWS = GetCameraPositionWS();
+                float3 viewDir = normalize(i.posWS - camPosWS);
+                float3 reflectVector = reflect(viewDir, normal);
+
+                float4 skyColor = texCUBE(_Skybox, reflectVector);
+                //col.rgb = skyColor.rgb;
+                col.rgb = col.rgb * i.fogFactor + (1 - i.fogFactor)* skyColor.rgb;
 
                 return col;
                 // col = tex2D(_MainTex, i.uv * _MainTex_ST.xy + _MainTex_ST.zw);
