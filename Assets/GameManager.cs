@@ -39,3 +39,10 @@ public class Util
         return System.Runtime.InteropServices.Marshal.SizeOf(type);
     }
 }
+public static class UtilEx
+{
+    public static Vector2 RadianToUnitVector2(this float radian)
+    {
+        return new Vector2(Mathf.Cos(radian), Mathf.Sin(radian));
+    }
+}
