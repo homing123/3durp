@@ -18,8 +18,6 @@ public class TextureMaker : MonoBehaviour
     int m_LastFrameWidth;
     int m_LastFrameHeight;
     [SerializeField] E_MapType m_MapType;
-    [SerializeField] PerlinNoise.PerlinOption m_PerlinOption;
-    PerlinNoise.PerlinOption m_LastFramePerlinOption;
 
     [Space(10)]
     [SerializeField] string m_FilePath;
@@ -45,7 +43,7 @@ public class TextureMaker : MonoBehaviour
         switch(m_MapType)
         {
             case E_MapType.PerlinNoise:
-                return m_PerlinOption.isChanged(m_LastFramePerlinOption);
+                return PerlinNoise.Ins.isChangedOption();
             case E_MapType.Voronoi:
                 return false;
         }
@@ -63,8 +61,8 @@ public class TextureMaker : MonoBehaviour
         switch (m_MapType)
         {
             case E_MapType.PerlinNoise:
-                arr_Color = PerlinNoise.CreatePerlinNoise2DBuffer(m_Width, m_Height, m_PerlinOption);
-                m_LastFramePerlinOption = m_PerlinOption;
+                arr_Color = PerlinNoise.Ins.CreatePerlinNoise2DBuffer(m_Width, m_Height);
+                PerlinNoise.Ins.LastValueUpdate();
                 break;
             case E_MapType.Voronoi:
                 break;
@@ -90,23 +88,23 @@ public class TextureMaker : MonoBehaviour
     [ContextMenu("»ý¼º")]
     public void CreateTexture()
     {
-        TexInfo info = new TexInfo();
-        info.fileName = m_FileName;
-        info.width = m_Width;
-        info.height = m_Height;
-        info.format = TextureFormat.RGBA32;
-        info.type = E_TextureType.PNG;
-        info.buffer = new Color[info.width * info.height];
-        for (int y = 0; y < m_Height; y++)
-        {
-            for (int x = 0; x < m_Width; x++)
-            {
-                int idx = x + y * m_Width;
-                float value = PerlinNoise.PerlinNoise2D(x * 0.07f, y * 0.07f);
-                info.buffer[idx] = new Color(value, value, value, 1);
-            }
-        }
-        Create(info, m_FilePath);
+        //TexInfo info = new TexInfo();
+        //info.fileName = m_FileName;
+        //info.width = m_Width;
+        //info.height = m_Height;
+        //info.format = TextureFormat.RGBA32;
+        //info.type = E_TextureType.PNG;
+        //info.buffer = new Color[info.width * info.height];
+        //for (int y = 0; y < m_Height; y++)
+        //{
+        //    for (int x = 0; x < m_Width; x++)
+        //    {
+        //        int idx = x + y * m_Width;
+        //        float value = PerlinNoise.PerlinNoise2D(x * 0.07f, y * 0.07f);
+        //        info.buffer[idx] = new Color(value, value, value, 1);
+        //    }
+        //}
+        //Create(info, m_FilePath);
     }
 
     public const string BasicPath = "Assets/Test";

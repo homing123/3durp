@@ -1,14 +1,55 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#include "../TextureMakerUtil.compute"
+#pragma kernel GridGradientVec
+#pragma kernel PerlinNoise
+#define GRIDGRADIENT_THREAD_WIDTH 32
+#define THREAD_HEIGHT 256
+#define GROUP_MAX 512
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
-RWTexture2D<float4> Result;
+RWStructuredBuffer<float2> _GradientVecBuffer;
+RWStructuredBuffer<float4> _ColorBuffer;
+int _GridMin;
+int2 _GridSize;
+float _GradientRadianMul;
 
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+float _Scale;
+float _Amplitude;
+float _Frequency;
+float _Persistence;
+float _Lacunarity;
+int _Octaves;
+
+[numthreads(GRIDGRADIENT_THREAD_WIDTH, GRIDGRADIENT_THREAD_WIDTH,1)]
+void GridGradient(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+    uint groupCountRow = _GridSize.x / GRIDGRADIENT_THREAD_WIDTH + _GridSize.x % GRIDGRADIENT_THREAD_WIDTH == 0 ? 0 : 1;
+    uint groupIdx = g_id.x + g_id.y * GROUP_MAX;
+
+    uint group_x = groupIdx % groupCountRow;
+    uint group_y = groupIdx / groupCountRow;
+
+    uint grid_x = GRIDGRADIENT_THREAD_WIDTH * group_x + t_id.x;
+    uint grid_y = GRIDGRADIENT_THREAD_WIDTH * group_y + t_id.y;
+
+    if (grid_x >= _GridSize.x || grid_y >= _GridSize.y)
+    {
+        return;
+    }
+    
+    uint gridIdx = grid_x + grid_y * _GridSize.x;
+    uint seed = Vector2IntToSeed(uint2(grid_x + _GridMin.x, grid_y + _GridMin.y));
+    float gradient = DRandomXORShift(seed) / (float)UINT_MAX;
+    gradient *= PI * 2 * _GradientRadianMul;
+    
+    _GradientVecBuffer[gridIdx] = gradient;
+}
+
+[numthreads(THREAD_COUNT, 1, 1)]
+void PerlinNoise(uint t_id : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
     // TODO: insert actual code here!
 
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+    Result[id.xy] = float4(id.x & id.y, (id.x & 15) / 15.0, (id.y & 15) / 15.0, 0.0);
 }
