@@ -75,7 +75,7 @@ public class Character : MonoBehaviour
                 float curRotY = transform.eulerAngles.y;
                 if (camRotY != curRotY)
                 {
-                    float angleDis = Util.GetAngleDis(curRotY, camRotY);
+                    float angleDis = HMUtil.GetAngleDis(curRotY, camRotY);
                     float curRotSpeed = m_RotSpeed * Time.deltaTime;
                     if (Mathf.Abs(angleDis) < curRotSpeed)
                     {

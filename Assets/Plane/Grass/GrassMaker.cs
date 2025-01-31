@@ -134,7 +134,7 @@ public class GrassMaker : MonoBehaviour
             m_GroupX = m_GroupX == 0 ? 1 : m_GroupX;
         }
         //Debug.Log(m_GroupX + " " + m_GroupY);
-        int structSize = Util.StructSize(typeof(GrassData));
+        int structSize = HMUtil.StructSize(typeof(GrassData));
 
         m_GrassBuffer = new ComputeBuffer(m_GrassCount, structSize);
         m_LogBuffer = new ComputeBuffer(1, sizeof(int) * 5);
