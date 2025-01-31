@@ -1,6 +1,7 @@
 
 #define PI 3.1415926535f
 #define UINT_MAX 0xFFFFFFFF;
+
 uint DRandomXORShift(uint seed)
 {
     seed ^= seed >> 16;
@@ -12,5 +13,12 @@ uint DRandomXORShift(uint seed)
 }
 uint Vector2IntToSeed(uint2 vt2Int)
 {
-    return seed = vt2Int.x * 73856093u ^ vt2Int.y * 19349663u;
+    float seed = vt2Int.x * 73856093u ^ vt2Int.y * 19349663u;
+    return seed;
+}
+
+float PerlinInterpolation(float left, float right, float t)
+{
+    float ease = 6 * pow(t, 5) - 15 * pow(t, 4) + 10 * pow(t, 3);
+    return left + (right - left) * ease;
 }

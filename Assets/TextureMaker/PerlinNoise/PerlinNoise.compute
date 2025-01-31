@@ -1,19 +1,22 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #include "../TextureMakerUtil.compute"
+
 #pragma kernel GridGradientVec
 #pragma kernel PerlinNoise
 #define GRIDGRADIENT_THREAD_WIDTH 32
-#define THREAD_HEIGHT 256
+#define PERLIN_THREAD_WIDTH 32
 #define GROUP_MAX 512
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWStructuredBuffer<float2> _GradientVecBuffer;
 RWStructuredBuffer<float4> _ColorBuffer;
-int _GridMin;
-int2 _GridSize;
+int2 _GridMin;
+uint2 _GridSize;
 float _GradientRadianMul;
 
+float2 _Offset;
+uint2 _TexSize;
 float _Scale;
 float _Amplitude;
 float _Frequency;
@@ -21,11 +24,11 @@ float _Persistence;
 float _Lacunarity;
 int _Octaves;
 
-[numthreads(GRIDGRADIENT_THREAD_WIDTH, GRIDGRADIENT_THREAD_WIDTH,1)]
-void GridGradient(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+[numthreads(GRIDGRADIENT_THREAD_WIDTH, GRIDGRADIENT_THREAD_WIDTH, 1)]
+void GridGradientVec(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
 {
-    uint groupCountRow = _GridSize.x / GRIDGRADIENT_THREAD_WIDTH + _GridSize.x % GRIDGRADIENT_THREAD_WIDTH == 0 ? 0 : 1;
-    uint groupIdx = g_id.x + g_id.y * GROUP_MAX;
+    uint groupCountRow = _GridSize.x / GRIDGRADIENT_THREAD_WIDTH + (_GridSize.x % GRIDGRADIENT_THREAD_WIDTH == 0 ? 0 : 1);
+    uint groupIdx = g_id.x + g_id.y * groupCountRow;
 
     uint group_x = groupIdx % groupCountRow;
     uint group_y = groupIdx / groupCountRow;
@@ -37,19 +40,70 @@ void GridGradient(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
     {
         return;
     }
-    
+
     uint gridIdx = grid_x + grid_y * _GridSize.x;
     uint seed = Vector2IntToSeed(uint2(grid_x + _GridMin.x, grid_y + _GridMin.y));
     float gradient = DRandomXORShift(seed) / (float)UINT_MAX;
     gradient *= PI * 2 * _GradientRadianMul;
-    
-    _GradientVecBuffer[gridIdx] = gradient;
+
+    float2 gradientVec = float2(cos(gradient), sin(gradient));
+    _GradientVecBuffer[gridIdx] = gradientVec;
 }
 
-[numthreads(THREAD_COUNT, 1, 1)]
-void PerlinNoise(uint t_id : SV_GroupIndex, uint3 g_id : SV_GroupID)
+[numthreads(PERLIN_THREAD_WIDTH, PERLIN_THREAD_WIDTH, 1)]
+void PerlinNoise(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
 {
-    // TODO: insert actual code here!
+    uint groupCountRow = _TexSize.x / PERLIN_THREAD_WIDTH + (_TexSize.x % PERLIN_THREAD_WIDTH == 0 ? 0 : 1);
+    uint groupIdx = g_id.x + g_id.y * groupCountRow;
 
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15) / 15.0, (id.y & 15) / 15.0, 0.0);
+    uint group_x = groupIdx % groupCountRow;
+    uint group_y = groupIdx / groupCountRow;
+
+    uint idx_x = PERLIN_THREAD_WIDTH * group_x + t_id.x;
+    uint idx_y = PERLIN_THREAD_WIDTH * group_y + t_id.y;
+
+    float x = idx_x * _Scale * 0.01f + _Offset.x;
+    float y = idx_y * _Scale * 0.01f + _Offset.y;
+    float2 curPos = float2(x, y);
+
+    if (idx_x >= _TexSize.x || idx_y >= _TexSize.y)
+    {
+        return;
+    }
+    int2 grid_lbot = uint2(x, y);
+    int2 grid_ltop = uint2(x, y + 1);
+    int2 grid_rbot = uint2(x + 1, y);
+    int2 grid_rtop = uint2(x + 1, y + 1);
+
+    uint gridIdx_lbot = grid_lbot.x - _GridMin.x + (grid_lbot.y - _GridMin.y) * _GridSize.x;
+    uint gridIdx_ltop = grid_ltop.x - _GridMin.x + (grid_ltop.y - _GridMin.y) * _GridSize.x;
+    uint gridIdx_rbot = grid_rbot.x - _GridMin.x + (grid_rbot.y - _GridMin.y) * _GridSize.x;
+    uint gridIdx_rtop = grid_rtop.x - _GridMin.x + (grid_rtop.y - _GridMin.y) * _GridSize.x;
+
+    float2 gradientVec_lbot = _GradientVecBuffer[gridIdx_lbot];
+    float2 gradientVec_ltop = _GradientVecBuffer[gridIdx_ltop];
+    float2 gradientVec_rbot = _GradientVecBuffer[gridIdx_rbot];
+    float2 gradientVec_rtop = _GradientVecBuffer[gridIdx_rtop];
+
+    float2 disVec_lbot = curPos - grid_lbot;
+    float2 disVec_ltop = curPos - grid_ltop;
+    float2 disVec_rbot = curPos - grid_rbot;
+    float2 disVec_rtop = curPos - grid_rtop;
+
+    float weight_lbot = dot(gradientVec_lbot, disVec_lbot);
+    float weight_ltop = dot(gradientVec_ltop, disVec_ltop);
+    float weight_rbot = dot(gradientVec_rbot, disVec_rbot);
+    float weight_rtop = dot(gradientVec_rtop, disVec_rtop);
+
+    float weight_bot = PerlinInterpolation(weight_lbot, weight_rbot, x - (int)x);
+    float weight_top = PerlinInterpolation(weight_ltop, weight_rtop, x - (int)x);
+
+    float weight = PerlinInterpolation(weight_bot, weight_top, y - (int)y);
+
+    float value = weight * 0.5f + 0.5f;
+
+    float4 color = float4(value, value, value, 1);
+
+    _ColorBuffer[idx_x + idx_y * _TexSize.x] = color;
+
 }

@@ -278,8 +278,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Image: {fileID: 794240400}
   m_AutoUpdate: 1
-  m_Width: 256
-  m_Height: 256
+  m_Width: 512
+  m_Height: 512
   m_MapType: 0
   m_FilePath: Assets/Test
   m_FileName: 
@@ -333,7 +333,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c854d1878bc6f14894fcd4db03dbcb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UseGPU: 0
+  m_UseGPU: 1
   m_Scale: 7
   m_GradientRadianMul: 1
   m_Amplitude: 1.63
@@ -341,7 +341,7 @@ MonoBehaviour:
   m_Persistence: 1.36
   m_Lacunarity: 1.33
   m_Octave: 2
-  m_CS: {fileID: 0}
+  m_CS: {fileID: 7200000, guid: 8e47b8df2dcf01e45bdfc15ec1b8ff59, type: 3}
 --- !u!1 &1633065063
 GameObject:
   m_ObjectHideFlags: 0

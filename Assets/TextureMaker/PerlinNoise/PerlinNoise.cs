@@ -1,10 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class PerlinNoise : MonoBehaviour
 {
+    const int GridGradient_Thread_Width = 32;
+    const int Perlin_Thread_Width = 32;
+    const int Group_Max = 512;
+
     [SerializeField] bool m_UseGPU = true;
     [SerializeField][Min(0.01f)] float m_Scale = 7f;
     [SerializeField] float m_GradientRadianMul;
@@ -22,8 +27,12 @@ public class PerlinNoise : MonoBehaviour
     float LastLacunarity;
     int LastOctaves;
 
+    int m_Width;
+    int m_Height;
+
     [SerializeField] ComputeShader m_CS;
-    [SerializeField] ComputeBuffer m_CSBuffer;
+    ComputeBuffer m_GradientVecBuffer;
+    ComputeBuffer m_ColorBuffer;
 
     public static PerlinNoise Ins;
     private void Awake()
@@ -40,6 +49,84 @@ public class PerlinNoise : MonoBehaviour
         
     }
 
+    void DispatchCS()
+    {
+        Vector2 offset = new Vector2(173191.511f, 177191.311f);
+        Vector2 size = new Vector2(m_Width * m_Scale * 0.01f, m_Height * m_Scale * 0.01f);
+        Vector2Int gridMin = new Vector2Int((int)offset.x, (int)offset.y);
+        Vector2 max = offset + size;
+        Vector2Int gridSize = new Vector2Int((int)max.x + 2 - gridMin.x, (int)max.y + 2 - gridMin.y);
+        Debug.Log($"{size}, {gridMin}, {gridSize}, {offset}, {max}");
+        m_GradientVecBuffer = new ComputeBuffer(gridSize.x * gridSize.y, sizeof(float) * 2);
+        m_ColorBuffer = new ComputeBuffer(m_Width * m_Height, sizeof(float) * 4);
+        m_CS.SetBuffer(0, "_GradientVecBuffer", m_GradientVecBuffer);
+        m_CS.SetBuffer(1, "_GradientVecBuffer", m_GradientVecBuffer);
+        m_CS.SetBuffer(1, "_ColorBuffer", m_ColorBuffer);
+
+        int gradientKernel_x = gridSize.x / GridGradient_Thread_Width + (gridSize.x % GridGradient_Thread_Width == 0 ? 0 : 1);
+        int gradientKernel_y = gridSize.y / GridGradient_Thread_Width + (gridSize.y % GridGradient_Thread_Width == 0 ? 0 : 1);
+
+        int perlinKernel_x = m_Width / GridGradient_Thread_Width + (m_Width % GridGradient_Thread_Width == 0 ? 0 : 1);
+        int perlinKernel_y = m_Height / GridGradient_Thread_Width + (m_Height % GridGradient_Thread_Width == 0 ? 0 : 1);
+
+        //int2 _GridMin;
+        //int2 _GridSize;
+        //float _GradientRadianMul;
+
+        //float2 _Offset;
+        //int2 _TexSize;
+        //float _Scale;
+        //float _Amplitude;
+        //float _Frequency;
+        //float _Persistence;
+        //float _Lacunarity;
+        //int _Octaves;
+
+        m_CS.SetInts("_GridMin", new int[2] { gridMin.x, gridMin.y });
+        m_CS.SetInts("_GridSize", new int[2] { gridSize.x, gridSize.y });
+        m_CS.SetFloat("_GradientRadianMul", m_GradientRadianMul);
+
+        m_CS.SetVector("_Offset", offset);
+        m_CS.SetInts("_TexSize", new int[2] { m_Width, m_Height });
+        m_CS.SetFloat("_Scale", m_Scale);
+        m_CS.SetFloat("_Amplitude", m_Amplitude);
+        m_CS.SetFloat("_Frequency", m_Frequency);
+        m_CS.SetFloat("_Persistence", m_Persistence);
+        m_CS.SetFloat("_Lacunarity", m_Lacunarity);
+        m_CS.SetInt("_Octaves", m_Octave);
+
+        m_CS.Dispatch(0, gradientKernel_x, gradientKernel_y, 1);
+        m_CS.Dispatch(1, perlinKernel_x, perlinKernel_y, 1);
+        return;
+        Vector2[] gradientVec = new Vector2[gridSize.x * gridSize.y];
+        m_GradientVecBuffer.GetData(gradientVec);
+        for (int y = 0; y < gridSize.y; y++)
+        {
+            for (int x = 0; x < gridSize.x; x++)
+            {
+                Debug.Log($"{x}, {y} : {gradientVec[x + y * gridSize.x]}");
+            }
+        }
+        return;
+        Color[] colors = new Color[m_Width * m_Height];
+        m_ColorBuffer.GetData(colors);
+        for (int y = 0; y < m_Height; y++)
+        {
+            for (int x = 0; x < m_Width; x++)
+            {
+                Debug.Log($"{x}, {y} : {colors[x + y * m_Width]}");
+            }
+        }
+
+      
+
+    }
+
+    void ReleaseCSBuffer()
+    {
+        m_GradientVecBuffer.Release();
+        m_ColorBuffer.Release();
+    }
     public bool isChangedOption()
     {
         return m_Scale != LastScale || m_GradientRadianMul != LastGradientRadianMul ||
@@ -70,9 +157,13 @@ public class PerlinNoise : MonoBehaviour
     }
     void SetPerlinNoise2DBuffer(int width, int height, Color[] buffer)
     {
+        m_Width = width;
+        m_Height = height;
         if(m_UseGPU)
         {
-
+            DispatchCS();
+            m_ColorBuffer.GetData(buffer);
+            ReleaseCSBuffer();
         }
         else
         {
