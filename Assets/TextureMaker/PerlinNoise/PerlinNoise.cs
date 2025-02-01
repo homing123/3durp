@@ -12,12 +12,14 @@ public class PerlinNoise : MonoBehaviour
 
     [SerializeField] bool m_UseGPU = true;
     [SerializeField][Min(0.01f)] float m_Scale = 7f;
-    [SerializeField] float m_GradientRadianMul;
-    [SerializeField][Min(0.01f)] float m_Amplitude;
-    [SerializeField][Min(0.01f)] float m_Frequency;
-    [SerializeField][Min(0.01f)] float m_Persistence;
-    [SerializeField][Min(0.01f)] float m_Lacunarity;
+    [SerializeField][Range(0.0f, 1.0f)] float m_GradientRadianMul;
+    [SerializeField][Range(0.01f, 1.0f)] float m_Amplitude;
+    [SerializeField][Min(0.1f)] float m_Frequency;
+    [SerializeField][Min(0.1f)] float m_Persistence;
+    [SerializeField][Range(1.5f, 2.5f)] float m_Lacunarity;
     [SerializeField][Range(1, 10)] int m_Octave;
+
+
 
     float LastScale;
     float LastGradientRadianMul;
@@ -52,11 +54,13 @@ public class PerlinNoise : MonoBehaviour
     void DispatchCS()
     {
         Vector2 offset = new Vector2(173191.511f, 177191.311f);
-        Vector2 size = new Vector2(m_Width * m_Scale * 0.01f, m_Height * m_Scale * 0.01f);
+        float sizeMul = m_Frequency * Mathf.Pow(m_Lacunarity, m_Octave);
+        Vector2 size = new Vector2(m_Width * m_Scale * 0.01f * sizeMul, m_Height * m_Scale * 0.01f * sizeMul);
         Vector2Int gridMin = new Vector2Int((int)offset.x, (int)offset.y);
         Vector2 max = offset + size;
         Vector2Int gridSize = new Vector2Int((int)max.x + 2 - gridMin.x, (int)max.y + 2 - gridMin.y);
-        Debug.Log($"{size}, {gridMin}, {gridSize}, {offset}, {max}");
+        //Debug.Log("그리드 사이즈 : "+gridSize);
+        //Debug.Log($"{size}, {gridMin}, {gridSize}, {offset}, {max}");
         m_GradientVecBuffer = new ComputeBuffer(gridSize.x * gridSize.y, sizeof(float) * 2);
         m_ColorBuffer = new ComputeBuffer(m_Width * m_Height, sizeof(float) * 4);
         m_CS.SetBuffer(0, "_GradientVecBuffer", m_GradientVecBuffer);
@@ -188,10 +192,11 @@ public class PerlinNoise : MonoBehaviour
                     float value = 0;
                     for (int i = 0; i < m_Octave; i++)
                     {
-                        value = PerlinNoise2D(x * 0.01f * frequency, y * 0.01f * frequency, D_PerlinGradientVec);
+                        value += amplitude * PerlinNoise2D(x * 0.01f * frequency, y * 0.01f * frequency, D_PerlinGradientVec);
                         amplitude *= m_Persistence;
                         frequency *= m_Lacunarity;
                     }
+                    value = value * 0.5f + 0.5f;
                     buffer[idx] = new Color(value, value, value, 1);
                 }
             }
@@ -237,7 +242,6 @@ public class PerlinNoise : MonoBehaviour
         float yRight = PerlinInterpolation(arr_gridWeight[2], arr_gridWeight[3], y - (int)y);
 
         float result = PerlinInterpolation(yLeft, yRight, x - (int)x);
-        result = result * 0.5f + 0.5f;
 
         return result;
     }

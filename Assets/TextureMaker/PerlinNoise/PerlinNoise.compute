@@ -62,46 +62,57 @@ void PerlinNoise(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
     uint idx_x = PERLIN_THREAD_WIDTH * group_x + t_id.x;
     uint idx_y = PERLIN_THREAD_WIDTH * group_y + t_id.y;
 
-    float x = idx_x * _Scale * 0.01f + _Offset.x;
-    float y = idx_y * _Scale * 0.01f + _Offset.y;
-    float2 curPos = float2(x, y);
-
     if (idx_x >= _TexSize.x || idx_y >= _TexSize.y)
     {
         return;
     }
-    int2 grid_lbot = uint2(x, y);
-    int2 grid_ltop = uint2(x, y + 1);
-    int2 grid_rbot = uint2(x + 1, y);
-    int2 grid_rtop = uint2(x + 1, y + 1);
 
-    uint gridIdx_lbot = grid_lbot.x - _GridMin.x + (grid_lbot.y - _GridMin.y) * _GridSize.x;
-    uint gridIdx_ltop = grid_ltop.x - _GridMin.x + (grid_ltop.y - _GridMin.y) * _GridSize.x;
-    uint gridIdx_rbot = grid_rbot.x - _GridMin.x + (grid_rbot.y - _GridMin.y) * _GridSize.x;
-    uint gridIdx_rtop = grid_rtop.x - _GridMin.x + (grid_rtop.y - _GridMin.y) * _GridSize.x;
+    float value = 0;
+    float frequency = _Frequency;
+    float amplitude = _Amplitude;
+    for (int i = 0; i < _Octaves; i++)
+    {
+        float x = idx_x * _Scale * 0.01f * frequency + _Offset.x;
+        float y = idx_y * _Scale * 0.01f * frequency + _Offset.y;
+        float2 curPos = float2(x, y);
 
-    float2 gradientVec_lbot = _GradientVecBuffer[gridIdx_lbot];
-    float2 gradientVec_ltop = _GradientVecBuffer[gridIdx_ltop];
-    float2 gradientVec_rbot = _GradientVecBuffer[gridIdx_rbot];
-    float2 gradientVec_rtop = _GradientVecBuffer[gridIdx_rtop];
+        int2 grid_lbot = uint2(x, y);
+        int2 grid_ltop = uint2(x, y + 1);
+        int2 grid_rbot = uint2(x + 1, y);
+        int2 grid_rtop = uint2(x + 1, y + 1);
 
-    float2 disVec_lbot = curPos - grid_lbot;
-    float2 disVec_ltop = curPos - grid_ltop;
-    float2 disVec_rbot = curPos - grid_rbot;
-    float2 disVec_rtop = curPos - grid_rtop;
+        uint gridIdx_lbot = grid_lbot.x - _GridMin.x + (grid_lbot.y - _GridMin.y) * _GridSize.x;
+        uint gridIdx_ltop = grid_ltop.x - _GridMin.x + (grid_ltop.y - _GridMin.y) * _GridSize.x;
+        uint gridIdx_rbot = grid_rbot.x - _GridMin.x + (grid_rbot.y - _GridMin.y) * _GridSize.x;
+        uint gridIdx_rtop = grid_rtop.x - _GridMin.x + (grid_rtop.y - _GridMin.y) * _GridSize.x;
 
-    float weight_lbot = dot(gradientVec_lbot, disVec_lbot);
-    float weight_ltop = dot(gradientVec_ltop, disVec_ltop);
-    float weight_rbot = dot(gradientVec_rbot, disVec_rbot);
-    float weight_rtop = dot(gradientVec_rtop, disVec_rtop);
+        float2 gradientVec_lbot = _GradientVecBuffer[gridIdx_lbot];
+        float2 gradientVec_ltop = _GradientVecBuffer[gridIdx_ltop];
+        float2 gradientVec_rbot = _GradientVecBuffer[gridIdx_rbot];
+        float2 gradientVec_rtop = _GradientVecBuffer[gridIdx_rtop];
 
-    float weight_bot = PerlinInterpolation(weight_lbot, weight_rbot, x - (int)x);
-    float weight_top = PerlinInterpolation(weight_ltop, weight_rtop, x - (int)x);
+        float2 disVec_lbot = curPos - grid_lbot;
+        float2 disVec_ltop = curPos - grid_ltop;
+        float2 disVec_rbot = curPos - grid_rbot;
+        float2 disVec_rtop = curPos - grid_rtop;
 
-    float weight = PerlinInterpolation(weight_bot, weight_top, y - (int)y);
+        float weight_lbot = dot(gradientVec_lbot, disVec_lbot);
+        float weight_ltop = dot(gradientVec_ltop, disVec_ltop);
+        float weight_rbot = dot(gradientVec_rbot, disVec_rbot);
+        float weight_rtop = dot(gradientVec_rtop, disVec_rtop);
 
-    float value = weight * 0.5f + 0.5f;
+        float weight_bot = PerlinInterpolation(weight_lbot, weight_rbot, x - (int)x);
+        float weight_top = PerlinInterpolation(weight_ltop, weight_rtop, x - (int)x);
 
+        float weight = PerlinInterpolation(weight_bot, weight_top, y - (int)y);
+
+        value += amplitude * weight;
+
+        amplitude *= _Persistence;
+        frequency *= _Lacunarity;
+    }
+
+    value = value * 0.5f + 0.5f;
     float4 color = float4(value, value, value, 1);
 
     _ColorBuffer[idx_x + idx_y * _TexSize.x] = color;
