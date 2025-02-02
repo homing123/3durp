@@ -238,6 +238,7 @@ GameObject:
   - component: {fileID: 794240400}
   - component: {fileID: 794240399}
   - component: {fileID: 794240402}
+  - component: {fileID: 794240403}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -278,9 +279,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Image: {fileID: 794240400}
   m_AutoUpdate: 1
-  m_Width: 512
-  m_Height: 512
-  m_MapType: 0
+  m_Width: 256
+  m_Height: 256
+  m_MapType: 1
   m_FilePath: Assets/Test
   m_FileName: 
 --- !u!114 &794240400
@@ -334,6 +335,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_UseGPU: 1
+  m_Offset: {x: 0, y: 0}
   m_Scale: 7
   m_GradientRadianMul: 1
   m_Amplitude: 0.911
@@ -342,6 +344,19 @@ MonoBehaviour:
   m_Lacunarity: 2.186
   m_Octave: 5
   m_CS: {fileID: 7200000, guid: 8e47b8df2dcf01e45bdfc15ec1b8ff59, type: 3}
+--- !u!114 &794240403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 794240397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5fcd16a900d5ea4db15428c5f055677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PointCount: 3
 --- !u!1 &1633065063
 GameObject:
   m_ObjectHideFlags: 0

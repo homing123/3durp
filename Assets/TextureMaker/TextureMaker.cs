@@ -8,7 +8,7 @@ public class TextureMaker : MonoBehaviour
     public enum E_MapType
     {
         PerlinNoise,
-        Voronoi
+        WorleyNoise
     }
     [SerializeField] Image m_Image;
     [SerializeField] bool m_AutoUpdate;
@@ -18,6 +18,8 @@ public class TextureMaker : MonoBehaviour
     int m_LastFrameWidth;
     int m_LastFrameHeight;
     [SerializeField] E_MapType m_MapType;
+    E_MapType m_LastMapType;
+    I_TextureMaker m_Interface;
 
     [Space(10)]
     [SerializeField] string m_FilePath;
@@ -36,18 +38,12 @@ public class TextureMaker : MonoBehaviour
     }
     bool isChanged()
     {
-        if((m_Width != m_LastFrameWidth) || (m_Height != m_LastFrameHeight))
+        if((m_Width != m_LastFrameWidth) || (m_Height != m_LastFrameHeight) || (m_LastMapType != m_MapType))
         {
             return true;
         }
-        switch(m_MapType)
-        {
-            case E_MapType.PerlinNoise:
-                return PerlinNoise.Ins.isChangedOption();
-            case E_MapType.Voronoi:
-                return false;
-        }
-        return false;
+
+        return m_Interface.isChangedOption();
     }
     void SpriteUpdate()
     {
@@ -55,19 +51,12 @@ public class TextureMaker : MonoBehaviour
         {
             return;
         }
+        SetInterface();
 
         Texture2D tex2D = new Texture2D(m_Width, m_Height);
-        Color[] arr_Color = null;
-        switch (m_MapType)
-        {
-            case E_MapType.PerlinNoise:
-                arr_Color = PerlinNoise.Ins.CreatePerlinNoise2DBuffer(m_Width, m_Height);
-                PerlinNoise.Ins.LastValueUpdate();
-                break;
-            case E_MapType.Voronoi:
-                break;
-        }
-        
+      
+        Color[] arr_Color = m_Interface.GetColorBuffer(m_Width, m_Height);
+
         tex2D.SetPixels(arr_Color);
         tex2D.Apply();
 
@@ -77,8 +66,28 @@ public class TextureMaker : MonoBehaviour
 
         m_LastFrameWidth = m_Width;
         m_LastFrameHeight = m_Height;
+        m_LastMapType = m_MapType;
     }    
 
+    void LastOptionUpdate()
+    {
+        m_LastFrameWidth = m_Width;
+        m_LastFrameHeight = m_Height;
+        m_LastMapType = m_MapType;
+        m_Interface.LastOptionUpdate();
+    }
+    void SetInterface()
+    {
+        switch (m_MapType)
+        {
+            case E_MapType.PerlinNoise:
+                m_Interface = PerlinNoise.Ins;
+                break;
+            case E_MapType.WorleyNoise:
+                m_Interface = WorleyNoise.Ins;
+                break;
+        }
+    }
 
 
 
@@ -155,4 +164,11 @@ public class TextureMaker : MonoBehaviour
 
         Debug.Log($"filePath : {filePath}. Create Complete");
     }
+}
+
+public interface I_TextureMaker
+{
+    public Color[] GetColorBuffer(int width, int height);
+    public bool isChangedOption();
+    public void LastOptionUpdate();
 }

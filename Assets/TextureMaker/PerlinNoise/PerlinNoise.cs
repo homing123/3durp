@@ -4,13 +4,14 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class PerlinNoise : MonoBehaviour
+public class PerlinNoise : MonoBehaviour, I_TextureMaker
 {
     const int GridGradient_Thread_Width = 32;
     const int Perlin_Thread_Width = 32;
     const int Group_Max = 512;
 
     [SerializeField] bool m_UseGPU = true;
+    [SerializeField] Vector2 m_Offset;
     [SerializeField][Min(0.01f)] float m_Scale = 7f;
     [SerializeField][Range(0.0f, 1.0f)] float m_GradientRadianMul;
     [SerializeField][Range(0.01f, 1.0f)] float m_Amplitude;
@@ -21,6 +22,7 @@ public class PerlinNoise : MonoBehaviour
 
 
 
+    Vector2 LastOffset;
     float LastScale;
     float LastGradientRadianMul;
     float LastAmplitude;
@@ -53,11 +55,10 @@ public class PerlinNoise : MonoBehaviour
 
     void DispatchCS()
     {
-        Vector2 offset = new Vector2(173191.511f, 177191.311f);
         float sizeMul = m_Frequency * Mathf.Pow(m_Lacunarity, m_Octave);
         Vector2 size = new Vector2(m_Width * m_Scale * 0.01f * sizeMul, m_Height * m_Scale * 0.01f * sizeMul);
-        Vector2Int gridMin = new Vector2Int((int)offset.x, (int)offset.y);
-        Vector2 max = offset + size;
+        Vector2Int gridMin = new Vector2Int((int)m_Offset.x, (int)m_Offset.y);
+        Vector2 max = m_Offset + size;
         Vector2Int gridSize = new Vector2Int((int)max.x + 2 - gridMin.x, (int)max.y + 2 - gridMin.y);
         //Debug.Log("그리드 사이즈 : "+gridSize);
         //Debug.Log($"{size}, {gridMin}, {gridSize}, {offset}, {max}");
@@ -90,7 +91,7 @@ public class PerlinNoise : MonoBehaviour
         m_CS.SetInts("_GridSize", new int[2] { gridSize.x, gridSize.y });
         m_CS.SetFloat("_GradientRadianMul", m_GradientRadianMul);
 
-        m_CS.SetVector("_Offset", offset);
+        m_CS.SetVector("_Offset", m_Offset);
         m_CS.SetInts("_TexSize", new int[2] { m_Width, m_Height });
         m_CS.SetFloat("_Scale", m_Scale);
         m_CS.SetFloat("_Amplitude", m_Amplitude);
@@ -136,9 +137,9 @@ public class PerlinNoise : MonoBehaviour
         return m_Scale != LastScale || m_GradientRadianMul != LastGradientRadianMul ||
             m_Amplitude != LastAmplitude || m_Frequency != LastFrequency ||
             m_Persistence != LastPersistence || m_Lacunarity != LastLacunarity ||
-            m_Octave != LastOctaves;
+            m_Octave != LastOctaves || m_Offset != LastOffset;
     }
-    public void LastValueUpdate()
+    public void LastOptionUpdate()
     {
         LastScale = m_Scale;
         LastGradientRadianMul = m_GradientRadianMul;
@@ -147,13 +148,10 @@ public class PerlinNoise : MonoBehaviour
         LastPersistence = m_Persistence;
         LastLacunarity = m_Lacunarity;
         LastOctaves = m_Octave;
+        LastOffset = m_Offset;
     }
 
-    public void CreatePerlinNoise2DBuffer(int width, int height, Color[] buffer)
-    {
-        SetPerlinNoise2DBuffer(width, height, buffer);
-    }
-    public Color[] CreatePerlinNoise2DBuffer(int width, int height)
+    public Color[] GetColorBuffer(int width, int height)
     {
         Color[] arr_color = new Color[width * height];
         SetPerlinNoise2DBuffer(width, height, arr_color);
@@ -224,7 +222,7 @@ public class PerlinNoise : MonoBehaviour
         {
             if (D_PerlinGradientVec.ContainsKey(arr_gridPos[i]) == false)
             {
-                float noiseValue = HMUtil.Noise2D(arr_gridPos[i].x, arr_gridPos[i].y) * Mathf.PI * 2 * m_GradientRadianMul;
+                float noiseValue = HMUtil.Random_uint2Tofloat(arr_gridPos[i].x, arr_gridPos[i].y) * Mathf.PI * 2 * m_GradientRadianMul;
                 D_PerlinGradientVec[arr_gridPos[i]] = noiseValue.RadianToUnitVector2();
             }
         }
