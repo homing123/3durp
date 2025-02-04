@@ -3,6 +3,11 @@ using UnityEngine;
 
 public class GrassMaker : MonoBehaviour
 {
+
+    public struct ChunkGrassData
+    {
+        ComputeBuffer DrawedGrassBuffer;
+    }
     struct LogData
     {
         public int ia;

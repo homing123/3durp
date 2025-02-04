@@ -1,4 +1,3 @@
-
 #define PI 3.1415926535f
 #define UINT_MAX 0xFFFFFFFF;
 
@@ -11,9 +10,9 @@ uint DRandomXORShift(uint seed)
     seed ^= seed >> 16;
     return seed;
 }
-uint Vector2IntToSeed(uint2 vt2Int)
+uint Vector2IntToSeed(int2 vt2Int)
 {
-    float seed = vt2Int.x * 73856093u ^ vt2Int.y * 19349663u;
+    uint seed = ((uint)vt2Int.x * 73856093u) ^ ((uint)vt2Int.y * 19349663u) + 104395301u;;
     return seed;
 }
 

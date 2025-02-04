@@ -34,7 +34,9 @@ public class Character : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GrassBendingM.Ins.AddBending(transform, m_BendingRadius);
+
+        GrassBendingM.Ins?.AddBending(transform, m_BendingRadius);
+        
     }
 
     // Update is called once per frame

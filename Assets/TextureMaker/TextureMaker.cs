@@ -12,14 +12,15 @@ public class TextureMaker : MonoBehaviour
     }
     [SerializeField] Image m_Image;
     [SerializeField] bool m_AutoUpdate;
-
-    [SerializeField] int m_Width;
-    [SerializeField] int m_Height;
-    int m_LastFrameWidth;
-    int m_LastFrameHeight;
+    [SerializeField] bool m_UseGPU;
     [SerializeField] E_MapType m_MapType;
+    bool m_LastUseGPU;
     E_MapType m_LastMapType;
-    I_TextureMaker m_Interface;
+
+    [SerializeField] PerlinNoise.PerlinOption m_PerlinOption;
+    PerlinNoise.PerlinOption m_LastPerlinOption;
+    [SerializeField] WorleyNoise.WorleyOption m_WorleyOption;
+    WorleyNoise.WorleyOption m_LastWorleyOption;
 
     [Space(10)]
     [SerializeField] string m_FilePath;
@@ -38,54 +39,80 @@ public class TextureMaker : MonoBehaviour
     }
     bool isChanged()
     {
-        if((m_Width != m_LastFrameWidth) || (m_Height != m_LastFrameHeight) || (m_LastMapType != m_MapType))
+        if((m_LastMapType != m_MapType) || (m_UseGPU!= m_LastUseGPU))
         {
             return true;
         }
 
-        return m_Interface.isChangedOption();
+        switch(m_MapType)
+        {
+            case E_MapType.PerlinNoise:
+                return m_PerlinOption != m_LastPerlinOption;
+            case E_MapType.WorleyNoise:
+                return m_WorleyOption != m_LastWorleyOption;
+        }
+
+        return false;
     }
     void SpriteUpdate()
     {
-        if (m_Width * m_Height <= 0)
+        Texture2D tex2D = null;
+        Color[] arr_Color = null;
+
+        switch (m_MapType)
         {
-            return;
+            case E_MapType.PerlinNoise:
+                tex2D = new Texture2D(m_PerlinOption.width, m_PerlinOption.height);
+                arr_Color = new Color[m_PerlinOption.width * m_PerlinOption.height];
+                if (m_UseGPU)
+                {
+                    ComputeBuffer cbuffer = PerlinNoise.PerlinNoiseGPU(m_PerlinOption, PerlinNoise.E_PerlinBufferType.Color);
+                    cbuffer.GetData(arr_Color);
+                    cbuffer.Release();
+                }
+                else
+                {
+                    arr_Color = PerlinNoise.PerlinNoiseCPU(m_PerlinOption);
+                }
+                break;
+            case E_MapType.WorleyNoise:
+                tex2D = new Texture2D(m_WorleyOption.width, m_WorleyOption.height);
+                arr_Color = new Color[m_WorleyOption.width * m_WorleyOption.height];
+                if (m_UseGPU)
+                {
+                    ComputeBuffer cbuffer = WorleyNoise.WorleyNoiseGPU(m_WorleyOption, WorleyNoise.E_WorleyBufferType.Color);
+                    cbuffer.GetData(arr_Color);
+                    cbuffer.Release();
+                }
+                else
+                {
+                    arr_Color = WorleyNoise.WorleyNoiseCPU(m_WorleyOption);
+                }
+                break;
         }
-        SetInterface();
-
-        Texture2D tex2D = new Texture2D(m_Width, m_Height);
-      
-        Color[] arr_Color = m_Interface.GetColorBuffer(m_Width, m_Height);
-
         tex2D.SetPixels(arr_Color);
         tex2D.Apply();
 
         Sprite sprite = Sprite.Create(tex2D, new Rect(0, 0, tex2D.width, tex2D.height), new Vector2(0.5f, 0.5f));
-        m_Image.rectTransform.sizeDelta = new Vector2(m_Width, m_Height);
+        m_Image.rectTransform.sizeDelta = new Vector2(tex2D.width, tex2D.height);
         m_Image.sprite = sprite;
 
-        m_LastFrameWidth = m_Width;
-        m_LastFrameHeight = m_Height;
-        m_LastMapType = m_MapType;
+        LastOptionUpdate();
     }    
 
     void LastOptionUpdate()
     {
-        m_LastFrameWidth = m_Width;
-        m_LastFrameHeight = m_Height;
         m_LastMapType = m_MapType;
-        m_Interface.LastOptionUpdate();
-    }
-    void SetInterface()
-    {
+        m_LastUseGPU = m_UseGPU;
         switch (m_MapType)
         {
             case E_MapType.PerlinNoise:
-                m_Interface = PerlinNoise.Ins;
+                m_LastPerlinOption = m_PerlinOption;
                 break;
             case E_MapType.WorleyNoise:
-                m_Interface = WorleyNoise.Ins;
+                m_LastWorleyOption = m_WorleyOption;
                 break;
+
         }
     }
 
@@ -164,11 +191,4 @@ public class TextureMaker : MonoBehaviour
 
         Debug.Log($"filePath : {filePath}. Create Complete");
     }
-}
-
-public interface I_TextureMaker
-{
-    public Color[] GetColorBuffer(int width, int height);
-    public bool isChangedOption();
-    public void LastOptionUpdate();
 }

@@ -1,0 +1,61 @@
+
+#include "TextureMakerUtil.compute"
+
+#pragma kernel WorleyNoise_Texture
+#define WORLEYNOISE_THREAD_WIDTH 32
+#define GROUP_MAX 512
+
+
+StructuredBuffer<float2> _PointBuffer;
+RWStructuredBuffer<float4> _ColorBuffer;
+RWStructuredBuffer<float> _FloatBuffer;
+
+uint2 _TexSize;
+int _PointCount;
+float _DistanceWeight;
+int2 _GridPos;
+
+
+float WorleyNoise(uint idx_x, uint idx_y)
+{
+    float2 pos = float2(idx_x, idx_y) + _GridPos * (int2)_TexSize;
+
+    int nearIdx = 0;
+    float nearDis = length(_PointBuffer[nearIdx] - pos);
+    for (int i = 1; i < _PointCount; i++)
+    {
+        float curDis = length(_PointBuffer[i] - pos);
+        if (nearDis > curDis)
+        {
+            nearIdx = i;
+            nearDis = curDis;
+        }
+    }
+
+    float value = _DistanceWeight == 0 ? nearIdx / (float)(_PointCount - 1) : nearDis * _DistanceWeight;
+    return value;
+}
+
+[numthreads(WORLEYNOISE_THREAD_WIDTH, WORLEYNOISE_THREAD_WIDTH,1)]
+void WorleyNoise_Texture(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+	uint groupCountRow = _TexSize.x / WORLEYNOISE_THREAD_WIDTH + (_TexSize.x % WORLEYNOISE_THREAD_WIDTH == 0 ? 0 : 1);
+	uint groupIdx = g_id.x + g_id.y * groupCountRow;
+
+	uint group_x = groupIdx % groupCountRow;
+	uint group_y = groupIdx / groupCountRow;
+
+	uint idx_x = WORLEYNOISE_THREAD_WIDTH * group_x + t_id.x;
+	uint idx_y = WORLEYNOISE_THREAD_WIDTH * group_y + t_id.y;
+
+	if (idx_x >= _TexSize.x || idx_y >= _TexSize.y)
+	{
+		return;
+	}
+
+    int texelIdx = idx_x + idx_y * _TexSize.x;
+
+    float value = WorleyNoise(idx_x, idx_y);
+    _ColorBuffer[texelIdx] = float4(value, value, value, 1);
+}
+
