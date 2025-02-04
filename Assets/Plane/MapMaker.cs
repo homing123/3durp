@@ -10,6 +10,10 @@ public class MapMaker : MonoBehaviour
         public Ground m_Ground;
         public GrassMaker.ChunkGrassData m_GrassData;
         public TerrainMaker.ChunkTerrainData m_TerrainData;
+        ~Chunk()
+        {
+            m_TerrainData.heightBuffer.Release();
+        }
     }
 
     public static MapMaker Ins;
@@ -59,9 +63,14 @@ public class MapMaker : MonoBehaviour
             {
                 Vector2Int curGridIdxCoord = new Vector2Int(minGridIdxCoord.x + x, minGridIdxCoord.y + y);
                 Vector2 groundPos = new Vector2(curGridIdxCoord.x * Ground.GroundWidth, curGridIdxCoord.y * Ground.GroundWidth);
-                D_Chunk[curGridIdxCoord] = CreateChunk(groundPos);
+                D_Chunk[curGridIdxCoord] = CreateChunk(groundPos, camPosXZ);
             }
         }
+
+        //D_Chunk[new Vector2Int(0, 0)] = CreateChunk(new Vector2(0, 0) * Ground.GroundWidth, camPosXZ);
+        //D_Chunk[new Vector2Int(1, 0)] = CreateChunk(new Vector2(1, 0) * Ground.GroundWidth, camPosXZ);
+        //D_Chunk[new Vector2Int(0, 1)] = CreateChunk(new Vector2(0, 1) * Ground.GroundWidth, camPosXZ);
+        //D_Chunk[new Vector2Int(1, 1)] = CreateChunk(new Vector2(1, 1) * Ground.GroundWidth, camPosXZ);
     }
     Vector2Int ChunkMoveCheck()
     {
@@ -77,10 +86,12 @@ public class MapMaker : MonoBehaviour
     {
 
     }
-    Chunk CreateChunk(Vector2 groundPos)
+    Chunk CreateChunk(Vector2 groundPos, Vector2 curCamPos)
     {
         Chunk chunk = new Chunk();
-        chunk.m_Ground = Ground.Create(groundPos);
+        chunk.m_TerrainData = TerrainMaker.Ins.GetChunkTerrainData(groundPos);
+        float dis = Vector2.Distance(curCamPos, groundPos);
+        chunk.m_Ground = Ground.Create(groundPos, dis, chunk.m_TerrainData.arr_MeshLOD);
 
 
         return chunk;

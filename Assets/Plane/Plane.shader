@@ -4,6 +4,7 @@ Shader "Plane/Grass"
     {
         _Color("Color", Color) = (1,1,1,1)
         _Ambient("Ambient", Range(0,1)) = 0
+        _Diffuse("Diffuse", Range(0,1)) = 0
 
         _NoiseColor("NoiseColor", Color) = (1,1,1,1)
         _NoiseTex("NoiseTex", 2D) = "white"{}
@@ -52,6 +53,7 @@ Shader "Plane/Grass"
             };
             sampler2D _NoiseTex;
             samplerCUBE _Skybox;
+
             CBUFFER_START(UnityPerMaterial)
             float4 _Color;
             float _Ambient;
@@ -72,6 +74,7 @@ Shader "Plane/Grass"
                 o.normal = i.normal;
                 o.posWS = TransformObjectToWorld(i.posModel.xyz);
                 o.fogFactor = ComputeFogFactor(o.posCS.z);
+                
 
                 //only built in
                 //UNITY_TRANSFER_FOG(o,o.posCS); //o안의 fog값에 필요한 변수들을 알아서 채워줌 설정에 따라 달라지기 때문에 매크로로 묶어둔거라고함
@@ -94,19 +97,17 @@ Shader "Plane/Grass"
                 half3 ambientInShadow = albedo * mainLight.color * ndotl * (1 - mainLight.shadowAttenuation) * _Ambient;
                 col.rgb = diffuse + ambientInShadow;
 
-                //col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 
+                ////col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 
 
-                float3 camPosWS = GetCameraPositionWS();
-                float3 viewDir = normalize(i.posWS - camPosWS);
-                float3 reflectVector = reflect(viewDir, normal);
+                //float3 camPosWS = GetCameraPositionWS();
+                //float3 viewDir = normalize(i.posWS - camPosWS);
+                //float3 reflectVector = reflect(viewDir, normal);
 
-                float4 skyColor = texCUBE(_Skybox, reflectVector);
-                //col.rgb = skyColor.rgb;
-                col.rgb = col.rgb * i.fogFactor + (1 - i.fogFactor)* skyColor.rgb;
+                //float4 skyColor = texCUBE(_Skybox, reflectVector);
+                ////col.rgb = skyColor.rgb;
+                //col.rgb = col.rgb * i.fogFactor + (1 - i.fogFactor)* skyColor.rgb;
 
                 return col;
-                // col = tex2D(_MainTex, i.uv * _MainTex_ST.xy + _MainTex_ST.zw);
-                // return col;
             }
 
             ENDHLSL

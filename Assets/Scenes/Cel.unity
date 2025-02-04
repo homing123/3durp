@@ -3706,6 +3706,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1958049052}
   - component: {fileID: 1958049053}
+  - component: {fileID: 1958049054}
+  - component: {fileID: 1958049055}
   m_Layer: 0
   m_Name: MapMaker
   m_TagString: Untagged
@@ -3740,8 +3742,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c27b6affacfdc8147b2906351d90be7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RenderDis: 95
+  m_RenderDis: 47
   m_Ground: {fileID: 0}
+--- !u!114 &1958049054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958049051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16745ec01907a3f45823ed1709427909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PerlinOption:
+    width: 128
+    height: 128
+    offset: {x: 0, y: 0}
+    scale: 0
+    gradientRadianMul: 1
+    amplitude: 5.79
+    frequency: 0.01
+    persistence: 0.35
+    lacunarity: 2.186
+    octave: 3
+--- !u!114 &1958049055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958049051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da306a8f19262334daddb20140e1b7fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PerlinNoise: {fileID: 7200000, guid: 8e47b8df2dcf01e45bdfc15ec1b8ff59, type: 3}
+  m_WorleyNoise: {fileID: 7200000, guid: 8d62595cecda5154b9f9a2879353ebb6, type: 3}
 --- !u!1 &1959000363 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3586728633960674748, guid: 4c24864bced7ba64696cc88d5412ef2b,

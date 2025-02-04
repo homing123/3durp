@@ -278,13 +278,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Image: {fileID: 794240400}
   m_AutoUpdate: 1
-  m_UseGPU: 0
-  m_MapType: 1
+  m_UseGPU: 1
+  m_MapType: 0
   m_PerlinOption:
     width: 256
     height: 256
     offset: {x: 0, y: 0}
-    scale: 7
+    scale: 78.125
     gradientRadianMul: 1
     amplitude: 0.911
     frequency: 0.22
