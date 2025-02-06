@@ -106,6 +106,7 @@ Shader "Plane/Grass"
                 //float4 skyColor = texCUBE(_Skybox, reflectVector);
                 ////col.rgb = skyColor.rgb;
                 //col.rgb = col.rgb * i.fogFactor + (1 - i.fogFactor)* skyColor.rgb;
+                //col.rgb = normal;
 
                 return col;
             }

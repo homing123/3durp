@@ -1,0 +1,217 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel HeightToNormal_FloatToVector3
+#pragma kernel HeightToNormal_FloatToColor
+#pragma kernel HeightToNormal_ColorToVector3
+#pragma kernel HeightToNormal_ColorToColor
+#define HEIGHTTONORMAL_THREAD_WIDTH 32
+StructuredBuffer<float4> _HeightColorBuffer;
+StructuredBuffer<float> _HeightFloatBuffer;
+RWStructuredBuffer<float3> _NormalVector3Buffer;
+RWStructuredBuffer<float4> _NormalColorBuffer;
+
+uint2 _TexSize;
+uint _NormalSideType;
+float2 _D;
+
+//Clamp = 0,
+//Reduce = 1,
+
+//FloatToVector3 = 0,
+//FloatToColor = 1,
+//ColorToVector3 = 2,
+//ColorToColor = 4,
+
+float3 DotProduct(float3 v1, float3 v2)
+{
+	return float3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
+}
+
+float3 GetNormal(float left, float right, float bottom, float top)
+{
+	float3 horizon = float3(2 * _D.x, 0, right - left);
+	float3 vertical = float3(0, 2 * _D.y, top - bottom);
+	return normalize(DotProduct(horizon, vertical));
+}
+
+
+[numthreads(HEIGHTTONORMAL_THREAD_WIDTH, HEIGHTTONORMAL_THREAD_WIDTH,1)]
+void HeightToNormal_FloatToVector3(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+	uint groupCountRow = _TexSize.x / HEIGHTTONORMAL_THREAD_WIDTH + (_TexSize.x % HEIGHTTONORMAL_THREAD_WIDTH == 0 ? 0 : 1);
+	uint groupIdx = g_id.x + g_id.y * groupCountRow;
+
+	uint group_x = groupIdx % groupCountRow;
+	uint group_y = groupIdx / groupCountRow;
+
+	uint idx_x = HEIGHTTONORMAL_THREAD_WIDTH * group_x + t_id.x;
+	uint idx_y = HEIGHTTONORMAL_THREAD_WIDTH * group_y + t_id.y;
+
+	if (idx_x >= _TexSize.x || idx_y >= _TexSize.y)
+	{
+		return;
+	}
+
+	if (_NormalSideType == 0)
+	{
+		uint idx = idx_x + idx_y * _TexSize.x;
+		float left = idx_x == 0 ? _HeightFloatBuffer[idx] : _HeightFloatBuffer[idx - 1];
+		float right = idx_x == _TexSize.x - 1 ? _HeightFloatBuffer[idx] : _HeightFloatBuffer[idx + 1];
+		float bottom = idx_y == 0 ? _HeightFloatBuffer[idx] : _HeightFloatBuffer[idx - _TexSize.x];
+		float top = idx_y == _TexSize.y - 1 ? _HeightFloatBuffer[idx] : _HeightFloatBuffer[idx + _TexSize.x];
+		float3 normal = GetNormal(left, right, bottom, top);
+		_NormalVector3Buffer[idx] = normal;
+	}
+	else
+	{
+		uint normalMapIdx = idx_x + idx_y * _TexSize.x;
+		uint heightMapIdx = idx_x + 1 + (idx_y + 1) * (_TexSize.x + 2);
+		float left = _HeightFloatBuffer[heightMapIdx - 1];
+		float right = _HeightFloatBuffer[heightMapIdx + 1];
+		float bottom = _HeightFloatBuffer[heightMapIdx - (_TexSize.x + 2)];
+		float top = _HeightFloatBuffer[heightMapIdx + _TexSize.x + 2];
+		float3 normal = GetNormal(left, right, bottom, top);
+		_NormalVector3Buffer[normalMapIdx] = normal;
+	}
+
+	
+}
+
+
+
+[numthreads(HEIGHTTONORMAL_THREAD_WIDTH, HEIGHTTONORMAL_THREAD_WIDTH, 1)]
+void HeightToNormal_FloatToColor(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+	uint groupCountRow = _TexSize.x / HEIGHTTONORMAL_THREAD_WIDTH + (_TexSize.x % HEIGHTTONORMAL_THREAD_WIDTH == 0 ? 0 : 1);
+	uint groupIdx = g_id.x + g_id.y * groupCountRow;
+
+	uint group_x = groupIdx % groupCountRow;
+	uint group_y = groupIdx / groupCountRow;
+
+	uint idx_x = HEIGHTTONORMAL_THREAD_WIDTH * group_x + t_id.x;
+	uint idx_y = HEIGHTTONORMAL_THREAD_WIDTH * group_y + t_id.y;
+
+	if (idx_x >= _TexSize.x || idx_y >= _TexSize.y)
+	{
+		return;
+	}
+	if (_NormalSideType == 0)
+	{
+		uint idx = idx_x + idx_y * _TexSize.x;
+		float left = idx_x == 0 ? _HeightFloatBuffer[idx] : _HeightFloatBuffer[idx - 1];
+		float right = idx_x == _TexSize.x - 1 ? _HeightFloatBuffer[idx] : _HeightFloatBuffer[idx + 1];
+		float bottom = idx_y == 0 ? _HeightFloatBuffer[idx] : _HeightFloatBuffer[idx - _TexSize.x];
+		float top = idx_y == _TexSize.y - 1 ? _HeightFloatBuffer[idx] : _HeightFloatBuffer[idx + _TexSize.x];
+		float3 normal = GetNormal(left, right, bottom, top);
+		normal = normal * 0.5f + float3(0.5f, 0.5f, 0.5f);
+		_NormalColorBuffer[idx] = float4(normal, 1);
+	}
+	else
+	{
+		uint normalMapIdx = idx_x + idx_y * _TexSize.x;
+		uint heightMapIdx = idx_x + 1 + (idx_y + 1) * (_TexSize.x + 2);
+		float left = _HeightFloatBuffer[heightMapIdx - 1];
+		float right = _HeightFloatBuffer[heightMapIdx + 1];
+		float bottom = _HeightFloatBuffer[heightMapIdx - (_TexSize.x + 2)];
+		float top = _HeightFloatBuffer[heightMapIdx + _TexSize.x + 2];
+		float3 normal = GetNormal(left, right, bottom, top);
+		normal = normal * 0.5f + float3(0.5f, 0.5f, 0.5f);
+		_NormalColorBuffer[normalMapIdx] = float4(normal, 1);
+	}
+
+}
+
+
+
+
+
+[numthreads(HEIGHTTONORMAL_THREAD_WIDTH, HEIGHTTONORMAL_THREAD_WIDTH, 1)]
+void HeightToNormal_ColorToVector3(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+	uint groupCountRow = _TexSize.x / HEIGHTTONORMAL_THREAD_WIDTH + (_TexSize.x % HEIGHTTONORMAL_THREAD_WIDTH == 0 ? 0 : 1);
+	uint groupIdx = g_id.x + g_id.y * groupCountRow;
+
+	uint group_x = groupIdx % groupCountRow;
+	uint group_y = groupIdx / groupCountRow;
+
+	uint idx_x = HEIGHTTONORMAL_THREAD_WIDTH * group_x + t_id.x;
+	uint idx_y = HEIGHTTONORMAL_THREAD_WIDTH * group_y + t_id.y;
+
+	if (idx_x >= _TexSize.x || idx_y >= _TexSize.y)
+	{
+		return;
+	}
+	if (_NormalSideType == 0)
+	{
+		uint idx = idx_x + idx_y * _TexSize.x;
+		float left = idx_x == 0 ? _HeightColorBuffer[idx].r : _HeightColorBuffer[idx - 1].r;
+		float right = idx_x == _TexSize.x - 1 ? _HeightColorBuffer[idx].r : _HeightColorBuffer[idx + 1].r;
+		float bottom = idx_y == 0 ? _HeightColorBuffer[idx].r : _HeightColorBuffer[idx - _TexSize.x].r;
+		float top = idx_y == _TexSize.y - 1 ? _HeightColorBuffer[idx].r : _HeightColorBuffer[idx + _TexSize.x].r;
+		float3 normal = GetNormal(left, right, bottom, top);
+		_NormalVector3Buffer[idx] = normal;
+	}
+	else
+	{
+		uint normalMapIdx = idx_x + idx_y * _TexSize.x;
+		uint heightMapIdx = idx_x + 1 + (idx_y + 1) * (_TexSize.x + 2);
+		float left = _HeightColorBuffer[heightMapIdx - 1].r;
+		float right = _HeightColorBuffer[heightMapIdx + 1].r;
+		float bottom = _HeightColorBuffer[heightMapIdx - (_TexSize.x + 2)].r;
+		float top = _HeightColorBuffer[heightMapIdx + _TexSize.x + 2].r;
+		float3 normal = GetNormal(left, right, bottom, top);
+		_NormalVector3Buffer[normalMapIdx] = normal;
+	}
+
+
+}
+
+
+
+
+
+[numthreads(HEIGHTTONORMAL_THREAD_WIDTH, HEIGHTTONORMAL_THREAD_WIDTH, 1)]
+void HeightToNormal_ColorToColor(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+	uint groupCountRow = _TexSize.x / HEIGHTTONORMAL_THREAD_WIDTH + (_TexSize.x % HEIGHTTONORMAL_THREAD_WIDTH == 0 ? 0 : 1);
+	uint groupIdx = g_id.x + g_id.y * groupCountRow;
+
+	uint group_x = groupIdx % groupCountRow;
+	uint group_y = groupIdx / groupCountRow;
+
+	uint idx_x = HEIGHTTONORMAL_THREAD_WIDTH * group_x + t_id.x;
+	uint idx_y = HEIGHTTONORMAL_THREAD_WIDTH * group_y + t_id.y;
+
+	if (idx_x >= _TexSize.x || idx_y >= _TexSize.y)
+	{
+		return;
+	}
+	if (_NormalSideType == 0)
+	{
+		uint idx = idx_x + idx_y * _TexSize.x;
+		float left = idx_x == 0 ? _HeightColorBuffer[idx].r : _HeightColorBuffer[idx - 1].r;
+		float right = idx_x == _TexSize.x - 1 ? _HeightColorBuffer[idx].r : _HeightColorBuffer[idx + 1].r;
+		float bottom = idx_y == 0 ? _HeightColorBuffer[idx].r : _HeightColorBuffer[idx - _TexSize.x].r;
+		float top = idx_y == _TexSize.y - 1 ? _HeightColorBuffer[idx].r : _HeightColorBuffer[idx + _TexSize.x].r;
+		float3 normal = GetNormal(left, right, bottom, top);
+		normal = normal * 0.5f + float3(0.5f, 0.5f, 0.5f);
+		_NormalColorBuffer[idx] = float4(normal, 1);
+	}
+	else
+	{
+		uint normalMapIdx = idx_x + idx_y * _TexSize.x;
+		uint heightMapIdx = idx_x + 1 + (idx_y + 1) * (_TexSize.x + 2);
+		float left = _HeightColorBuffer[heightMapIdx - 1].r;
+		float right = _HeightColorBuffer[heightMapIdx + 1].r;
+		float bottom = _HeightColorBuffer[heightMapIdx - (_TexSize.x + 2)].r;
+		float top = _HeightColorBuffer[heightMapIdx + _TexSize.x + 2].r;
+		float3 normal = GetNormal(left, right, bottom, top);
+		normal = normal * 0.5f + float3(0.5f, 0.5f, 0.5f);
+		_NormalColorBuffer[normalMapIdx] = float4(normal, 1);
+	}
+
+}
+
+
+
+
+

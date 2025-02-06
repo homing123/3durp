@@ -8,13 +8,15 @@ public class TextureMaker : MonoBehaviour
     public enum E_MapType
     {
         PerlinNoise,
-        WorleyNoise
+        WorleyNoise,
     }
     [SerializeField] Image m_Image;
     [SerializeField] bool m_AutoUpdate;
     [SerializeField] bool m_UseGPU;
+    [SerializeField] bool m_ToNormalMap;
     [SerializeField] E_MapType m_MapType;
     bool m_LastUseGPU;
+    bool m_LastToNormalMap;
     E_MapType m_LastMapType;
 
     [SerializeField] PerlinNoise.PerlinOption m_PerlinOption;
@@ -39,7 +41,7 @@ public class TextureMaker : MonoBehaviour
     }
     bool isChanged()
     {
-        if((m_LastMapType != m_MapType) || (m_UseGPU!= m_LastUseGPU))
+        if((m_LastMapType != m_MapType) || (m_UseGPU!= m_LastUseGPU) || (m_ToNormalMap!= m_LastToNormalMap))
         {
             return true;
         }
@@ -58,7 +60,7 @@ public class TextureMaker : MonoBehaviour
     {
         Texture2D tex2D = null;
         Color[] arr_Color = null;
-
+        ComputeBuffer cbuffer = null;
         switch (m_MapType)
         {
             case E_MapType.PerlinNoise:
@@ -66,9 +68,8 @@ public class TextureMaker : MonoBehaviour
                 arr_Color = new Color[m_PerlinOption.width * m_PerlinOption.height];
                 if (m_UseGPU)
                 {
-                    ComputeBuffer cbuffer = PerlinNoise.PerlinNoiseGPU(m_PerlinOption, PerlinNoise.E_PerlinBufferType.Color);
+                    cbuffer = PerlinNoise.PerlinNoiseGPU(m_PerlinOption, PerlinNoise.E_PerlinBufferType.Color);
                     cbuffer.GetData(arr_Color);
-                    cbuffer.Release();
                 }
                 else
                 {
@@ -80,15 +81,36 @@ public class TextureMaker : MonoBehaviour
                 arr_Color = new Color[m_WorleyOption.width * m_WorleyOption.height];
                 if (m_UseGPU)
                 {
-                    ComputeBuffer cbuffer = WorleyNoise.WorleyNoiseGPU(m_WorleyOption, WorleyNoise.E_WorleyBufferType.Color);
+                    cbuffer = WorleyNoise.WorleyNoiseGPU(m_WorleyOption, WorleyNoise.E_WorleyBufferType.Color);
                     cbuffer.GetData(arr_Color);
-                    cbuffer.Release();
                 }
                 else
                 {
                     arr_Color = WorleyNoise.WorleyNoiseCPU(m_WorleyOption);
                 }
                 break;
+        }
+
+        if (m_ToNormalMap)
+        {
+            if (m_UseGPU)
+            {
+                ComputeBuffer normalColorBuffer = NormalMapMaker.HeightMapToNormalMapGPU(tex2D.width, tex2D.height, cbuffer, NormalMapMaker.E_NormalBufferType.ColorToColor, new Vector2(tex2D.width, tex2D.height), NormalMapMaker.E_NormalSideType.Clamp);
+                cbuffer.Release();
+                normalColorBuffer.GetData(arr_Color);
+                normalColorBuffer.Release();
+            }
+            else
+            {
+                arr_Color = NormalMapMaker.HeightMapToNormalMapCPU(tex2D.width, tex2D.height, arr_Color, new Vector2(tex2D.width, tex2D.height));
+            }
+        }
+        else
+        {
+            if(m_UseGPU)
+            {
+                cbuffer.Release();
+            }
         }
         tex2D.SetPixels(arr_Color);
         tex2D.Apply();
@@ -104,6 +126,7 @@ public class TextureMaker : MonoBehaviour
     {
         m_LastMapType = m_MapType;
         m_LastUseGPU = m_UseGPU;
+        m_LastToNormalMap = m_ToNormalMap;
         switch (m_MapType)
         {
             case E_MapType.PerlinNoise:

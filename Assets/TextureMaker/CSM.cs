@@ -12,5 +12,6 @@ public class CSM : MonoBehaviour
     }
     public ComputeShader m_PerlinNoise;
     public ComputeShader m_WorleyNoise;
+    public ComputeShader m_HeightToNormal;
 
 }

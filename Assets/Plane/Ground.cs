@@ -39,7 +39,7 @@ public class Ground : MonoBehaviour
         }
         else
         {
-            return 1;
+            return m_MeshesLOD.Length - 1;
         }
     }
     public void SetMesh(float dis)

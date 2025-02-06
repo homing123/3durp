@@ -3762,7 +3762,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0}
     scale: 0
     gradientRadianMul: 1
-    amplitude: 5.79
+    amplitude: 19
     frequency: 0.01
     persistence: 0.35
     lacunarity: 2.186
@@ -3781,6 +3781,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PerlinNoise: {fileID: 7200000, guid: 8e47b8df2dcf01e45bdfc15ec1b8ff59, type: 3}
   m_WorleyNoise: {fileID: 7200000, guid: 8d62595cecda5154b9f9a2879353ebb6, type: 3}
+  m_HeightToNormal: {fileID: 7200000, guid: 550967a585066bd42a86c2f35582a114, type: 3}
 --- !u!1 &1959000363 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3586728633960674748, guid: 4c24864bced7ba64696cc88d5412ef2b,
