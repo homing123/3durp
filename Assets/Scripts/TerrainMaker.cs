@@ -11,6 +11,13 @@ public class TerrainMaker : MonoBehaviour
         public float[] arr_Height;
         public Vector3[] arr_Normal;
         public Mesh[] arr_MeshLOD;
+        public Vector2Int HeightBufferSize;
+
+        public void Release()
+        {
+            heightBuffer.Release();
+            normalBuffer.Release();
+        }
 
     }
     [SerializeField] PerlinNoise.PerlinOption m_PerlinOption;
@@ -50,6 +57,8 @@ public class TerrainMaker : MonoBehaviour
         data.heightBuffer.GetData(data.arr_Height);
         data.normalBuffer.GetData(data.arr_Normal);
         data.arr_MeshLOD = new Mesh[1];
+        data.HeightBufferSize = new Vector2Int(option.width, option.height);
+
 
         int[] AxisVertexCount = new int[1] { 21 };
          

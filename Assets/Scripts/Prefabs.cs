@@ -11,4 +11,7 @@ public class Prefabs : MonoBehaviour
     }
 
     public GameObject G_Ground;
+
+
+    public Material M_Grass;
 }

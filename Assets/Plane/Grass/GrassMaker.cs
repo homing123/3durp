@@ -1,98 +1,139 @@
 
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.GUILayout;
 
 public class GrassMaker : MonoBehaviour
 {
 
+    [Serializable]
+    public struct GrassMakerOption
+    {
+        public Vector2 GridPos;
+        public int GrassCountPerOne;
+        public Vector2 GridSize;
+        public float GrassRenderDis;
+        public float RandomPosMul;
+        public Vector2Int HeightBufferSize;
+        public ComputeBuffer HeightBuffer;
+        public ComputeBuffer NormalBuffer;
+    }
+
     public struct ChunkGrassData
     {
-        ComputeBuffer DrawedGrassBuffer;
+        public ComputeBuffer ArgsBuffer;
+        public ComputeBuffer DrawedBuffer;
+        public ComputeBuffer GrassBuffer;
+        public ComputeBuffer DrawedPrefixSumBuffer;
+        public ComputeBuffer DrawedGroupSumBuffer;
+        public ComputeBuffer DrawedGroupPrefixSumBuffer;
+        public ComputeBuffer DrawedIdxBuffer;
+        public ComputeBuffer DrawedGrassBuffer;
+        public Bounds FieldBound;
+        public Material GrassMaterial;
+
+        public void Release()
+        {
+            ArgsBuffer.Release();
+            DrawedBuffer.Release();
+            GrassBuffer.Release();
+            DrawedPrefixSumBuffer.Release();
+            DrawedGroupSumBuffer.Release();
+            DrawedGroupPrefixSumBuffer.Release();
+            DrawedIdxBuffer.Release();
+            DrawedGrassBuffer.Release();
+        }
     }
-    struct LogData
-    {
-        public int ia;
-        public int ib;
-        public int ic;
-        public int id;
-        public int ie;
-    }
-    ComputeBuffer m_LogBuffer;
-    private uint[] m_ArgsData = new uint[5];
-    ComputeBuffer m_ArgsBuffer;
-    Mesh m_GrassMesh;
-    Bounds m_FieldBounds;
 
     struct GrassData
     {
         public Vector2 chunkUV;
         public Vector3 position;
     }
-    public Vector3 m_Position;
-    public int m_GrassCountPerOne;
-    public int m_Scale;
-    public Material m_GrassMaterial;
 
-    public float m_RenderDis;
-    public Texture2D m_NoiseTexture;
-    [SerializeField] float m_RandomPosMul;
-
-    [SerializeField] ComputeShader m_CSGrassPoint;
-    [SerializeField] ComputeShader m_CSFrustumCulling;
-    ComputeBuffer m_DrawedBuffer;
-    ComputeBuffer m_GrassBuffer;
-    ComputeBuffer m_DrawedPrefixSumBuffer;
-    ComputeBuffer m_DrawedGroupSumBuffer;
-    ComputeBuffer m_DrawedGroupPrefixSumBuffer;
-    ComputeBuffer m_DrawedIdxBuffer;
-    ComputeBuffer m_DrawedGrassBuffer;
-
-    bool m_isInfoChanged = true;
-    const int ThreadMax = 512;
-    const int GroupMaxX = 512;
+    const int GrassThreadWidth = 32;
 
 
-    int m_GrassAxisCount;
-    int m_GrassCount;
-    int m_GroupX;
-
-    private void Start()
+    public static ChunkGrassData GetChunkGrassData(GrassMakerOption option)
     {
-        InitMaterial();
-        InitMesh();
-        Update();
+        Init();
+        ChunkGrassData data = new ChunkGrassData(); ;
+        int grassHorizonCount = Mathf.FloorToInt(option.GrassCountPerOne * option.GridSize.x);
+        int grassVerticalCount = Mathf.FloorToInt(option.GrassCountPerOne * option.GridSize.y);
+        int grassCount = grassHorizonCount * grassVerticalCount;
+
+        int perlinKernel_x = grassHorizonCount / GrassThreadWidth + (grassHorizonCount % GrassThreadWidth == 0 ? 0 : 1);
+        int perlinKernel_y = grassVerticalCount / GrassThreadWidth + (grassVerticalCount % GrassThreadWidth == 0 ? 0 : 1);
+        int groupCount = perlinKernel_x * perlinKernel_y;
+        int structSize = HMUtil.StructSize(typeof(GrassData));
+
+        data.ArgsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
+        data.ArgsBuffer.SetData(ArgsData);
+
+        data.DrawedBuffer = new ComputeBuffer(grassCount, sizeof(int)); //그릴지말지 bool값
+        data.GrassBuffer = new ComputeBuffer(grassCount, structSize); //컬링 전 grassbuffer
+        data.DrawedPrefixSumBuffer = new ComputeBuffer(grassCount, sizeof(int)); //그룹별 누적합 버퍼
+        data.DrawedGroupSumBuffer = new ComputeBuffer(groupCount, sizeof(int)); //그룹별 합을 배열로만든 버퍼
+        data.DrawedGroupPrefixSumBuffer = new ComputeBuffer(groupCount, sizeof(int));//그룹별 합을 누적합 한 버퍼
+        data.DrawedIdxBuffer = new ComputeBuffer(grassCount, sizeof(int)); //컬링 후 그려지는 idx _DrawedBuffer 의 인덱스임
+        data.DrawedGrassBuffer = new ComputeBuffer(grassCount, structSize); //컬링 후 그려지는 grassbuffer 만 모아둔 버퍼
+
+        ComputeShader CSGrassPosition = CSM.Ins.m_GrassPosition;
+        ComputeShader CSFrustumCulling = CSM.Ins.m_GrassFrustumCulling;
+
+        CSGrassPosition.SetBuffer(0, "_HeightBuffer", option.HeightBuffer);
+        CSGrassPosition.SetBuffer(0, "_GrassBuffer", data.GrassBuffer);
+        CSGrassPosition.SetInts("_HeightBufferSize", new int[2] { option.HeightBufferSize.x, option.HeightBufferSize.y });
+        CSGrassPosition.SetInt("_GrassHorizonCount", grassHorizonCount);
+        CSGrassPosition.SetInt("_GrassVerticalCount", grassVerticalCount);
+        CSGrassPosition.SetFloats("_GridPos", new float[2] { option.GridPos.x, option.GridPos.y });
+        CSGrassPosition.SetFloats("_GridSize", new float[2] { option.GridSize.x, option.GridSize.y });
+        CSGrassPosition.SetFloat("_RandomPosMul", option.RandomPosMul);
+        CSGrassPosition.Dispatch(0, perlinKernel_x, perlinKernel_y, 1);
+
+        data.GrassMaterial = new Material(Prefabs.Ins.M_Grass);
+        data.GrassMaterial.SetBuffer("_GrassBuffer", data.GrassBuffer);
+        //m_CSFrustumCulling.SetInt("_GroupCount", m_GroupX);
+
+        //m_CSFrustumCulling.SetBuffer(0, "_GrassBuffer", m_GrassBuffer);
+        //m_CSFrustumCulling.SetBuffer(0, "_DrawedBuffer", m_DrawedBuffer);
+        //m_CSFrustumCulling.SetBuffer(1, "_DrawedBuffer", m_DrawedBuffer);
+        //m_CSFrustumCulling.SetBuffer(1, "_DrawedPrefixSumBuffer", m_DrawedPrefixSumBuffer);
+        //m_CSFrustumCulling.SetBuffer(1, "_DrawedGroupSumBuffer", m_DrawedGroupSumBuffer);
+        //m_CSFrustumCulling.SetBuffer(2, "_DrawedGroupPrefixSumBuffer", m_DrawedGroupPrefixSumBuffer);
+        //m_CSFrustumCulling.SetBuffer(2, "_DrawedGroupSumBuffer", m_DrawedGroupSumBuffer);
+        //m_CSFrustumCulling.SetBuffer(2, "_MeshArgsBuffer", m_ArgsBuffer);
+        //m_CSFrustumCulling.SetBuffer(3, "_DrawedIdxBuffer", m_DrawedIdxBuffer);
+        //m_CSFrustumCulling.SetBuffer(3, "_DrawedGroupPrefixSumBuffer", m_DrawedGroupPrefixSumBuffer);
+        //m_CSFrustumCulling.SetBuffer(3, "_DrawedPrefixSumBuffer", m_DrawedPrefixSumBuffer);
+        //m_CSFrustumCulling.SetBuffer(3, "_GrassBuffer", m_GrassBuffer);
+        //m_CSFrustumCulling.SetBuffer(3, "_DrawedGrassBuffer", m_DrawedGrassBuffer);
+
+
+        Vector3 boundCenter = new Vector3(option.GridPos.x, 0, option.GridPos.y) + new Vector3(option.GridSize.x, 0, option.GridSize.y) * 0.5f;
+        Vector3 boundSize = new Vector3(option.GridSize.x, 20, option.GridSize.y);
+        data.FieldBound = new Bounds(boundCenter, boundSize);
+
+        return data;
     }
-    private void OnDestroy()
+    private static uint[] ArgsData = new uint[5];
+    static Mesh GrassMesh;
+
+    static bool isInit = false;
+    static void Init()
     {
-        Release();
-    }
-    private void Update()
-    {
-        if(m_isInfoChanged == true)
+        if(isInit)
         {
-            InitArgsBuffer();
-            InitCSBuffer();
-            InitMaterialBuffer();
-            m_isInfoChanged = false;
+            return;
         }
-        FrustumCull();
-        DrawInstances();
-    }
-    void InitMaterial()
-    {
-        //m_GrassMaterial = new Material(m_GrassMaterial);
-    }
-    void InitMaterialBuffer()
-    {
-        m_GrassMaterial.SetBuffer("_GrassBuffer", m_DrawedGrassBuffer);
-    }
-    void InitMesh()
-    {
+        isInit = true;
         Mesh mesh = new Mesh();
         mesh.vertices = new Vector3[4] {new Vector3(-0.5f, 1f, 0)
         , new Vector3 (0.5f, 1f, 0)
         , new Vector3 (-0.5f, 0f, 0)
         , new Vector3 (0.5f, 0f, 0) };
-        mesh.SetIndices(new int[6] { 0, 1, 2, 1,3,2 }, MeshTopology.Triangles, 0);
+        mesh.SetIndices(new int[6] { 0, 1, 2, 1, 3, 2 }, MeshTopology.Triangles, 0);
         mesh.uv = new Vector2[4] {
             new Vector2 (0,1), new Vector2 ( 1,1),new Vector2 (0,0) ,new Vector2 (1,0) };
         mesh.normals = new Vector3[4]
@@ -100,216 +141,50 @@ public class GrassMaker : MonoBehaviour
             new Vector3(0,0,-1), new Vector3(0,0,-1), new Vector3(0,0,-1), new Vector3(0,0,-1)
         };
         mesh.name = "GrassMesh";
-        m_GrassMesh = mesh;
+        GrassMesh = mesh;
+        ArgsData[0] = (uint)GrassMesh.GetIndexCount(0);
+        ArgsData[1] = 500; //잔디 갯수인데 computeshader 에서 구해서 넣음
+        ArgsData[2] = (uint)GrassMesh.GetIndexStart(0);
+        ArgsData[3] = (uint)GrassMesh.GetBaseVertex(0);
+        ArgsData[4] = 0;
     }
-    void InitArgsBuffer()
+
+    public static void DrawGrass(ChunkGrassData data)
     {
-        m_ArgsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
+        Graphics.DrawMeshInstancedIndirect(GrassMesh, 0, data.GrassMaterial, data.FieldBound, data.ArgsBuffer);
 
-        m_ArgsData[0] = (uint)m_GrassMesh.GetIndexCount(0);
-        m_ArgsData[1] = 0; //잔디 갯수인데 computeshader 에서 구해서 넣음
-        m_ArgsData[2] = (uint)m_GrassMesh.GetIndexStart(0);
-        m_ArgsData[3] = (uint)m_GrassMesh.GetBaseVertex(0);
-        m_ArgsData[4] = 0;
+        //int[] temp = new int[5];
 
-        Debug.Log(m_GrassCount + "개 생성");
-        m_ArgsBuffer.SetData(m_ArgsData);
+        //Debug.Log()
     }
+   
 
+   
+    //void FrustumCull()
+    //{
+    //    Matrix4x4 p = Camera.main.projectionMatrix;
+    //    Matrix4x4 v = Camera.main.transform.worldToLocalMatrix;
+    //    Matrix4x4 VP = p * v;
 
-    void InitCSBuffer()
-    {
-        m_GrassAxisCount = m_GrassCountPerOne * m_Scale;
-        m_GrassCount = m_GrassAxisCount * m_GrassAxisCount;
-        if(m_GrassCount > ThreadMax * GroupMaxX)
-        {
-            Debug.Log("TooLarge " + m_GrassCount);
-            return;
-            //int remain = m_GrassCount % (ThreadMax * GroupMaxX);
-            //int diminish = m_GrassCount / (ThreadMax * GroupMaxX);
-            //m_GroupY = remain > 0 ? diminish + 1 : diminish;
-            ////GrassPosThreadCountInGroup * 512 개를 넘어가면 비효율적인 로직임 일단 임시로 이렇게 해둠 25만개는 안넘길듯ㅋㅋ
-            //m_GroupX = 512;
-        }
-        else
-        {
-            int remain = m_GrassCount & ThreadMax;
-            int diminish = m_GrassCount / ThreadMax;
-            m_GroupX = remain > 0 ? diminish + 1 : diminish;
-            m_GroupX = m_GroupX == 0 ? 1 : m_GroupX;
-        }
-        //Debug.Log(m_GroupX + " " + m_GroupY);
-        int structSize = HMUtil.StructSize(typeof(GrassData));
+    //    m_CSFrustumCulling.SetInt("_GrassCount", m_GrassCount);
+    //    m_CSFrustumCulling.SetVector("_CamPos", Camera.main.transform.position);
+    //    m_CSFrustumCulling.SetFloat("_RenderDis", m_RenderDis);
+    //    m_CSFrustumCulling.SetMatrix("_MatVP", VP);
 
-        m_GrassBuffer = new ComputeBuffer(m_GrassCount, structSize);
-        m_LogBuffer = new ComputeBuffer(1, sizeof(int) * 5);
-        m_DrawedBuffer = new ComputeBuffer(m_GrassCount, sizeof(int));
-        m_DrawedPrefixSumBuffer = new ComputeBuffer(m_GrassCount, sizeof(int));
-        m_DrawedGroupSumBuffer = new ComputeBuffer(GroupMaxX, sizeof(int));
-        m_DrawedGroupPrefixSumBuffer = new ComputeBuffer(GroupMaxX, sizeof(int));
-        m_DrawedIdxBuffer = new ComputeBuffer(m_GrassCount, sizeof(int));
-        m_DrawedGrassBuffer = new ComputeBuffer(m_GrassCount, structSize);
+    //    //Cull
+    //    m_CSFrustumCulling.Dispatch(0, m_GroupX, 1, 1);
 
-        m_CSGrassPoint.SetTexture(0, "_NoiseTex", m_NoiseTexture);
-        m_CSGrassPoint.SetInt("_GrassAmount", m_GrassCountPerOne);
-        m_CSGrassPoint.SetInt("_Scale", m_Scale);
-        m_CSGrassPoint.SetVector("_Position", m_Position);
-        m_CSGrassPoint.SetBuffer(0, "_GrassBuffer", m_GrassBuffer);
-        m_CSGrassPoint.SetFloats("_RandomPosMul", m_RandomPosMul);
-        m_CSGrassPoint.Dispatch(0, m_GroupX, 1, 1);
+    //    //PrefixSum
+    //    m_CSFrustumCulling.Dispatch(1, m_GroupX, 1, 1);
 
-        m_CSFrustumCulling.SetInt("_GroupCount", m_GroupX);
+    //    //GroupPrefixSum
+    //    m_CSFrustumCulling.Dispatch(2, 1, 1, 1);
 
-        m_CSFrustumCulling.SetBuffer(0, "_GrassBuffer", m_GrassBuffer);
-        m_CSFrustumCulling.SetBuffer(0, "_DrawedBuffer", m_DrawedBuffer);
-        m_CSFrustumCulling.SetBuffer(1, "_DrawedBuffer", m_DrawedBuffer);
-        m_CSFrustumCulling.SetBuffer(1, "_DrawedPrefixSumBuffer", m_DrawedPrefixSumBuffer);
-        m_CSFrustumCulling.SetBuffer(1, "_DrawedGroupSumBuffer", m_DrawedGroupSumBuffer);
-        m_CSFrustumCulling.SetBuffer(2, "_DrawedGroupPrefixSumBuffer", m_DrawedGroupPrefixSumBuffer);
-        m_CSFrustumCulling.SetBuffer(2, "_DrawedGroupSumBuffer", m_DrawedGroupSumBuffer);
-        m_CSFrustumCulling.SetBuffer(2, "_MeshArgsBuffer", m_ArgsBuffer);
-        m_CSFrustumCulling.SetBuffer(3, "_DrawedIdxBuffer", m_DrawedIdxBuffer);
-        m_CSFrustumCulling.SetBuffer(3, "_DrawedGroupPrefixSumBuffer", m_DrawedGroupPrefixSumBuffer);
-        m_CSFrustumCulling.SetBuffer(3, "_DrawedPrefixSumBuffer", m_DrawedPrefixSumBuffer);
-        m_CSFrustumCulling.SetBuffer(3, "_GrassBuffer", m_GrassBuffer);
-        m_CSFrustumCulling.SetBuffer(3, "_DrawedGrassBuffer", m_DrawedGrassBuffer);
-
-        m_FieldBounds = new Bounds(m_Position, new Vector3(m_Scale, 5, m_Scale));
-    }
-    void FrustumCull()
-    {
-        Matrix4x4 p = Camera.main.projectionMatrix;
-        Matrix4x4 v = Camera.main.transform.worldToLocalMatrix;
-        Matrix4x4 VP = p * v;
-
-        m_CSFrustumCulling.SetInt("_GrassCount", m_GrassCount);
-        m_CSFrustumCulling.SetVector("_CamPos", Camera.main.transform.position);
-        m_CSFrustumCulling.SetFloat("_RenderDis", m_RenderDis);
-        m_CSFrustumCulling.SetMatrix("_MatVP", VP);
-
-        //Cull
-        m_CSFrustumCulling.Dispatch(0, m_GroupX, 1, 1);
-
-        //PrefixSum
-        m_CSFrustumCulling.Dispatch(1, m_GroupX, 1, 1);
-
-        //GroupPrefixSum
-        m_CSFrustumCulling.Dispatch(2, 1, 1, 1);
-
-        //GetDrawedIdx
-        m_CSFrustumCulling.Dispatch(3, m_GroupX, 1, 1);
-        
-        return;
-        //log
-        int[] arr_drawed = new int[m_GrassCount];
-        m_DrawedBuffer.GetData(arr_drawed);
-        int count = 0;
-        for (int i = 0; i < m_GrassCount; i++)
-        {
-            if (arr_drawed[i] == 1)
-            {
-                count += 1;
-            }
-        }
-        //Debug.Log(count);
-
-        int[] arr_draedsum = new int[m_GrassCount];
-        m_DrawedPrefixSumBuffer.GetData(arr_draedsum);
-        int idx = 0;
-        int beforeValue = 0;
-        int prefixSumTotalValue = 0;
-        for (idx = 0; idx < m_GrassCount; idx++)
-        {
-            if (arr_draedsum[idx] == 0 && beforeValue != 0)
-            {
-                prefixSumTotalValue += beforeValue;
-                beforeValue = 0;
-            }
-            beforeValue = arr_draedsum[idx];
-        }
-
-        //Debug.Log($"갯수 : {count}, prefixsum : {prefixSumTotalValue}");
-        int groupSum = 0;
-        int[] arr_drawedGroupSum = new int[m_GroupX];
-        m_DrawedGroupSumBuffer.GetData(arr_drawedGroupSum);
-        for(int i=0;i< m_GroupX; i++)
-        {
-            groupSum += arr_drawedGroupSum[i];
-        }
-
-        int[] arr_drawedGroupPrefixSum = new int[m_GroupX];
-        m_DrawedGroupPrefixSumBuffer.GetData(arr_drawedGroupPrefixSum);
-        int groupPrefixSumLastValue = 0;
-        groupPrefixSumLastValue = arr_drawedGroupPrefixSum[m_GroupX - 1];
-
-        int[] arr_drawedIdx = new int[m_GrassCount];
-        m_DrawedIdxBuffer.GetData(arr_drawedIdx);
-        int curValue = -1;
-        for(int i=0;i< count; i++)
-        {
-            if (arr_drawed[arr_drawedIdx[i]] == 0 && count > 0 && arr_drawedIdx[i] != 0)
-            {
-                Debug.Log($"error isdrawed : {arr_drawed[arr_drawedIdx[i]]} idx : {arr_drawedIdx[i]} i : {i}");
-                break;
-            }
-            if (arr_drawedIdx[i] <= curValue)
-            {
-                Debug.Log("error");
-                break;
-            }
-            else
-            {
-                curValue = arr_drawedIdx[i];
-            }       
-        }
-
-        int[] args = new int[5];
-        m_ArgsBuffer.GetData(args);
-        Debug.Log($"{args[0]} {args[1]} {args[2]} {args[3]} {args[4]}");
-
-        Debug.Log($"갯수 : {count}, prefixsum {prefixSumTotalValue}, prefixGroupSum {groupSum}, prefixGroupSumLastValue {groupPrefixSumLastValue}");
+    //    //GetDrawedIdx
+    //    m_CSFrustumCulling.Dispatch(3, m_GroupX, 1, 1);
+    //}
 
 
 
-        //for (int i = 0; i < m_GroupX; i++)
-        //{
-        //    Debug.Log(m_GroupX + " " + i + " " + arr_drawedGroupPrefixSum[i]);
-        //}
 
-        //LogData[] log = new LogData[1];
-        //m_LogBuffer.GetData(log);
-        //Debug.Log($"Log {log[0].ia}, {log[0].ib}, {log[0].ic}, {log[0].id}, {log[0].ie}");
-
-        //Vector3 testObjPos = m_TestObj.transform.position;
-        //Vector4 testWorldPos = new Vector4(testObjPos.x, testObjPos.y, testObjPos.z, 1);
-
-
-        //Vector4 posView = v * testWorldPos;
-        //Vector4 posClip = VP * testWorldPos;
-        //Vector3 posNDC;
-        //posNDC.x = posClip.x / -posClip.w;
-        //posNDC.y = posClip.y / -posClip.w;
-        //posNDC.z = -posClip.w;
-
-        //Debug.Log($"view : {posView} posClip : {posClip} posNDC : {posNDC}");
-    }
-
-    void DrawInstances()
-    {
-        Graphics.DrawMeshInstancedIndirect(m_GrassMesh, 0, m_GrassMaterial, m_FieldBounds, m_ArgsBuffer);
-    }
-
-    void Release()
-    {
-        m_GrassBuffer.Release();
-        m_ArgsBuffer.Release();
-        m_DrawedBuffer.Release();
-        m_DrawedPrefixSumBuffer.Release();
-        m_DrawedGroupSumBuffer.Release();
-        m_DrawedGroupPrefixSumBuffer.Release();
-        m_DrawedIdxBuffer.Release();
-        m_DrawedGrassBuffer.Release();
-
-        m_LogBuffer.Release();
-    }
 }

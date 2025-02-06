@@ -3782,6 +3782,9 @@ MonoBehaviour:
   m_PerlinNoise: {fileID: 7200000, guid: 8e47b8df2dcf01e45bdfc15ec1b8ff59, type: 3}
   m_WorleyNoise: {fileID: 7200000, guid: 8d62595cecda5154b9f9a2879353ebb6, type: 3}
   m_HeightToNormal: {fileID: 7200000, guid: 550967a585066bd42a86c2f35582a114, type: 3}
+  m_GrassPosition: {fileID: 7200000, guid: 0f168f8e90b509a4a920149e9c861b4a, type: 3}
+  m_GrassFrustumCulling: {fileID: 7200000, guid: 31435e4a6025b474f8199cca3946cf49,
+    type: 3}
 --- !u!1 &1959000363 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3586728633960674748, guid: 4c24864bced7ba64696cc88d5412ef2b,
@@ -3864,6 +3867,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   G_Ground: {fileID: 8519419202444858505, guid: d29221099c4746c4b9b281b476c5770b,
     type: 3}
+  M_Grass: {fileID: 2100000, guid: 18fb8fc200c889a49b6e4a2767168ddb, type: 2}
 --- !u!1 &2029753678 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3981824064878377769, guid: 4c24864bced7ba64696cc88d5412ef2b,

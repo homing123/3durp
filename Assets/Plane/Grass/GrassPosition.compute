@@ -1,8 +1,36 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#define ThreadMax 512
-#define GroupMax 512
+#define GRASS_THREAD_WIDTH 32
 #include "Util.compute"
 #pragma kernel GetPosition
+
+
+#define PI 3.1415926535f
+#define UINT_MAX 0xFFFFFFFF;
+
+
+uint DRandomXORShift(uint seed)
+{
+    seed ^= seed >> 16;
+    seed *= 0x85ebca6b;
+    seed ^= seed >> 13;
+    seed *= 0xc2b2ae35;
+    seed ^= seed >> 16;
+    return seed;
+}
+
+
+uint Vector2IntToSeed(uint2 vt2Int)
+{
+    uint seed = (vt2Int.x * 73856093u) ^ (vt2Int.y * 19349663u) + 104395301u;;
+    return seed;
+}
+
+uint Vector3IntToSeed(uint3 vt3Int)
+{
+    uint seed = (vt3Int.x * 73856093u) ^ (vt3Int.y * 19349663u) ^ (vt3Int.z * 83492791u) + 104395301u;
+    return seed;
+}
+
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -12,43 +40,56 @@ struct GrassData
     float3 position;
 };
 
-Texture2D<float4> _NoiseTex;
-SamplerState sampler_NoiseTex;
-
+StructuredBuffer<float> _HeightBuffer;
 RWStructuredBuffer<GrassData> _GrassBuffer;
-int _GrassAmount;
-int _Scale;
-float3 _Position;
+uint2 _HeightBufferSize;
+uint _GrassHorizonCount;
+uint _GrassVerticalCount;
+float2 _GridPos; 
+float2 _GridSize;
 float _RandomPosMul;
-[numthreads(ThreadMax,1,1)]
-void GetPosition(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
+[numthreads(GRASS_THREAD_WIDTH, GRASS_THREAD_WIDTH,1)]
+void GetPosition(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
 {
-    // TODO: insert actual code here!
-    uint AxisGrassCount = _Scale * _GrassAmount;
-    uint curIdx = GetTotalIdx(t_idx, g_id, uint3(ThreadMax, 1, 1), GroupMax);
- 
-    if (curIdx >= AxisGrassCount * AxisGrassCount)
+    uint groupCountRow = _GrassHorizonCount / GRASS_THREAD_WIDTH + (_GrassHorizonCount % GRASS_THREAD_WIDTH == 0 ? 0 : 1);
+    uint groupIdx = g_id.x + g_id.y * groupCountRow;
+
+    uint idx_x = GRASS_THREAD_WIDTH * g_id.x + t_id.x;
+    uint idx_y = GRASS_THREAD_WIDTH * g_id.y + t_id.y;
+
+    if (idx_x >= _GrassHorizonCount || idx_y >= _GrassVerticalCount)
     {
         return;
     }
 
-    uint grassIdxY = uint(curIdx) / AxisGrassCount;
-    uint grassIdxX = uint(curIdx) % AxisGrassCount;
-    GrassData grass;
-    float dis = AxisGrassCount == 1 ? 0 : (float)_Scale / (AxisGrassCount - 1);
-    float2 minxz = _Position.xz - _Scale * 0.5f;
-    float2 maxxz = _Position.xz + _Scale * 0.5f;
+    uint idx = idx_x + idx_y * _GrassHorizonCount;
+    float dis_x = _GrassHorizonCount <= 1 ? 0 : _GridSize.x / (_GrassHorizonCount - 1);
+    float dis_y = _GrassVerticalCount <= 1 ? 0 : _GridSize.y / (_GrassVerticalCount - 1);
+    float2 minxz = _GridPos;
     float3 curPos = float3(0, 0, 0);
-    curPos.xz = minxz + float2(grassIdxX * dis, grassIdxY * dis);
-    curPos.y = _Position.y;
-    float2 uv = (curPos.xz - minxz) / (maxxz - minxz); //before the addition randompos
-    float4 noiseTilingOffset = float4(12.5f, 14.34f, 1.49f, 0.24f);
-    float noiseValue = _NoiseTex.SampleLevel(sampler_NoiseTex, uv * noiseTilingOffset.xy + noiseTilingOffset.zw, 0).r;
-    curPos += float3(noiseValue * _RandomPosMul, noiseValue * _RandomPosMul * 0.05f, noiseValue * _RandomPosMul); //addtion randomPos
+    curPos.xz = minxz + float2(dis_x * idx_x, dis_y * idx_y);
+    curPos.y = 0;
 
-    uv = (curPos.xz - minxz) / (maxxz - minxz); //affter the addition randompos
+    uint3 randomAngleSeed = uint3(asuint(curPos.x), asuint(curPos.z), 1);
+    uint3 randomDisSeed = uint3(asuint(curPos.x), asuint(curPos.z), 2);
+    uint3 randomHeightSeed = uint3(asuint(curPos.x), asuint(curPos.z), 3);
+    float randomPosAngle = DRandomXORShift(Vector3IntToSeed(randomAngleSeed)) / (float)UINT_MAX;
+    float randomDis = DRandomXORShift(Vector3IntToSeed(randomDisSeed)) / (float)UINT_MAX;
+    float randomHeight = DRandomXORShift(Vector3IntToSeed(randomHeightSeed)) / (float)UINT_MAX;
+    randomPosAngle *= 2 * PI;
+    
+    float3 randomAdditionalPos = float3(cos(randomPosAngle) * randomDis, randomHeight * 0.05f, sin(randomPosAngle) * randomDis);
+    curPos += randomAdditionalPos * _RandomPosMul;
+
+    float2 uv = (curPos.xz - minxz) / _GridSize;
+    int heightMapIdx_x = uv.x == 1 ? _HeightBufferSize.x - 2 : uv.x * (_HeightBufferSize.x - 2) + 1;
+    int heightMapIdx_y = uv.y == 1 ? _HeightBufferSize.y - 2 : uv.y * (_HeightBufferSize.y - 2) + 1;
+    int heightMapIdx = heightMapIdx_x + heightMapIdx_y * _HeightBufferSize.y;
+    curPos.y += _HeightBuffer[heightMapIdx];//heightmap
+   
+    GrassData grass;
     grass.position = curPos;
     grass.chunkUV = uv;
 
-    _GrassBuffer[curIdx] = grass;
+    _GrassBuffer[idx] = grass;
 }

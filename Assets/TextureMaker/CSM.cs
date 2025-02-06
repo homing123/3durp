@@ -14,4 +14,7 @@ public class CSM : MonoBehaviour
     public ComputeShader m_WorleyNoise;
     public ComputeShader m_HeightToNormal;
 
+    public ComputeShader m_GrassPosition;
+    public ComputeShader m_GrassFrustumCulling;
+
 }

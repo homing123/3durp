@@ -12,7 +12,8 @@ public class MapMaker : MonoBehaviour
         public TerrainMaker.ChunkTerrainData m_TerrainData;
         ~Chunk()
         {
-            m_TerrainData.heightBuffer.Release();
+            m_GrassData.Release();
+            m_TerrainData.Release();
         }
     }
 
@@ -41,6 +42,10 @@ public class MapMaker : MonoBehaviour
         {
             ChunkMove(chunkMoveDisIdxCoord);
         }
+        foreach(Vector2Int key in D_Chunk.Keys)
+        {
+            GrassMaker.DrawGrass(D_Chunk[key].m_GrassData);
+        }
     }
 
     void MapInit()
@@ -57,17 +62,17 @@ public class MapMaker : MonoBehaviour
         Vector2Int minGridIdxCoord = new Vector2Int(centerGridIdxCoord.x - m_GridCountPerRenderDis, centerGridIdxCoord.y - m_GridCountPerRenderDis);
 
         int gridWidthCount = m_GridCountPerRenderDis * 2 + 1;
-        for (int y = 0; y < gridWidthCount; y++)
-        {
-            for (int x = 0; x < gridWidthCount; x++)
-            {
-                Vector2Int curGridIdxCoord = new Vector2Int(minGridIdxCoord.x + x, minGridIdxCoord.y + y);
-                Vector2 groundPos = new Vector2(curGridIdxCoord.x * Ground.GroundWidth, curGridIdxCoord.y * Ground.GroundWidth);
-                D_Chunk[curGridIdxCoord] = CreateChunk(groundPos, camPosXZ);
-            }
-        }
+        //for (int y = 0; y < gridWidthCount; y++)
+        //{
+        //    for (int x = 0; x < gridWidthCount; x++)
+        //    {
+        //        Vector2Int curGridIdxCoord = new Vector2Int(minGridIdxCoord.x + x, minGridIdxCoord.y + y);
+        //        Vector2 groundPos = new Vector2(curGridIdxCoord.x * Ground.GroundWidth, curGridIdxCoord.y * Ground.GroundWidth);
+        //        D_Chunk[curGridIdxCoord] = CreateChunk(groundPos, camPosXZ);
+        //    }
+        //}
 
-        //D_Chunk[new Vector2Int(0, 0)] = CreateChunk(new Vector2(0, 0) * Ground.GroundWidth, camPosXZ);
+        D_Chunk[new Vector2Int(0, 0)] = CreateChunk(new Vector2(0, 0) * Ground.GroundWidth, camPosXZ);
         //D_Chunk[new Vector2Int(1, 0)] = CreateChunk(new Vector2(1, 0) * Ground.GroundWidth, camPosXZ);
         //D_Chunk[new Vector2Int(0, 1)] = CreateChunk(new Vector2(0, 1) * Ground.GroundWidth, camPosXZ);
         //D_Chunk[new Vector2Int(1, 1)] = CreateChunk(new Vector2(1, 1) * Ground.GroundWidth, camPosXZ);
@@ -93,6 +98,26 @@ public class MapMaker : MonoBehaviour
         float dis = Vector2.Distance(curCamPos, groundPos);
         chunk.m_Ground = Ground.Create(groundPos, dis, chunk.m_TerrainData.arr_MeshLOD);
 
+        //public Vector2 GridPos;
+        //public int GrassCountPerOne;
+        //public Vector2 GridSize;
+        //public float GrassRenderDis;
+        //public float RandomPosMul;
+        //public Vector2Int HeightBufferSize;
+        //public ComputeBuffer HeightBuffer;
+        //public ComputeBuffer NormalBuffer;
+
+        GrassMaker.GrassMakerOption grassOption = new GrassMaker.GrassMakerOption();
+        grassOption.GridPos = groundPos;
+        grassOption.GrassCountPerOne = 10;
+        grassOption.GridSize = new Vector2(Ground.GroundWidth, Ground.GroundWidth);
+        grassOption.GrassRenderDis = 15f;
+        grassOption.RandomPosMul = 0f;
+        grassOption.HeightBufferSize = chunk.m_TerrainData.HeightBufferSize;
+        grassOption.HeightBuffer = chunk.m_TerrainData.heightBuffer;
+        grassOption.NormalBuffer = chunk.m_TerrainData.normalBuffer;
+
+        chunk.m_GrassData = GrassMaker.GetChunkGrassData(grassOption);
 
         return chunk;
     }
