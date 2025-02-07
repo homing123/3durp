@@ -7,6 +7,7 @@ public class MapMaker : MonoBehaviour
 
     public class Chunk
     {
+        public Vector2Int m_Key;
         public Ground m_Ground;
         public GrassMaker.ChunkGrassData m_GrassData;
         public TerrainMaker.ChunkTerrainData m_TerrainData;
@@ -20,8 +21,6 @@ public class MapMaker : MonoBehaviour
     public static MapMaker Ins;
     [SerializeField][Range(1, 300)] float m_RenderDis;
     [SerializeField] bool m_UpdateGrassMaterial;
-    [SerializeField][Range(1, 64)] int m_GrassCountPerOne;
-    [SerializeField][Range(0.1f, 100)] float m_GrassRenderDis;
     int m_GridCountPerRenderDis;
 
     Vector2Int m_CurCenterChunkIdxCoord;
@@ -44,17 +43,44 @@ public class MapMaker : MonoBehaviour
         {
             ChunkMove(chunkMoveDisIdxCoord);
         }
-        foreach(Vector2Int key in D_Chunk.Keys)
-        {
-            if(m_UpdateGrassMaterial)
-            {
-                D_Chunk[key].m_GrassData.GrassMaterial = new Material(Prefabs.Ins.M_Grass);
-                D_Chunk[key].m_GrassData.GrassMaterial.SetBuffer("_GrassBuffer", D_Chunk[key].m_GrassData.DrawedGrassBuffer);
-            }
-            GrassMaker.DrawGrass(D_Chunk[key].m_GrassData);
-        }
+        DrawGrass();
     }
 
+    void DrawGrass()
+    {
+        List<Chunk> l_GrassRenderChunk = new List<Chunk>();
+        foreach (Vector2Int key in D_Chunk.Keys)
+        {
+            Rect rect = new Rect(key.x + Ground.GroundWidth * 0.5f, key.y + Ground.GroundWidth * 0.5f, Ground.GroundWidth, Ground.GroundWidth);
+            Vector2[] vertex = new Vector2[4];
+            vertex[0] = new Vector2(rect.xMin, rect.yMin);
+            vertex[1] = new Vector2(rect.xMin, rect.yMax);
+            vertex[2] = new Vector2(rect.xMax, rect.yMin);
+            vertex[3] = new Vector2(rect.xMax, rect.yMax);
+
+            Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
+
+            float grassRenderDisSquare = m_GrassRenderDis * m_GrassRenderDis;
+            bool isDrawed = false;
+            for(int i=0;i<4;i++)
+            {
+                float curVertexDisSquare = Mathf.Pow(vertex[i].x - camPosXZ.x, 2) + Mathf.Pow(vertex[i].y - camPosXZ.y, 2);
+                if(curVertexDisSquare < grassRenderDisSquare)
+                {
+                    isDrawed = true;
+                    break;
+                }
+            }
+
+            if(isDrawed)
+            {
+                l_GrassRenderChunk.Add(D_Chunk[key]);
+            }
+        }
+
+
+        
+    }
     void MapInit()
     {
         //0,0을 시작으로 하고 GroundWidth를 크기로 하는 그리드를 카메라위치를 중심으로 생성
@@ -75,7 +101,7 @@ public class MapMaker : MonoBehaviour
             {
                 Vector2Int curGridIdxCoord = new Vector2Int(minGridIdxCoord.x + x, minGridIdxCoord.y + y);
                 Vector2 groundPos = new Vector2(curGridIdxCoord.x * Ground.GroundWidth, curGridIdxCoord.y * Ground.GroundWidth);
-                D_Chunk[curGridIdxCoord] = CreateChunk(groundPos, camPosXZ);
+                D_Chunk[curGridIdxCoord] = CreateChunk(groundPos, camPosXZ, curGridIdxCoord);
             }
         }
 
@@ -98,9 +124,10 @@ public class MapMaker : MonoBehaviour
     {
 
     }
-    Chunk CreateChunk(Vector2 groundPos, Vector2 curCamPos)
+    Chunk CreateChunk(Vector2 groundPos, Vector2 curCamPos ,Vector2Int key)
     {
         Chunk chunk = new Chunk();
+        chunk.m_Key = key;
         chunk.m_TerrainData = TerrainMaker.Ins.GetChunkTerrainData(groundPos);
         float dis = Vector2.Distance(curCamPos, groundPos);
         chunk.m_Ground = Ground.Create(groundPos, dis, chunk.m_TerrainData.arr_MeshLOD);

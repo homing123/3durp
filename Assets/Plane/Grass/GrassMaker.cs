@@ -6,7 +6,16 @@ using static UnityEngine.GUILayout;
 
 public class GrassMaker : MonoBehaviour
 {
-  
+
+    public enum E_GrassFrustumCullingKernel
+    {
+        GrassDataCombine = 0,
+        FrustumCulling = 1,
+        PrefixSum = 2,
+        GroupPrefixSum = 3,
+        SetDrawedGrass = 4,
+    }
+
     [Serializable]
     public struct GrassMakerOption
     {
@@ -27,7 +36,6 @@ public class GrassMaker : MonoBehaviour
         public ComputeBuffer DrawedPrefixSumBuffer;
         public ComputeBuffer DrawedGroupSumBuffer;
         public ComputeBuffer DrawedGroupPrefixSumBuffer;
-        public ComputeBuffer DrawedIdxBuffer;
         public ComputeBuffer DrawedGrassBuffer;
         public Bounds FieldBound;
         public Material GrassMaterial;
@@ -43,7 +51,6 @@ public class GrassMaker : MonoBehaviour
             DrawedPrefixSumBuffer.Release();
             DrawedGroupSumBuffer.Release();
             DrawedGroupPrefixSumBuffer.Release();
-            DrawedIdxBuffer.Release();
             DrawedGrassBuffer.Release();
         }
     }
@@ -54,21 +61,32 @@ public class GrassMaker : MonoBehaviour
         public Vector3 position;
     }
 
-    private static uint[] ArgsData = new uint[5];
-    static Mesh GrassMesh;
+    private uint[] m_ArgsData = new uint[5];
+    Mesh m_GrassMesh;    
+    ComputeBuffer m_TotalChunkGrassBuffer;
 
-    static bool isInit = false;
+    int m_LastTotalChunkGrassCount = 0;
+    [SerializeField][Range(1, 64)] int m_GrassCountPerOne;
+    [SerializeField][Range(0.1f, 100)] float m_GrassRenderDis;
 
+    public static GrassMaker Ins;
     const int GrassThreadWidth = 32;
     const int CullingThreadMax = 512;
     const int CullingGroupXMax = 512;
-    static void Init()
+    private void Awake()
     {
-        if (isInit)
+        Ins = this;
+        Init();
+    }
+    private void OnDestroy()
+    {
+        if (m_LastTotalChunkGrassCount > 0)
         {
-            return;
+            m_TotalChunkGrassBuffer.Release();
         }
-        isInit = true;
+    }
+    void Init()
+    {
         Mesh mesh = new Mesh();
         mesh.vertices = new Vector3[4]
         {new Vector3(-0.5f, 1f, 0)
@@ -83,14 +101,40 @@ public class GrassMaker : MonoBehaviour
             new Vector3(0,0,-1), new Vector3(0,0,-1), new Vector3(0,0,-1), new Vector3(0,0,-1)
         };
         mesh.name = "GrassMesh";
-        GrassMesh = mesh;
-        ArgsData[0] = (uint)GrassMesh.GetIndexCount(0);
-        ArgsData[1] = 0; //잔디 갯수인데 computeshader 에서 구해서 넣음
-        ArgsData[2] = (uint)GrassMesh.GetIndexStart(0);
-        ArgsData[3] = (uint)GrassMesh.GetBaseVertex(0);
-        ArgsData[4] = 0;
+        m_GrassMesh = mesh;
+        m_ArgsData[0] = (uint)m_GrassMesh.GetIndexCount(0);
+        m_ArgsData[1] = 0; //잔디 갯수인데 computeshader 에서 구해서 넣음
+        m_ArgsData[2] = (uint)m_GrassMesh.GetIndexStart(0);
+        m_ArgsData[3] = (uint)m_GrassMesh.GetBaseVertex(0);
+        m_ArgsData[4] = 0;
     }
 
+    public static void DrawGrass(MapMaker.Chunk[] arr_Chunk)
+    {
+        int curTotalGrassCount = 0;
+        int[] grassPrefixSum = new int[arr_Chunk.Length];
+        for (int i = 0; i < arr_Chunk.Length; i++)
+        {
+            grassPrefixSum[i] = curTotalGrassCount;
+            curTotalGrassCount += arr_Chunk[i].m_GrassData.GrassCount;
+        }
+
+        if (Ins.m_LastTotalChunkGrassCount < curTotalGrassCount)
+        {
+            if (Ins.m_LastTotalChunkGrassCount > 0)
+            {
+                Ins.m_TotalChunkGrassBuffer.Release();
+            }
+            Ins.m_TotalChunkGrassBuffer = new ComputeBuffer(curTotalGrassCount, HMUtil.StructSize(typeof(GrassData)));
+        }
+
+        ComputeShader CSFrustumCulling = CSM.Ins.m_GrassFrustumCulling;
+        for (int i = 0; i < arr_Chunk.Length; i++)
+        {
+            Ins.m_TotalChunkGrassBuffer.SetData()
+;            CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.GrassDataCombine, "_GrassBuffers", arr_Chunk[i].m_GrassData.GrassBuffer, 1);
+        }
+    }
     public static void DrawGrass(ChunkGrassData data)
     {
         ComputeShader CSFrustumCulling = CSM.Ins.m_GrassFrustumCulling;
@@ -131,13 +175,12 @@ public class GrassMaker : MonoBehaviour
         //GetDrawedIdx
         CSFrustumCulling.Dispatch(3, data.GroupXCount, 1, 1);
 
-        Graphics.DrawMeshInstancedIndirect(GrassMesh, 0, data.GrassMaterial, data.FieldBound, data.ArgsBuffer);
+        Graphics.DrawMeshInstancedIndirect(Ins.m_GrassMesh, 0, data.GrassMaterial, data.FieldBound, data.ArgsBuffer);
     }
 
 
     public static ChunkGrassData GetChunkGrassData(GrassMakerOption option)
     {
-        Init();
         ComputeShader CSGrassPosition = CSM.Ins.m_GrassPosition;
         ComputeShader CSFrustumCulling = CSM.Ins.m_GrassFrustumCulling;
 
@@ -179,7 +222,7 @@ public class GrassMaker : MonoBehaviour
         data.DrawedIdxBuffer = new ComputeBuffer(grassCount, sizeof(int)); //컬링 후 그려지는 idx _DrawedBuffer 의 인덱스임
         data.DrawedGrassBuffer = new ComputeBuffer(grassCount, structSize); //컬링 후 그려지는 grassbuffer 만 모아둔 버퍼
         data.ArgsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
-        data.ArgsBuffer.SetData(ArgsData);
+        data.ArgsBuffer.SetData(GrassMaker.Ins.m_ArgsData);
 
         Vector3 boundCenter = new Vector3(option.GridPos.x, 0, option.GridPos.y) + new Vector3(option.GridSize.x, 0, option.GridSize.y) * 0.5f;
         Vector3 boundSize = new Vector3(option.GridSize.x, 20, option.GridSize.y);

@@ -1,7 +1,11 @@
 
 #define PI 3.1415926535f
 #define UINT_MAX 0xFFFFFFFF;
+
 uint GetTotalIdx(uint groupidx, uint3 groupid, uint3 threadMax, uint groupMaxX)
+{
+
+}
 
 
 uint DRandomXORShift(uint seed)

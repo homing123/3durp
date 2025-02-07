@@ -1,10 +1,11 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #define THREAD_MAX 512
 #define GROUPX_MAX 512
+#pragma kernel GrassDataCombine
 #pragma kernel FrustumCull
 #pragma kernel PrefixSum
 #pragma kernel GroupPrefixSum
-#pragma kernel GetDrawedIdx
+#pragma kernel SetDrawedGrass
 
 #include "Util.compute"
 
@@ -13,6 +14,12 @@ struct GrassData
     float2 chunkuv;
     float3 position;
 };
+
+
+RWStructuredBuffer<GrassData> _GrassBuffers[25];
+RWStructuredBuffer<int> _
+
+
 RWStructuredBuffer<GrassData> _GrassBuffer;
 RWStructuredBuffer<uint> _DrawedBuffer;
 
@@ -118,11 +125,10 @@ void GroupPrefixSum(uint t_idx : SV_GroupIndex)
     }
 }
 
-RWStructuredBuffer <uint> _DrawedIdxBuffer;
 RWStructuredBuffer <GrassData> _DrawedGrassBuffer;
 
 [numthreads(THREAD_MAX, 1, 1)]
-void GetDrawedIdx(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
+void SetDrawedGrass(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
     uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
     uint g_idx = g_id.y * GROUPX_MAX + g_id.x;
@@ -136,7 +142,6 @@ void GetDrawedIdx(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
     uint curPrefixSum = _DrawedPrefixSumBuffer[idx];
     if (previousPrefixSum + 1 == curPrefixSum)
     {
-        _DrawedIdxBuffer[previousPrefixSum + groupOffset] = idx;
         _DrawedGrassBuffer[previousPrefixSum + groupOffset] = _GrassBuffer[idx];
     }
 
