@@ -3743,7 +3743,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_RenderDis: 47
-  m_Ground: {fileID: 0}
+  m_UpdateGrassMaterial: 0
+  m_GrassCountPerOne: 32
+  m_GrassRenderDis: 14
 --- !u!114 &1958049054
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -4,34 +4,6 @@
 #pragma kernel GetPosition
 
 
-#define PI 3.1415926535f
-#define UINT_MAX 0xFFFFFFFF;
-
-
-uint DRandomXORShift(uint seed)
-{
-    seed ^= seed >> 16;
-    seed *= 0x85ebca6b;
-    seed ^= seed >> 13;
-    seed *= 0xc2b2ae35;
-    seed ^= seed >> 16;
-    return seed;
-}
-
-
-uint Vector2IntToSeed(uint2 vt2Int)
-{
-    uint seed = (vt2Int.x * 73856093u) ^ (vt2Int.y * 19349663u) + 104395301u;;
-    return seed;
-}
-
-uint Vector3IntToSeed(uint3 vt3Int)
-{
-    uint seed = (vt3Int.x * 73856093u) ^ (vt3Int.y * 19349663u) ^ (vt3Int.z * 83492791u) + 104395301u;
-    return seed;
-}
-
-
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 struct GrassData
@@ -47,7 +19,6 @@ uint _GrassHorizonCount;
 uint _GrassVerticalCount;
 float2 _GridPos; 
 float2 _GridSize;
-float _RandomPosMul;
 [numthreads(GRASS_THREAD_WIDTH, GRASS_THREAD_WIDTH,1)]
 void GetPosition(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
 {
@@ -79,7 +50,7 @@ void GetPosition(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
     randomPosAngle *= 2 * PI;
     
     float3 randomAdditionalPos = float3(cos(randomPosAngle) * randomDis, randomHeight * 0.05f, sin(randomPosAngle) * randomDis);
-    curPos += randomAdditionalPos * _RandomPosMul;
+    curPos += randomAdditionalPos * float3(dis_x, (dis_x + dis_y) * 0.05f, dis_y) * 0.5f;
 
     float2 uv = (curPos.xz - minxz) / _GridSize;
     int heightMapIdx_x = uv.x == 1 ? _HeightBufferSize.x - 2 : uv.x * (_HeightBufferSize.x - 2) + 1;

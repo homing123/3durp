@@ -42,20 +42,20 @@ Material:
     m_Ints: []
     m_Floats:
     - _Ambient: 0.184
-    - _DryBias: 0.306
+    - _DryBias: 0.292
     - _GrassRandomPosMul: 0.39
     - _GrassSize: 0.176
     - _GrassSizeRandomMul: 0.95
     - _OcclusionBias: 1
     - _OcclusionHeightBottom: 0.03
-    - _OcclusionHeightTop: 0.05
+    - _OcclusionHeightTop: 0.08
     - _OcclusionStrength: 0.244
     - _TessDivideValue: 1
     - _TessMin: 1
     - _TessRange: 1
     - _WindAFrequency: 0.57
     - _WindAIntensity: 0.51
-    - _WindBFrequency: 0.42
+    - _WindBFrequency: 0.6
     - _WindBIntensity: -0.47
     - _WindCFrequency: 0.58
     - _WindCIntensity: 0.54

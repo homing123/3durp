@@ -34,7 +34,7 @@ Shader "Grass/Grass"
         {
             Tags { "RenderType" = "Opaque" }
 
-          
+            Cull Off
 
             
             Pass
@@ -56,7 +56,7 @@ Shader "Grass/Grass"
                 };
                 struct VertexOut
                 {
-                    float3 posWorld : TEXCOORD1;
+                    float4 posWorld : TEXCOORD1;
                     float2 uv : TEXCOORD0;
                     float4 posCS : SV_POSITION;
                     float4 option : TEXCOORD2;
@@ -147,7 +147,14 @@ Shader "Grass/Grass"
                     float3 bill_up = float3(0, 1, 0);
                     float3 bill_right = normalize(cross(bill_up, bill_front));
 
+                    if (bendingNoise > 0.3f)
+                    {
+                        bill_front = -bill_front;
+                        bill_right = -bill_right;
+                    }
+
                     float3 posWS = pivotPosWS + v.posModel.x * bill_right * width + v.posModel.y * bill_up * height;
+                    float heightAboveGround = max(0, posWS.y - pivotPosWS.y);
 
                     //bending
                     int bendingTexWidth = 512;
@@ -162,8 +169,7 @@ Shader "Grass/Grass"
                         //현재 위치를 시드로 가지는 랜덤방향으로 1 = 90도 회전 0 = 회전 x = 이게 노이즈임
                         //0~1값을 각도로 바꿔서 360도를 커버치는거임
                         float radian = bendingNoise * 3.141592f * 2;
-                        float2 bendingAddPos = float2(cos(radian), sin(radian)) * posWS.y;
-                        posWS -= float3(bendingAddPos.x, posWS.y * 0.8f, bendingAddPos.y) * bendingValue;
+                        posWS -= float3(cos(radian), 0.8f, sin(radian)) * heightAboveGround * bendingValue;
                         
                         //posWS.y = posWS.y + posWS.y * bendingValue * 5;
 
@@ -184,12 +190,12 @@ Shader "Grass/Grass"
 
                   
 
-                    o.posWorld = posWS;
+                    o.posWorld = float4(posWS, heightAboveGround);
                     o.uv = v.uv;
-                    o.posCS = TransformWorldToHClip(o.posWorld);
+                    o.posCS = TransformWorldToHClip(o.posWorld.xyz);
                     o.option = float4(sizeNoise, dryNoise, 1, 1);
                     o.id = instanceID;
-                    o.shadowCoord = TransformWorldToShadowCoord(o.posWorld);
+                    o.shadowCoord = TransformWorldToShadowCoord(o.posWorld.xyz);
                     return o;
                 }
 
@@ -218,7 +224,7 @@ Shader "Grass/Grass"
 
                     float occ_bottom = _OcclusionHeightBottom + heightFactor * 0.025f; //땅 높이 대비로 바꿔야함
                     float occ_top = _OcclusionHeightTop + heightFactor * 0.05;
-                    float occFactor = saturate((occ_top - i.posWorld.y) / (occ_top - occ_bottom));
+                    float occFactor = saturate((occ_top - i.posWorld.w) / (occ_top - occ_bottom));
                     albedo = albedo - albedo * occFactor * _OcclusionStrength;
                     Light mainLight = GetMainLight(i.shadowCoord);
 
@@ -235,26 +241,6 @@ Shader "Grass/Grass"
         }
 }
                
-                    // if (dryNoise - dryNoise * heightFactor >= _DryBias)
-                    // {
-                    //    col.rgb = texColor.rgb;
-                    // }
-                    // else
-                    // {
-                    //    if (i.uv.y < 0.6)
-                    //    {
-                    //        col.rgb = texColor.rgb;
-                    //    }
-                    //    else
-                    //    {
-                    //        float uvFactorBias = (dryNoise - 0.3f) * 0.2f;
-                    //        float uvy = saturate((i.uv.y - 0.6f + uvFactorBias) * 2.5f);
-                    //        col.rgb = dryColor * uvy + (1 - uvy) * texColor.rgb;
-                    //    }
-                    //     /* heightFactor 가 높으면 높을수록 변색의 정도가 큼 변색의 정도는 변색 범위와 색깔 모두에 영향을 미침
-                    //      uv.y가 일정 이상부터 변색이 시작되며 색깔비중이 uv.y가 높을수록 진해짐*/
-                    // }
-
 
 /* [maxvertexcount(4)]
  void gs(point DomainOut i[1], uint primID : SV_PrimitiveID, inout TriangleStream<GeometryOut> outputStream)
