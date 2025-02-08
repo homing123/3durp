@@ -60,7 +60,7 @@ public class MapMaker : MonoBehaviour
 
             Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
 
-            float grassRenderDisSquare = m_GrassRenderDis * m_GrassRenderDis;
+            float grassRenderDisSquare = GrassMaker.Ins.m_GrassRenderDis * GrassMaker.Ins.m_GrassRenderDis;
             bool isDrawed = false;
             for(int i=0;i<4;i++)
             {
@@ -143,9 +143,9 @@ public class MapMaker : MonoBehaviour
 
         GrassMaker.GrassMakerOption grassOption = new GrassMaker.GrassMakerOption();
         grassOption.GridPos = groundPos;
-        grassOption.GrassCountPerOne = m_GrassCountPerOne;
+        grassOption.GrassCountPerOne = GrassMaker.Ins.m_GrassCountPerOne;
         grassOption.GridSize = new Vector2(Ground.GroundWidth, Ground.GroundWidth);
-        grassOption.GrassRenderDis = m_GrassRenderDis;
+        grassOption.GrassRenderDis = GrassMaker.Ins.m_GrassRenderDis;
         grassOption.HeightBufferSize = chunk.m_TerrainData.HeightBufferSize;
         grassOption.HeightBuffer = chunk.m_TerrainData.heightBuffer;
         grassOption.NormalBuffer = chunk.m_TerrainData.normalBuffer;

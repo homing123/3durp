@@ -66,8 +66,8 @@ public class GrassMaker : MonoBehaviour
     ComputeBuffer m_TotalChunkGrassBuffer;
 
     int m_LastTotalChunkGrassCount = 0;
-    [SerializeField][Range(1, 64)] int m_GrassCountPerOne;
-    [SerializeField][Range(0.1f, 100)] float m_GrassRenderDis;
+    [SerializeField][Range(1, 64)] public int m_GrassCountPerOne;
+    [SerializeField][Range(0.1f, 100)] public float m_GrassRenderDis;
 
     public static GrassMaker Ins;
     const int GrassThreadWidth = 32;
@@ -128,11 +128,13 @@ public class GrassMaker : MonoBehaviour
             Ins.m_TotalChunkGrassBuffer = new ComputeBuffer(curTotalGrassCount, HMUtil.StructSize(typeof(GrassData)));
         }
 
+        //nvidia에서 32개단위로 워프가 진행되고 해당 워프갯수에 맞춰서 패딩을 넣어주면 된다.
+        //이렇게 했을때 더 빠르다는걸 실험으로 증명 한 후 ppt에 써보자
         ComputeShader CSFrustumCulling = CSM.Ins.m_GrassFrustumCulling;
         for (int i = 0; i < arr_Chunk.Length; i++)
         {
-            Ins.m_TotalChunkGrassBuffer.SetData()
-;            CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.GrassDataCombine, "_GrassBuffers", arr_Chunk[i].m_GrassData.GrassBuffer, 1);
+            //Ins.m_TotalChunkGrassBuffer.SetData()
+;            //CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.GrassDataCombine, "_GrassBuffers", arr_Chunk[i].m_GrassData.GrassBuffer, 1);
         }
     }
     public static void DrawGrass(ChunkGrassData data)
@@ -157,7 +159,6 @@ public class GrassMaker : MonoBehaviour
         CSFrustumCulling.SetBuffer(2, "_DrawedGroupPrefixSumBuffer", data.DrawedGroupPrefixSumBuffer);
         CSFrustumCulling.SetBuffer(2, "_DrawedGroupSumBuffer", data.DrawedGroupSumBuffer);
         CSFrustumCulling.SetBuffer(2, "_MeshArgsBuffer", data.ArgsBuffer);
-        CSFrustumCulling.SetBuffer(3, "_DrawedIdxBuffer", data.DrawedIdxBuffer);
         CSFrustumCulling.SetBuffer(3, "_DrawedGroupPrefixSumBuffer", data.DrawedGroupPrefixSumBuffer);
         CSFrustumCulling.SetBuffer(3, "_DrawedPrefixSumBuffer", data.DrawedPrefixSumBuffer);
         CSFrustumCulling.SetBuffer(3, "_GrassBuffer", data.GrassBuffer);
@@ -219,7 +220,6 @@ public class GrassMaker : MonoBehaviour
         data.DrawedPrefixSumBuffer = new ComputeBuffer(grassCount, sizeof(int)); //그룹별 누적합 버퍼
         data.DrawedGroupSumBuffer = new ComputeBuffer(groupCount, sizeof(int)); //그룹별 합을 배열로만든 버퍼
         data.DrawedGroupPrefixSumBuffer = new ComputeBuffer(groupCount, sizeof(int));//그룹별 합을 누적합 한 버퍼
-        data.DrawedIdxBuffer = new ComputeBuffer(grassCount, sizeof(int)); //컬링 후 그려지는 idx _DrawedBuffer 의 인덱스임
         data.DrawedGrassBuffer = new ComputeBuffer(grassCount, structSize); //컬링 후 그려지는 grassbuffer 만 모아둔 버퍼
         data.ArgsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
         data.ArgsBuffer.SetData(GrassMaker.Ins.m_ArgsData);

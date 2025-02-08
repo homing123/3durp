@@ -1,0 +1,20 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Move
+#define MOVE_THREAD_COUNT 32
+
+
+RWStructuredBuffer<float3> _PositionBuffer;
+float3 _MoveVt3;
+uint _MaxCount;
+
+[numthreads(MOVE_THREAD_COUNT, 1, 1)]
+void Move(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+    int idx = t_id.x + g_id.x * MOVE_THREAD_COUNT;
+    if (idx >= _MaxCount)
+    {
+        return;
+    }
+    
+    _PositionBuffer[idx] -= _MoveVt3;
+}

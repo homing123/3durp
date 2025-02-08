@@ -1,7 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #define THREAD_MAX 512
 #define GROUPX_MAX 512
-#pragma kernel GrassDataCombine
 #pragma kernel FrustumCull
 #pragma kernel PrefixSum
 #pragma kernel GroupPrefixSum
@@ -17,7 +16,6 @@ struct GrassData
 
 
 RWStructuredBuffer<GrassData> _GrassBuffers[25];
-RWStructuredBuffer<int> _
 
 
 RWStructuredBuffer<GrassData> _GrassBuffer;
@@ -33,6 +31,11 @@ float _RenderDis;
 [numthreads(THREAD_MAX, 1, 1)]
 void FrustumCull(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
+    switch (_GrassCount)
+    {
+        case 1:
+            break;
+    }
     // TODO: insert actual code here!
     uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
     if(idx >= _GrassCount)
