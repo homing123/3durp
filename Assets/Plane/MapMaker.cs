@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static GrassMaker;
+using static TerrainMaker;
 
 public class MapMaker : MonoBehaviour
 {
@@ -11,11 +13,6 @@ public class MapMaker : MonoBehaviour
         public Ground m_Ground;
         public GrassMaker.ChunkGrassData m_GrassData;
         public TerrainMaker.ChunkTerrainData m_TerrainData;
-        ~Chunk()
-        {
-            m_GrassData.Release();
-            m_TerrainData.Release();
-        }
     }
 
     public static MapMaker Ins;
@@ -44,6 +41,18 @@ public class MapMaker : MonoBehaviour
             ChunkMove(chunkMoveDisIdxCoord);
         }
         DrawGrass();
+    }
+    private void OnDestroy()
+    {
+        foreach (Chunk value in D_Chunk.Values)
+        {
+            ChunkRelease(value);
+        }
+    }
+    void ChunkRelease(Chunk chunk)
+    {
+        chunk.m_GrassData.Release();
+        chunk.m_TerrainData.Release();
     }
 
     void DrawGrass()
@@ -134,7 +143,6 @@ public class MapMaker : MonoBehaviour
         chunk.m_TerrainData = TerrainMaker.Ins.GetChunkTerrainData(groundPos);
         float dis = Vector2.Distance(curCamPos, groundPos);
         chunk.m_Ground = Ground.Create(groundPos, dis, chunk.m_TerrainData.arr_MeshLOD);
-
         GrassMaker.GrassMakerOption grassOption = new GrassMaker.GrassMakerOption();
         grassOption.GridPos = groundPos;
         grassOption.HeightBufferSize = chunk.m_TerrainData.HeightBufferSize;

@@ -43,7 +43,7 @@ StructuredBuffer<GrassData> _GrassBuffer22;
 StructuredBuffer<GrassData> _GrassBuffer23;
 StructuredBuffer<GrassData> _GrassBuffer24;
 
-uint _GrassCount[GRASSBUFFERCOUNT];
+StructuredBuffer<uint> _GrassCountBuffer;
 RWStructuredBuffer<GrassData> _GrassBuffer;
 uint _TotalGrassCount;
 
@@ -60,12 +60,12 @@ void CombineGrassBuffer(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
     int bufferIdx = 0;
     for (int i = 0; i < GRASSBUFFERCOUNT;i++)
     {
-        if (curOffset + _GrassCount[i] > idx)
+        if (curOffset + _GrassCountBuffer[i] > idx)
         {
             bufferIdx = i;
             break;
         }
-        curOffset += _GrassCount[i];
+        curOffset += _GrassCountBuffer[i];
     }
     
     switch (bufferIdx)
