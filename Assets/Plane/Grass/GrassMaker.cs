@@ -9,7 +9,7 @@ public class GrassMaker : MonoBehaviour
 
     public enum E_GrassFrustumCullingKernel
     {
-        GrassDataCombine = 0,
+        CombineGrassBuffer = 0,
         FrustumCulling = 1,
         PrefixSum = 2,
         GroupPrefixSum = 3,
@@ -20,9 +20,6 @@ public class GrassMaker : MonoBehaviour
     public struct GrassMakerOption
     {
         public Vector2 GridPos;
-        public int GrassCountPerOne;
-        public Vector2 GridSize;
-        public float GrassRenderDis;
         public Vector2Int HeightBufferSize;
         public ComputeBuffer HeightBuffer;
         public ComputeBuffer NormalBuffer;
@@ -30,28 +27,14 @@ public class GrassMaker : MonoBehaviour
 
     public struct ChunkGrassData
     {
-        public ComputeBuffer ArgsBuffer;
-        public ComputeBuffer DrawedBuffer;
+      
         public ComputeBuffer GrassBuffer;
-        public ComputeBuffer DrawedPrefixSumBuffer;
-        public ComputeBuffer DrawedGroupSumBuffer;
-        public ComputeBuffer DrawedGroupPrefixSumBuffer;
-        public ComputeBuffer DrawedGrassBuffer;
-        public Bounds FieldBound;
-        public Material GrassMaterial;
         public GrassMakerOption Option;
-        public int GroupXCount;
         public int GrassCount;
 
         public void Release()
         {
-            ArgsBuffer.Release();
-            DrawedBuffer.Release();
             GrassBuffer.Release();
-            DrawedPrefixSumBuffer.Release();
-            DrawedGroupSumBuffer.Release();
-            DrawedGroupPrefixSumBuffer.Release();
-            DrawedGrassBuffer.Release();
         }
     }
 
@@ -62,10 +45,21 @@ public class GrassMaker : MonoBehaviour
     }
 
     private uint[] m_ArgsData = new uint[5];
-    Mesh m_GrassMesh;    
+    Mesh m_GrassMesh;
+    const int GrassBufferCount = 25;
     ComputeBuffer m_TotalChunkGrassBuffer;
+    ComputeBuffer m_ArgsBuffer;
+    ComputeBuffer m_DrawedBuffer;
+    ComputeBuffer m_DrawedPrefixSumBuffer;
+    ComputeBuffer m_DrawedGroupSumBuffer;
+    ComputeBuffer m_DrawedGroupPrefixSumBuffer;
+    ComputeBuffer m_DrawedGrassBuffer;
+    [SerializeField] Material m_GrassMaterial;
+
+    ComputeBuffer[] arr_BlankBuffer;
 
     int m_LastTotalChunkGrassCount = 0;
+    int m_LastGroupCount = 0;
     [SerializeField][Range(1, 64)] public int m_GrassCountPerOne;
     [SerializeField][Range(0.1f, 100)] public float m_GrassRenderDis;
 
@@ -83,7 +77,16 @@ public class GrassMaker : MonoBehaviour
         if (m_LastTotalChunkGrassCount > 0)
         {
             m_TotalChunkGrassBuffer.Release();
+            m_DrawedBuffer.Release();
+            m_DrawedPrefixSumBuffer.Release();
+            m_DrawedGrassBuffer.Release();
         }
+        if (m_LastGroupCount > 0)
+        {
+            m_DrawedGroupSumBuffer.Release();
+            m_DrawedGroupPrefixSumBuffer.Release();
+        }
+        m_ArgsBuffer.Release();
     }
     void Init()
     {
@@ -107,78 +110,153 @@ public class GrassMaker : MonoBehaviour
         m_ArgsData[2] = (uint)m_GrassMesh.GetIndexStart(0);
         m_ArgsData[3] = (uint)m_GrassMesh.GetBaseVertex(0);
         m_ArgsData[4] = 0;
+        m_ArgsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
+        m_ArgsBuffer.SetData(m_ArgsData);
+
+        arr_BlankBuffer = new ComputeBuffer[GrassBufferCount];
+        for(int i=0;i<arr_BlankBuffer.Length;i++)
+        {
+            arr_BlankBuffer[i] = new ComputeBuffer(1, 4);
+        }
+        m_GrassMaterial.SetBuffer("_GrassBuffer", m_DrawedGrassBuffer);
+
     }
 
     public static void DrawGrass(MapMaker.Chunk[] arr_Chunk)
     {
-        int curTotalGrassCount = 0;
-        int[] grassPrefixSum = new int[arr_Chunk.Length];
+        if(arr_Chunk.Length > GrassBufferCount)
+        {
+            Debug.Log($"Draw grass chunk so large {arr_Chunk.Length} : {GrassBufferCount}");
+            return;
+        }
+        int totalGrassCount = 0;
+        int[] grassCount = new int[arr_Chunk.Length];
         for (int i = 0; i < arr_Chunk.Length; i++)
         {
-            grassPrefixSum[i] = curTotalGrassCount;
-            curTotalGrassCount += arr_Chunk[i].m_GrassData.GrassCount;
+            grassCount[i] = arr_Chunk[i].m_GrassData.GrassCount;
+            totalGrassCount += arr_Chunk[i].m_GrassData.GrassCount;
         }
 
-        if (Ins.m_LastTotalChunkGrassCount < curTotalGrassCount)
+
+        int groupCount = totalGrassCount / CullingThreadMax + (totalGrassCount % CullingThreadMax == 0 ? 0 : 1);
+        if (groupCount > CullingGroupXMax)
+        {
+            Debug.Log($"Draw grass groupCaount too large {groupCount} : {CullingGroupXMax}");
+            return;
+        }
+
+        int structSize = HMUtil.StructSize(typeof(GrassData));
+       
+        
+        if (Ins.m_LastTotalChunkGrassCount < totalGrassCount)
         {
             if (Ins.m_LastTotalChunkGrassCount > 0)
             {
                 Ins.m_TotalChunkGrassBuffer.Release();
+                Ins.m_DrawedBuffer.Release();
+                Ins.m_DrawedPrefixSumBuffer.Release();
+                Ins.m_DrawedGrassBuffer.Release();
             }
-            Ins.m_TotalChunkGrassBuffer = new ComputeBuffer(curTotalGrassCount, HMUtil.StructSize(typeof(GrassData)));
+            Ins.m_TotalChunkGrassBuffer = new ComputeBuffer(totalGrassCount, HMUtil.StructSize(typeof(GrassData)));
+            Ins.m_DrawedBuffer = new ComputeBuffer(totalGrassCount, sizeof(int)); //그릴지말지 bool값
+            Ins.m_DrawedPrefixSumBuffer = new ComputeBuffer(totalGrassCount, sizeof(int)); //각 그룹단위에서의 누적합 버퍼
+            Ins.m_DrawedGrassBuffer = new ComputeBuffer(totalGrassCount, structSize); //컬링 후 그려지는 grassbuffer 만 모아둔 버퍼
+            Ins.m_LastTotalChunkGrassCount = totalGrassCount;
+        }
+        if(Ins.m_LastGroupCount < groupCount)
+        {
+            if(Ins.m_LastGroupCount > 0)
+            {
+                Ins.m_DrawedGroupSumBuffer.Release();
+                Ins.m_DrawedGroupPrefixSumBuffer.Release();
+            }
+            Ins.m_DrawedGroupSumBuffer = new ComputeBuffer(groupCount, sizeof(int)); //그룹별 합을 배열로만든 버퍼
+            Ins.m_DrawedGroupPrefixSumBuffer = new ComputeBuffer(groupCount, sizeof(int));//그룹별 합을 누적합 한 버퍼
         }
 
-        //nvidia에서 32개단위로 워프가 진행되고 해당 워프갯수에 맞춰서 패딩을 넣어주면 된다.
-        //이렇게 했을때 더 빠르다는걸 실험으로 증명 한 후 ppt에 써보자
         ComputeShader CSFrustumCulling = CSM.Ins.m_GrassFrustumCulling;
+        Vector2 min = arr_Chunk[0].m_Key;
+        Vector2 max = arr_Chunk[0].m_Key;
         for (int i = 0; i < arr_Chunk.Length; i++)
         {
-            //Ins.m_TotalChunkGrassBuffer.SetData()
-;            //CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.GrassDataCombine, "_GrassBuffers", arr_Chunk[i].m_GrassData.GrassBuffer, 1);
+            CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.CombineGrassBuffer, "_GrassBuffer" + i, arr_Chunk[i].m_GrassData.GrassBuffer);
+            if (arr_Chunk[i].m_Key.x < min.x)
+            {
+                min.x = arr_Chunk[i].m_Key.x;
+            }
+            if (arr_Chunk[i].m_Key.y < min.y)
+            {
+                min.y = arr_Chunk[i].m_Key.y;
+            }
+            if (arr_Chunk[i].m_Key.x > max.x)
+            {
+                max.x = arr_Chunk[i].m_Key.x;
+            }
+            if (arr_Chunk[i].m_Key.y > max.y)
+            {
+                max.y = arr_Chunk[i].m_Key.y;
+            }
         }
-    }
-    public static void DrawGrass(ChunkGrassData data)
-    {
-        ComputeShader CSFrustumCulling = CSM.Ins.m_GrassFrustumCulling;
+        for(int i = arr_Chunk.Length;i<GrassBufferCount;i++)
+        {
+            CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.CombineGrassBuffer, "_GrassBuffer" + i, Ins.arr_BlankBuffer[i]);
+        }
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.CombineGrassBuffer, "_GrassBuffer", Ins.m_TotalChunkGrassBuffer);
+        CSFrustumCulling.SetInts("_GrassCount", grassCount);
+        CSFrustumCulling.SetInt("_TotalGrassCount", totalGrassCount);
 
         Matrix4x4 p = Camera.main.projectionMatrix;
         Matrix4x4 v = Camera.main.transform.worldToLocalMatrix;
         Matrix4x4 VP = p * v;
 
         CSFrustumCulling.SetVector("_CamPos", Camera.main.transform.position);
-        CSFrustumCulling.SetFloat("_RenderDis", data.Option.GrassRenderDis);
+        CSFrustumCulling.SetFloat("_RenderDis", Ins.m_GrassRenderDis);
         CSFrustumCulling.SetMatrix("_MatVP", VP);
 
-        CSFrustumCulling.SetInt("_GrassCount", data.GrassCount);
-        CSFrustumCulling.SetInt("_GroupCount", data.GroupXCount);
-        CSFrustumCulling.SetBuffer(0, "_GrassBuffer", data.GrassBuffer);
-        CSFrustumCulling.SetBuffer(0, "_DrawedBuffer", data.DrawedBuffer);
-        CSFrustumCulling.SetBuffer(1, "_DrawedBuffer", data.DrawedBuffer);
-        CSFrustumCulling.SetBuffer(1, "_DrawedPrefixSumBuffer", data.DrawedPrefixSumBuffer);
-        CSFrustumCulling.SetBuffer(1, "_DrawedGroupSumBuffer", data.DrawedGroupSumBuffer);
-        CSFrustumCulling.SetBuffer(2, "_DrawedGroupPrefixSumBuffer", data.DrawedGroupPrefixSumBuffer);
-        CSFrustumCulling.SetBuffer(2, "_DrawedGroupSumBuffer", data.DrawedGroupSumBuffer);
-        CSFrustumCulling.SetBuffer(2, "_MeshArgsBuffer", data.ArgsBuffer);
-        CSFrustumCulling.SetBuffer(3, "_DrawedGroupPrefixSumBuffer", data.DrawedGroupPrefixSumBuffer);
-        CSFrustumCulling.SetBuffer(3, "_DrawedPrefixSumBuffer", data.DrawedPrefixSumBuffer);
-        CSFrustumCulling.SetBuffer(3, "_GrassBuffer", data.GrassBuffer);
-        CSFrustumCulling.SetBuffer(3, "_DrawedGrassBuffer", data.DrawedGrassBuffer);
+        CSFrustumCulling.SetInt("_GroupCount", groupCount);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.FrustumCulling, "_GrassBuffer", Ins.m_TotalChunkGrassBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.FrustumCulling, "_DrawedBuffer", Ins.m_DrawedBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.PrefixSum, "_DrawedBuffer", Ins.m_DrawedBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.PrefixSum, "_DrawedPrefixSumBuffer", Ins.m_DrawedPrefixSumBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.PrefixSum, "_DrawedGroupSumBuffer", Ins.m_DrawedGroupSumBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.GroupPrefixSum, "_DrawedGroupPrefixSumBuffer", Ins.m_DrawedGroupPrefixSumBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.GroupPrefixSum, "_DrawedGroupSumBuffer", Ins.m_DrawedGroupSumBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.GroupPrefixSum, "_MeshArgsBuffer", Ins.m_ArgsBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.SetDrawedGrass, "_DrawedGroupPrefixSumBuffer", Ins.m_DrawedGroupPrefixSumBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.SetDrawedGrass, "_DrawedPrefixSumBuffer", Ins.m_DrawedPrefixSumBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.SetDrawedGrass, "_GrassBuffer", Ins.m_TotalChunkGrassBuffer);
+        CSFrustumCulling.SetBuffer((int)E_GrassFrustumCullingKernel.SetDrawedGrass, "_DrawedGrassBuffer", Ins.m_DrawedGrassBuffer);
+        
+        //CombineBuffer
+        CSFrustumCulling.Dispatch((int)E_GrassFrustumCullingKernel.CombineGrassBuffer, groupCount, 1, 1);
 
         //Cull
-        CSFrustumCulling.Dispatch(0, data.GroupXCount, 1, 1);
+        CSFrustumCulling.Dispatch((int)E_GrassFrustumCullingKernel.FrustumCulling, groupCount, 1, 1);
 
         //PrefixSum
-        CSFrustumCulling.Dispatch(1, data.GroupXCount, 1, 1);
+        CSFrustumCulling.Dispatch((int)E_GrassFrustumCullingKernel.PrefixSum, groupCount, 1, 1);
 
         //GroupPrefixSum
-        CSFrustumCulling.Dispatch(2, 1, 1, 1);
+        CSFrustumCulling.Dispatch((int)E_GrassFrustumCullingKernel.GroupPrefixSum, 1, 1, 1);
 
         //GetDrawedIdx
-        CSFrustumCulling.Dispatch(3, data.GroupXCount, 1, 1);
+        CSFrustumCulling.Dispatch((int)E_GrassFrustumCullingKernel.SetDrawedGrass, groupCount, 1, 1);
 
-        Graphics.DrawMeshInstancedIndirect(Ins.m_GrassMesh, 0, data.GrassMaterial, data.FieldBound, data.ArgsBuffer);
+
+        Vector2 keyCenter = min + (max - min) * 0.5f;
+        Vector2 keySize = max - min;
+
+        Vector3 boundCenter = new Vector3(keyCenter.x * Ground.GroundSize.x, 0, keyCenter.y * Ground.GroundSize.y);
+        Vector3 boundSize = new Vector3(keySize.x * Ground.GroundSize.x, 20, keySize.y * Ground.GroundSize.y);
+        Bounds FieldBound = new Bounds(boundCenter, boundSize);
+
+        Graphics.DrawMeshInstancedIndirect(Ins.m_GrassMesh, 0, Ins.m_GrassMaterial, FieldBound, Ins.m_ArgsBuffer);
+
+        int[] args = new int[5];
+        Ins.m_ArgsBuffer.GetData(args);
+        Debug.Log(args[1]);
     }
-
+   
 
     public static ChunkGrassData GetChunkGrassData(GrassMakerOption option)
     {
@@ -187,8 +265,8 @@ public class GrassMaker : MonoBehaviour
 
         ChunkGrassData data = new ChunkGrassData();
         data.Option = option;
-        int grassHorizonCount = Mathf.FloorToInt(option.GrassCountPerOne * option.GridSize.x);
-        int grassVerticalCount = Mathf.FloorToInt(option.GrassCountPerOne * option.GridSize.y);
+        int grassHorizonCount = Mathf.FloorToInt(Ins.m_GrassCountPerOne * Ground.GroundSize.x);
+        int grassVerticalCount = Mathf.FloorToInt(Ins.m_GrassCountPerOne * Ground.GroundSize.y);
         int grassCount = grassHorizonCount * grassVerticalCount;
 
         int perlinKernel_x = grassHorizonCount / GrassThreadWidth + (grassHorizonCount % GrassThreadWidth == 0 ? 0 : 1);
@@ -205,7 +283,7 @@ public class GrassMaker : MonoBehaviour
         CSGrassPosition.SetInt("_GrassHorizonCount", grassHorizonCount);
         CSGrassPosition.SetInt("_GrassVerticalCount", grassVerticalCount);
         CSGrassPosition.SetFloats("_GridPos", new float[2] { option.GridPos.x, option.GridPos.y });
-        CSGrassPosition.SetFloats("_GridSize", new float[2] { option.GridSize.x, option.GridSize.y });
+        CSGrassPosition.SetFloats("_GridSize", new float[2] { Ground.GroundSize.x, Ground.GroundSize.y });
         CSGrassPosition.Dispatch(0, perlinKernel_x, perlinKernel_y, 1);
 
         int groupCount = grassCount / CullingThreadMax + (grassCount % CullingThreadMax == 0 ? 0 : 1);
@@ -213,23 +291,7 @@ public class GrassMaker : MonoBehaviour
         {
             Debug.Log($"Group too large {groupCount}");
         }
-        data.GroupXCount = groupCount;
         data.GrassCount = grassCount;
-
-        data.DrawedBuffer = new ComputeBuffer(grassCount, sizeof(int)); //그릴지말지 bool값
-        data.DrawedPrefixSumBuffer = new ComputeBuffer(grassCount, sizeof(int)); //그룹별 누적합 버퍼
-        data.DrawedGroupSumBuffer = new ComputeBuffer(groupCount, sizeof(int)); //그룹별 합을 배열로만든 버퍼
-        data.DrawedGroupPrefixSumBuffer = new ComputeBuffer(groupCount, sizeof(int));//그룹별 합을 누적합 한 버퍼
-        data.DrawedGrassBuffer = new ComputeBuffer(grassCount, structSize); //컬링 후 그려지는 grassbuffer 만 모아둔 버퍼
-        data.ArgsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
-        data.ArgsBuffer.SetData(GrassMaker.Ins.m_ArgsData);
-
-        Vector3 boundCenter = new Vector3(option.GridPos.x, 0, option.GridPos.y) + new Vector3(option.GridSize.x, 0, option.GridSize.y) * 0.5f;
-        Vector3 boundSize = new Vector3(option.GridSize.x, 20, option.GridSize.y);
-        data.FieldBound = new Bounds(boundCenter, boundSize);
-
-        data.GrassMaterial = new Material(Prefabs.Ins.M_Grass);
-        data.GrassMaterial.SetBuffer("_GrassBuffer", data.DrawedGrassBuffer);
 
         return data;
     }

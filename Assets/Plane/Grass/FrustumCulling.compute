@@ -1,10 +1,12 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #define THREAD_MAX 512
 #define GROUPX_MAX 512
+#pragma kernel CombineGrassBuffer
 #pragma kernel FrustumCull
 #pragma kernel PrefixSum
 #pragma kernel GroupPrefixSum
 #pragma kernel SetDrawedGrass
+#define GRASSBUFFERCOUNT 25
 
 #include "Util.compute"
 
@@ -15,13 +17,90 @@ struct GrassData
 };
 
 
-RWStructuredBuffer<GrassData> _GrassBuffers[25];
+StructuredBuffer<GrassData> _GrassBuffer0;
+StructuredBuffer<GrassData> _GrassBuffer1;
+StructuredBuffer<GrassData> _GrassBuffer2;
+StructuredBuffer<GrassData> _GrassBuffer3;
+StructuredBuffer<GrassData> _GrassBuffer4;
+StructuredBuffer<GrassData> _GrassBuffer5;
+StructuredBuffer<GrassData> _GrassBuffer6;
+StructuredBuffer<GrassData> _GrassBuffer7;
+StructuredBuffer<GrassData> _GrassBuffer8;
+StructuredBuffer<GrassData> _GrassBuffer9;
+StructuredBuffer<GrassData> _GrassBuffer10;
+StructuredBuffer<GrassData> _GrassBuffer11;
+StructuredBuffer<GrassData> _GrassBuffer12;
+StructuredBuffer<GrassData> _GrassBuffer13;
+StructuredBuffer<GrassData> _GrassBuffer14;
+StructuredBuffer<GrassData> _GrassBuffer15;
+StructuredBuffer<GrassData> _GrassBuffer16;
+StructuredBuffer<GrassData> _GrassBuffer17;
+StructuredBuffer<GrassData> _GrassBuffer18;
+StructuredBuffer<GrassData> _GrassBuffer19;
+StructuredBuffer<GrassData> _GrassBuffer20;
+StructuredBuffer<GrassData> _GrassBuffer21;
+StructuredBuffer<GrassData> _GrassBuffer22;
+StructuredBuffer<GrassData> _GrassBuffer23;
+StructuredBuffer<GrassData> _GrassBuffer24;
 
-
+uint _GrassCount[GRASSBUFFERCOUNT];
 RWStructuredBuffer<GrassData> _GrassBuffer;
+uint _TotalGrassCount;
+
+[numthreads(THREAD_MAX,1,1)]
+void CombineGrassBuffer(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+    uint idx = t_id.x + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
+    if (idx >= _TotalGrassCount)
+    {
+        return;
+    }
+    
+    int curOffset = 0;
+    int bufferIdx = 0;
+    for (int i = 0; i < GRASSBUFFERCOUNT;i++)
+    {
+        if (curOffset + _GrassCount[i] > idx)
+        {
+            bufferIdx = i;
+            break;
+        }
+        curOffset += _GrassCount[i];
+    }
+    
+    switch (bufferIdx)
+    {
+        case 0:_GrassBuffer[idx] = _GrassBuffer0[idx - curOffset];break;
+        case 1:_GrassBuffer[idx] = _GrassBuffer1[idx - curOffset];break;
+        case 2:_GrassBuffer[idx] = _GrassBuffer2[idx - curOffset];break;
+        case 3:_GrassBuffer[idx] = _GrassBuffer3[idx - curOffset];break;
+        case 4:_GrassBuffer[idx] = _GrassBuffer4[idx - curOffset];break;
+        case 5:_GrassBuffer[idx] = _GrassBuffer5[idx - curOffset];break;
+        case 6:_GrassBuffer[idx] = _GrassBuffer6[idx - curOffset];break;
+        case 7:_GrassBuffer[idx] = _GrassBuffer7[idx - curOffset];break;
+        case 8:_GrassBuffer[idx] = _GrassBuffer8[idx - curOffset];break;
+        case 9:_GrassBuffer[idx] = _GrassBuffer9[idx - curOffset];break;
+        case 10:_GrassBuffer[idx] = _GrassBuffer10[idx - curOffset];break;
+        case 11:_GrassBuffer[idx] = _GrassBuffer11[idx - curOffset];break;
+        case 12:_GrassBuffer[idx] = _GrassBuffer12[idx - curOffset];break;
+        case 13:_GrassBuffer[idx] = _GrassBuffer13[idx - curOffset];break;
+        case 14:_GrassBuffer[idx] = _GrassBuffer14[idx - curOffset];break;
+        case 15:_GrassBuffer[idx] = _GrassBuffer15[idx - curOffset];break;
+        case 16:_GrassBuffer[idx] = _GrassBuffer16[idx - curOffset];break;
+        case 17:_GrassBuffer[idx] = _GrassBuffer17[idx - curOffset];break;
+        case 18:_GrassBuffer[idx] = _GrassBuffer18[idx - curOffset];break;
+        case 19:_GrassBuffer[idx] = _GrassBuffer19[idx - curOffset];break;
+        case 20:_GrassBuffer[idx] = _GrassBuffer20[idx - curOffset];break;
+        case 21:_GrassBuffer[idx] = _GrassBuffer21[idx - curOffset];break;
+        case 22:_GrassBuffer[idx] = _GrassBuffer22[idx - curOffset];break;
+        case 23:_GrassBuffer[idx] = _GrassBuffer23[idx - curOffset];break;
+        case 24:_GrassBuffer[idx] = _GrassBuffer24[idx - curOffset];break;
+    }
+}
+
+
 RWStructuredBuffer<uint> _DrawedBuffer;
 
-uint _GrassCount;
 float4x4 _MatVP;
 float3 _CamPos;
 float _RenderDis;
@@ -31,14 +110,9 @@ float _RenderDis;
 [numthreads(THREAD_MAX, 1, 1)]
 void FrustumCull(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
-    switch (_GrassCount)
-    {
-        case 1:
-            break;
-    }
     // TODO: insert actual code here!
     uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
-    if(idx >= _GrassCount)
+    if(idx >= _TotalGrassCount)
     {
         return;
     }
@@ -65,7 +139,7 @@ void PrefixSum(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
     uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
     uint g_idx = g_id.y * GROUPX_MAX + g_id.x;
 
-    _prefixSumTemp[t_idx] = idx >= _GrassCount ? 0 :  _DrawedBuffer[idx];
+    _prefixSumTemp[t_idx] = idx >= _TotalGrassCount ? 0 : _DrawedBuffer[idx];
 
     int outputBegin = 0;
     int inputBegin = THREAD_MAX;
@@ -82,10 +156,10 @@ void PrefixSum(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
         GroupMemoryBarrierWithGroupSync();
     }
 
-    if (idx < _GrassCount)
+    if (idx < _TotalGrassCount)
     {
         _DrawedPrefixSumBuffer[idx] = _prefixSumTemp[outputBegin + t_idx];
-        if (t_idx == THREAD_MAX - 1 || idx == _GrassCount - 1)
+        if (t_idx == THREAD_MAX - 1 || idx == _TotalGrassCount - 1)
         {
             _DrawedGroupSumBuffer[g_idx] = _DrawedPrefixSumBuffer[idx];
         }
@@ -135,7 +209,7 @@ void SetDrawedGrass(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
     uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
     uint g_idx = g_id.y * GROUPX_MAX + g_id.x;
-    if (idx >= _GrassCount)
+    if (idx >= _TotalGrassCount)
     {
         return;
     }

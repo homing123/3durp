@@ -46,12 +46,12 @@ public class TerrainMaker : MonoBehaviour
         ChunkTerrainData data = new ChunkTerrainData();
         PerlinNoise.PerlinOption option = m_PerlinOption;
         option.offset = groundPos;
-        option.scale = Ground.GroundWidth / m_PerlinOption.width * 100;
+        option.scale = Ground.GroundSize.x / m_PerlinOption.width * 100;
         option.width = m_PerlinOption.width + 3; // +1 은 맵이 이어지기위해필요, +2은 heightMap -> normalMap reduce로 진행하기때문에 필요 => height가 4x4 면 normal은 2x2로 나옴
         option.height = m_PerlinOption.height + 3;
 
         data.heightBuffer = PerlinNoise.PerlinNoiseGPU(option, PerlinNoise.E_PerlinBufferType.Height);
-        data.normalBuffer = NormalMapMaker.HeightMapToNormalMapGPU(option.width - 2, option.height - 2, data.heightBuffer, NormalMapMaker.E_NormalBufferType.FloatToVector3, new Vector2(Ground.GroundWidth, Ground.GroundWidth), NormalMapMaker.E_NormalSideType.Reduce);
+        data.normalBuffer = NormalMapMaker.HeightMapToNormalMapGPU(option.width - 2, option.height - 2, data.heightBuffer, NormalMapMaker.E_NormalBufferType.FloatToVector3, Ground.GroundSize, NormalMapMaker.E_NormalSideType.Reduce);
         data.arr_Height = new float[option.width * option.height];
         data.arr_Normal = new Vector3[(option.width - 2) * (option.height - 2)];
         data.heightBuffer.GetData(data.arr_Height);
@@ -69,8 +69,8 @@ public class TerrainMaker : MonoBehaviour
             Vector2[] uvs = new Vector2[AxisVertexCount[i] * AxisVertexCount[i]];
             Vector3[] normals = new Vector3[AxisVertexCount[i] * AxisVertexCount[i]];
             //-ground크기 / 2 ~ ground크기 / 2
-            Vector3 startPos = new Vector3(-Ground.GroundWidth * 0.5f, 0, -Ground.GroundWidth * 0.5f);
-            float dVertex = Ground.GroundWidth / (AxisVertexCount[i] - 1);
+            Vector3 startPos = new Vector3(-Ground.GroundSize.x * 0.5f, 0, -Ground.GroundSize.y * 0.5f);
+            float dVertex = Ground.GroundSize.x / (AxisVertexCount[i] - 1);
             float dUV = 1.0f / (AxisVertexCount[i] - 1);
             for (int z = 0; z < AxisVertexCount[i];z++)
             {

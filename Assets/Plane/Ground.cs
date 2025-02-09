@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Ground : MonoBehaviour
 {
-    public const float GroundWidth = 10;
+    public static readonly Vector2 GroundSize = new Vector2(10, 10); //x,y 같게 사용할건데 편의상 vt2로 만듬
     public static Ground Create(Vector2 pos, float dis, Mesh[] arr_MeshLOD)
     {
         Ground ground = Instantiate(Prefabs.Ins.G_Ground, MapMaker.Ins.transform).GetComponent<Ground>();
@@ -29,7 +29,7 @@ public class Ground : MonoBehaviour
     private void Start()
     {
         //피봇이 중심이라 0.5곱한값 더해줌
-        transform.position = new Vector3(m_Pos.x + GroundWidth * 0.5f, 0, m_Pos.y + GroundWidth * 0.5f);
+        transform.position = new Vector3(m_Pos.x, 0, m_Pos.y);
     }
     int GetMeshIdx(float dis)
     {

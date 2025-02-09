@@ -51,7 +51,7 @@ public class MapMaker : MonoBehaviour
         List<Chunk> l_GrassRenderChunk = new List<Chunk>();
         foreach (Vector2Int key in D_Chunk.Keys)
         {
-            Rect rect = new Rect(key.x + Ground.GroundWidth * 0.5f, key.y + Ground.GroundWidth * 0.5f, Ground.GroundWidth, Ground.GroundWidth);
+            Rect rect = new Rect((key.x - 0.5f) * Ground.GroundSize.x, (key.y - 0.5f) * Ground.GroundSize.y, Ground.GroundSize.x, Ground.GroundSize.y);
             Vector2[] vertex = new Vector2[4];
             vertex[0] = new Vector2(rect.xMin, rect.yMin);
             vertex[1] = new Vector2(rect.xMin, rect.yMax);
@@ -78,19 +78,22 @@ public class MapMaker : MonoBehaviour
             }
         }
 
+        GrassMaker.DrawGrass(l_GrassRenderChunk.ToArray());
+
 
         
     }
     void MapInit()
     {
         //0,0을 시작으로 하고 GroundWidth를 크기로 하는 그리드를 카메라위치를 중심으로 생성
+        //각 그라운드는 그리드점을 중심으로 한다 = 그리드 0,0 => -0.5, -0.5 ~ 0.5, 0.5
         Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
-        Vector2Int centerGridIdxCoord = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / Ground.GroundWidth), Mathf.FloorToInt(camPosXZ.y / Ground.GroundWidth)); //중심이 되는 그리드 인덱스좌표
+        Vector2Int centerGridIdxCoord = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / Ground.GroundSize.x), Mathf.FloorToInt(camPosXZ.y / Ground.GroundSize.y)); //중심이 되는 그리드 인덱스좌표
         m_CurCenterChunkIdxCoord = centerGridIdxCoord;
 
         //현재그리드 제외하고 중심에서 바깥으로 렌더거리만큼 그리기 위해 필요한 그리드 갯수
         //3일경우 생성그리드는 7 x 7 크기가 된다
-        m_GridCountPerRenderDis = Mathf.CeilToInt((m_RenderDis) / Ground.GroundWidth);
+        m_GridCountPerRenderDis = Mathf.CeilToInt((m_RenderDis) / Ground.GroundSize.x);
 
         Vector2Int minGridIdxCoord = new Vector2Int(centerGridIdxCoord.x - m_GridCountPerRenderDis, centerGridIdxCoord.y - m_GridCountPerRenderDis);
 
@@ -100,7 +103,7 @@ public class MapMaker : MonoBehaviour
             for (int x = 0; x < gridWidthCount; x++)
             {
                 Vector2Int curGridIdxCoord = new Vector2Int(minGridIdxCoord.x + x, minGridIdxCoord.y + y);
-                Vector2 groundPos = new Vector2(curGridIdxCoord.x * Ground.GroundWidth, curGridIdxCoord.y * Ground.GroundWidth);
+                Vector2 groundPos = curGridIdxCoord * Ground.GroundSize;
                 D_Chunk[curGridIdxCoord] = CreateChunk(groundPos, camPosXZ, curGridIdxCoord);
             }
         }
@@ -113,7 +116,7 @@ public class MapMaker : MonoBehaviour
     Vector2Int ChunkMoveCheck()
     {
         Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
-        Vector2Int centerGridIdxCoord = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / Ground.GroundWidth), Mathf.FloorToInt(camPosXZ.y / Ground.GroundWidth)); //중심이 되는 그리드 인덱스좌표
+        Vector2Int centerGridIdxCoord = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / Ground.GroundSize.x), Mathf.FloorToInt(camPosXZ.y / Ground.GroundSize.y)); //중심이 되는 그리드 인덱스좌표
         if (m_CurCenterChunkIdxCoord != centerGridIdxCoord)
         {
             return centerGridIdxCoord - m_CurCenterChunkIdxCoord;
@@ -132,20 +135,8 @@ public class MapMaker : MonoBehaviour
         float dis = Vector2.Distance(curCamPos, groundPos);
         chunk.m_Ground = Ground.Create(groundPos, dis, chunk.m_TerrainData.arr_MeshLOD);
 
-        //public Vector2 GridPos;
-        //public int GrassCountPerOne;
-        //public Vector2 GridSize;
-        //public float GrassRenderDis;
-        //public float RandomPosMul;
-        //public Vector2Int HeightBufferSize;
-        //public ComputeBuffer HeightBuffer;
-        //public ComputeBuffer NormalBuffer;
-
         GrassMaker.GrassMakerOption grassOption = new GrassMaker.GrassMakerOption();
         grassOption.GridPos = groundPos;
-        grassOption.GrassCountPerOne = GrassMaker.Ins.m_GrassCountPerOne;
-        grassOption.GridSize = new Vector2(Ground.GroundWidth, Ground.GroundWidth);
-        grassOption.GrassRenderDis = GrassMaker.Ins.m_GrassRenderDis;
         grassOption.HeightBufferSize = chunk.m_TerrainData.HeightBufferSize;
         grassOption.HeightBuffer = chunk.m_TerrainData.heightBuffer;
         grassOption.NormalBuffer = chunk.m_TerrainData.normalBuffer;

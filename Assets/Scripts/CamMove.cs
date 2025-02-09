@@ -46,7 +46,7 @@ public class CamMove : MonoBehaviour
 
         Vector3 chaPos = m_Character.transform.position;
         Vector3 camPos;
-        camPos.y = chaPos.y + m_Height;
+        camPos.y = m_Height;
         Vector2 xz = new Vector2(Mathf.Sin(Mathf.Deg2Rad * (rotY)), Mathf.Cos(Mathf.Deg2Rad * (rotY))) * m_Distance;
         camPos.x = -xz.x;
         camPos.z = -xz.y;
