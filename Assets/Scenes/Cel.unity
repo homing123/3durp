@@ -3799,8 +3799,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_GrassMaterial: {fileID: 2100000, guid: 18fb8fc200c889a49b6e4a2767168ddb, type: 2}
-  m_GrassCountPerOne: 16
-  m_GrassRenderDis: 10.3
+  m_GrassCountPerOne: 32
+  m_GrassRenderDis: 19
 --- !u!1 &1959000363 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3586728633960674748, guid: 4c24864bced7ba64696cc88d5412ef2b,

@@ -1,10 +1,10 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #define THREAD_MAX 512
-#define GROUPX_MAX 512
 #pragma kernel CombineGrassBuffer
 #pragma kernel FrustumCull
 #pragma kernel PrefixSum
-#pragma kernel GroupPrefixSum
+#pragma kernel GroupXPrefixSum
+#pragma kernel GroupYPrefixSum
 #pragma kernel SetDrawedGrass
 #define GRASSBUFFERCOUNT 25
 
@@ -45,12 +45,29 @@ StructuredBuffer<GrassData> _GrassBuffer24;
 
 StructuredBuffer<uint> _GrassCountBuffer;
 RWStructuredBuffer<GrassData> _GrassBuffer;
+RWStructuredBuffer<uint> _DrawedBuffer;
+RWStructuredBuffer<uint> _DrawedPrefixSumBuffer;
+RWStructuredBuffer <uint> _DrawedGroupXSumBuffer;
+RWStructuredBuffer <uint> _DrawedGroupYSumBuffer;
+RWStructuredBuffer <uint> _DrawedGroupXPrefixSumBuffer;
+RWStructuredBuffer <uint> _DrawedGroupYPrefixSumBuffer;
+RWStructuredBuffer<uint> _MeshArgsBuffer;
+RWStructuredBuffer <GrassData> _DrawedGrassBuffer;
+
 uint _TotalGrassCount;
+uint _GroupCount;
+uint _KernelGroupY;
+float4x4 _MatVP;
+float3 _CamPos;
+float _RenderDis;
+
+//_GrassCountBuffer
+//_GrassBuffer
 
 [numthreads(THREAD_MAX,1,1)]
 void CombineGrassBuffer(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
 {
-    uint idx = t_id.x + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
+    uint idx = t_id.x + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * THREAD_MAX;
     if (idx >= _TotalGrassCount)
     {
         return;
@@ -99,19 +116,14 @@ void CombineGrassBuffer(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
 }
 
 
-RWStructuredBuffer<uint> _DrawedBuffer;
 
-float4x4 _MatVP;
-float3 _CamPos;
-float _RenderDis;
-
-
-
+//_GrassBuffer
+//_DrawedBuffer
 [numthreads(THREAD_MAX, 1, 1)]
 void FrustumCull(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
     // TODO: insert actual code here!
-    uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
+    uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * THREAD_MAX;
     if(idx >= _TotalGrassCount)
     {
         return;
@@ -129,15 +141,15 @@ void FrustumCull(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
     _DrawedBuffer[idx] = isDrawed;
 }
 
+//_DrawedBuffer
+//_DrawedPrefixSumBuffer
+//_DrawedGroupXSumBuffer
 groupshared uint _prefixSumTemp[THREAD_MAX * 2];
-RWStructuredBuffer<uint> _DrawedPrefixSumBuffer;
-RWStructuredBuffer <uint> _DrawedGroupSumBuffer;
-
 [numthreads(THREAD_MAX,1,1)]
 void PrefixSum(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
-    uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
-    uint g_idx = g_id.y * GROUPX_MAX + g_id.x;
+    uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * THREAD_MAX;
+    uint g_idx = g_id.y * THREAD_MAX + g_id.x;
 
     _prefixSumTemp[t_idx] = idx >= _TotalGrassCount ? 0 : _DrawedBuffer[idx];
 
@@ -161,25 +173,23 @@ void PrefixSum(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
         _DrawedPrefixSumBuffer[idx] = _prefixSumTemp[outputBegin + t_idx];
         if (t_idx == THREAD_MAX - 1 || idx == _TotalGrassCount - 1)
         {
-            _DrawedGroupSumBuffer[g_idx] = _DrawedPrefixSumBuffer[idx];
+            _DrawedGroupXSumBuffer[g_idx] = _DrawedPrefixSumBuffer[idx];
         }
     }
-
-
 }
 
-uint _GroupCount;
-groupshared uint _prefixGroupSumTemp[GROUPX_MAX * 2];
-RWStructuredBuffer <uint> _DrawedGroupPrefixSumBuffer;
-RWStructuredBuffer<uint> _MeshArgsBuffer;
-
-//this kernel funtion has only one group
-[numthreads(GROUPX_MAX,1,1)]
-void GroupPrefixSum(uint t_idx : SV_GroupIndex)
+//_DrawedGroupXSumBuffer
+//_DrawedGroupXPrefixSumBuffer
+//_DrawedGroupYSumBuffer
+groupshared uint _prefixGroupSumTemp[THREAD_MAX * 2];
+[numthreads(THREAD_MAX,1,1)]
+void GroupXPrefixSum(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
-    _prefixGroupSumTemp[t_idx] = t_idx < _GroupCount ? _DrawedGroupSumBuffer[t_idx] : 0;
+    uint idx = THREAD_MAX * g_id.x + t_idx;
+    uint g_idx = g_id.y * THREAD_MAX + g_id.x;
+    _prefixGroupSumTemp[t_idx] = t_idx < _GroupCount ? _DrawedGroupXSumBuffer[idx] : 0;
     int outBegin = 0;
-    int inBegin = GROUPX_MAX;
+    int inBegin = THREAD_MAX;
     GroupMemoryBarrierWithGroupSync();
 
     for (uint stride = 1; stride < _GroupCount; stride <<= 1)
@@ -192,36 +202,71 @@ void GroupPrefixSum(uint t_idx : SV_GroupIndex)
         GroupMemoryBarrierWithGroupSync();
     }
 
-    if (t_idx < _GroupCount)
+    if (idx < _GroupCount)
     {
-        _DrawedGroupPrefixSumBuffer[t_idx] = _prefixGroupSumTemp[outBegin + t_idx];
-        if (t_idx == _GroupCount - 1)
+        _DrawedGroupXPrefixSumBuffer[idx] = _prefixGroupSumTemp[outBegin + t_idx];
+        if (t_idx == THREAD_MAX - 1 || idx == _GroupCount - 1)
+        {
+            _DrawedGroupYSumBuffer[g_idx] = _DrawedGroupXPrefixSumBuffer[idx];
+        }
+    }
+}
+
+//_MeshArgsBuffer
+//_DrawedGroupYSumBuffer
+//_DrawedGroupYPrefixSumBuffer
+//this kernel funtion has only one group
+[numthreads(THREAD_MAX,1,1)]
+void GroupYPrefixSum(uint t_idx : SV_GroupIndex)
+{
+    _prefixGroupSumTemp[t_idx] = t_idx < _KernelGroupY ? _DrawedGroupYSumBuffer[t_idx] : 0;
+    int outBegin = 0;
+    int inBegin = THREAD_MAX;
+    GroupMemoryBarrierWithGroupSync();
+
+    for (uint stride = 1; stride < _KernelGroupY; stride <<= 1)
+    {
+        _prefixGroupSumTemp[inBegin + t_idx] = t_idx < stride ? _prefixGroupSumTemp[outBegin + t_idx] : _prefixGroupSumTemp[outBegin + t_idx] + _prefixGroupSumTemp[outBegin + t_idx - stride];
+        int temp = outBegin;
+        outBegin = inBegin;
+        inBegin = temp;
+
+        GroupMemoryBarrierWithGroupSync();
+    }
+
+    if (t_idx < _KernelGroupY)
+    {
+        _DrawedGroupYPrefixSumBuffer[t_idx] = _prefixGroupSumTemp[outBegin + t_idx];
+        if (t_idx == _KernelGroupY - 1)
         {
             _MeshArgsBuffer[1] = _prefixGroupSumTemp[outBegin + t_idx];
         }
     }
 }
 
-RWStructuredBuffer <GrassData> _DrawedGrassBuffer;
-
+//_DrawedGroupXPrefixSumBuffer
+//_DrawedGroupYPrefixSumBuffer
+//_DrawedPrefixSumBuffer
+//_GrassBuffer
+//_DrawedGrassBuffer
 [numthreads(THREAD_MAX, 1, 1)]
 void SetDrawedGrass(uint t_idx : SV_GroupIndex, uint3 g_id : SV_GroupID)
 {
-    uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * GROUPX_MAX;
-    uint g_idx = g_id.y * GROUPX_MAX + g_id.x;
+    uint idx = t_idx + g_id.x * THREAD_MAX + g_id.y * THREAD_MAX * THREAD_MAX;
+    uint g_idx = g_id.y * THREAD_MAX + g_id.x;
     if (idx >= _TotalGrassCount)
     {
         return;
     }
 
-    uint groupOffset = g_idx == 0 ? 0 : _DrawedGroupPrefixSumBuffer[g_idx - 1];
+    uint groupXOffset = g_id.x == 0 ? 0 : _DrawedGroupXPrefixSumBuffer[g_idx - 1];
+    uint groupYOffset = g_id.y == 0 ? 0 : _DrawedGroupYPrefixSumBuffer[g_id.y - 1];
     uint previousPrefixSum = t_idx == 0 ? 0 : _DrawedPrefixSumBuffer[idx - 1];
     uint curPrefixSum = _DrawedPrefixSumBuffer[idx];
     if (previousPrefixSum + 1 == curPrefixSum)
     {
-        _DrawedGrassBuffer[previousPrefixSum + groupOffset] = _GrassBuffer[idx];
+        _DrawedGrassBuffer[previousPrefixSum + groupXOffset + groupYOffset] = _GrassBuffer[idx];
     }
-
 }
 
 

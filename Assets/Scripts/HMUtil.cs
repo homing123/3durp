@@ -156,4 +156,54 @@ public static class HMUtilEx
     {
         return new Vector2(vt3.x, vt3.z);
     }
+    public static Matrix4x4 GetVP(this Camera cam)
+    {
+        Matrix4x4 p = cam.projectionMatrix;
+        Matrix4x4 v = cam.transform.worldToLocalMatrix;
+        Matrix4x4 VP = p * v;
+        return VP;
+    }
+
+    //public static bool FrustumCulling(this Camera cam, Vector3 vt3, float overRangeNDC)
+    //{
+
+    //}
+
+    //public static bool FrustumCulling(this Camera cam, Vector2 vt2, float overRangeNDC)
+    //{
+
+    //}
+
+    public static bool FrustumCulling(this Camera cam, Rect rectXZ, float overRangeNDC)
+    {
+        Matrix4x4 VP = cam.GetVP();
+        Vector4 min = new Vector4(rectXZ.min.x, 0, rectXZ.min.y, 1);
+        Vector4 max = new Vector4(rectXZ.max.x, 0, rectXZ.max.y, 1);
+        Vector4 minCS = VP * min;
+        Vector4 maxCS = VP * max;
+        Vector3 minNDC = new Vector3(minCS.x / -minCS.w, 0, -minCS.w);
+        Vector3 maxNDC = new Vector3(maxCS.x / -maxCS.w, 0, -maxCS.w);
+        float range = 1 + overRangeNDC;
+        Debug.Log(rectXZ.min + " " + rectXZ.max + " " + minNDC + " " + maxNDC);
+        if (minNDC.x > -range && minNDC.x < range && minNDC.z > -overRangeNDC && minNDC.z < range)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    //public static bool FrustumCulling(this Camera cam, Vector3 min, Vector3 max, float overRangeNDC)
+    //{
+
+    //}
+    //public static bool FrustumCulling(this Camera cam, Vector3 center, float radius, float overRangeNDC)
+    //{
+
+    //}
+    //public static bool FrustumCulling(this Camera cam, Vector2 center, float radius, float overRangeNDC)
+    //{
+
+    //}
 }
