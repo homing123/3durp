@@ -71,7 +71,7 @@ public class GrassMaker : MonoBehaviour
     int m_LastGroupCount = 0;
     int m_LastGroupYCount = 0;
     [SerializeField][Range(1, 64)] public int m_GrassCountPerOne;
-    [SerializeField][Range(0.1f, 100)] public float m_GrassRenderDis;
+    [SerializeField][Range(0.1f, 30)] public float m_GrassRenderDis;
 
     public static GrassMaker Ins;
     const int GrassThreadWidth = 32;
@@ -145,22 +145,30 @@ public class GrassMaker : MonoBehaviour
 
     public static void DrawGrass(MapMaker.Chunk[] arr_Chunk)
     {
-        //청크갯수제한최대 32개다 청크 절두체컬링으로 안보이는청크 다짤라야겠따.
 
-        if(arr_Chunk.Length > GrassBufferCount)
-        {
-            Debug.Log($"Draw grass chunk so large {arr_Chunk.Length} : {GrassBufferCount}");
-            return;
-        }
+
+        List<MapMaker.Chunk> l_DrawedChunk = new List<MapMaker.Chunk>();
         for (int i = 0; i < arr_Chunk.Length; i++)
         {
             Vector2 rectMin = (arr_Chunk[i].m_Key - new Vector2(0.5f, 0.5f)) * Ground.GroundSize;
             Rect rect = new Rect(rectMin, Ground.GroundSize);
-            bool temp = Camera.main.FrustumCulling(rect, 0);
-            Debug.Log(i + " " + temp);
+            bool isOut = Camera.main.FrustumCullingInWorld(new Vector3(rect.min.x,-10, rect.min.y), new Vector3(rect.max.x, 10, rect.max.y));
+            if(isOut == false)
+            {
+                l_DrawedChunk.Add(arr_Chunk[i]);
+            }
+            //arr_Chunk[i].m_Ground.gameObject.SetActive(!isOut);
         }
 
-            int totalGrassCount = 0;
+        arr_Chunk = l_DrawedChunk.ToArray();
+
+        //청크갯수제한최대 32개다 청크 절두체컬링으로 안보이는청크 다짤라야겠따.
+        if (arr_Chunk.Length > GrassBufferCount)
+        {
+            Debug.Log($"Draw grass chunk so large {arr_Chunk.Length} : {GrassBufferCount}");
+            return;
+        }
+        int totalGrassCount = 0;
         int[] grassCount = new int[GrassBufferCount];
         int[] grassPrefixSum = new int[arr_Chunk.Length];
         for (int i = 0; i < arr_Chunk.Length; i++)

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Android;
 using UnityEngine.UIElements;
 
 public enum E_RandomType
@@ -164,46 +166,61 @@ public static class HMUtilEx
         return VP;
     }
 
-    //public static bool FrustumCulling(this Camera cam, Vector3 vt3, float overRangeNDC)
-    //{
-
-    //}
-
-    //public static bool FrustumCulling(this Camera cam, Vector2 vt2, float overRangeNDC)
-    //{
-
-    //}
-
-    public static bool FrustumCulling(this Camera cam, Rect rectXZ, float overRangeNDC)
+    public static bool FrustumCullingInWorld(this Camera cam, Vector3 boxMin, Vector3 boxMax)
     {
-        Matrix4x4 VP = cam.GetVP();
-        Vector4 min = new Vector4(rectXZ.min.x, 0, rectXZ.min.y, 1);
-        Vector4 max = new Vector4(rectXZ.max.x, 0, rectXZ.max.y, 1);
-        Vector4 minCS = VP * min;
-        Vector4 maxCS = VP * max;
-        Vector3 minNDC = new Vector3(minCS.x / -minCS.w, 0, -minCS.w);
-        Vector3 maxNDC = new Vector3(maxCS.x / -maxCS.w, 0, -maxCS.w);
-        float range = 1 + overRangeNDC;
-        Debug.Log(rectXZ.min + " " + rectXZ.max + " " + minNDC + " " + maxNDC);
-        if (minNDC.x > -range && minNDC.x < range && minNDC.z > -overRangeNDC && minNDC.z < range)
+        //절두체와 회전이없는 박스의 충돌체크
+        Matrix4x4 v = cam.transform.worldToLocalMatrix;
+        Matrix4x4 p = cam.projectionMatrix;
+        float f = cam.farClipPlane;
+        float n = cam.nearClipPlane;
+        p.m32 = 1;
+        p.m22 = f / (f - n);
+        p.m23 = -f * n / (f - n);
+        Matrix4x4 VP = p * v;
+        //Debug.Log(v);
+        //Debug.Log(p);
+        //Debug.Log(VP);
+        Vector4[] arr_row = new Vector4[4] { VP.GetRow(0), VP.GetRow(1), VP.GetRow(2), VP.GetRow(3)};
+        //각 평면의 안쪽에 있을 조건
+        //(Mr3 + Mr0) * V >= 0 //left
+        //(Mr3 - Mr0) * V >= 0 //right
+        //(Mr3 + Mr1) * V >= 0 //bottom
+        //(Mr3 - Mr1) * V >= 0 //top
+        //(Mr3 + Mr2) * V >= 0 //near
+        //(Mr3 - Mr2) * V >= 0 //far
+
+        (Vector3 normal, float d)[] arr_Plane = new (Vector3, float)[6];
+        Vector4[] vt4 =  new Vector4[6];
+        vt4[0] = -(arr_row[3] + arr_row[0]);
+        vt4[1] = -(arr_row[3] - arr_row[0]);
+        vt4[2] = -(arr_row[3] + arr_row[1]);
+        vt4[3] = -(arr_row[3] - arr_row[1]);
+        vt4[4] = -(arr_row[3] + arr_row[2]);
+        vt4[5] = -(arr_row[3] - arr_row[2]);
+        for(int i=0;i<6;i++)
         {
-            return true;
+            Vector3 vt3 = new Vector3(vt4[i].x, vt4[i].y, vt4[i].z);
+            float dis = vt3.magnitude;
+            vt4[i] /= dis;
+            arr_Plane[i] = (new Vector3(vt4[i].x, vt4[i].y, vt4[i].z), vt4[i].w);
         }
-        else
+
+        bool isOut = false;
+        for (int i=0;i<6;i++)
         {
-            return false;
+            Vector3 nearPoint;
+            nearPoint.x = arr_Plane[i].normal.x < 0 ? boxMax.x : boxMin.x;
+            nearPoint.y = arr_Plane[i].normal.y < 0 ? boxMax.y : boxMin.y;
+            nearPoint.z = arr_Plane[i].normal.z < 0 ? boxMax.z : boxMin.z;
+            float dis = arr_Plane[i].normal.x * nearPoint.x + arr_Plane[i].normal.y * nearPoint.y + arr_Plane[i].normal.z * nearPoint.z + arr_Plane[i].d;
+            if(dis > 0)
+            {
+                isOut = true;
+                break;
+            }
+            //Debug.Log(i + " " + arr_Plane[i].normal + " " + arr_Plane[i].d + " " + nearPoint + " " + dis + " " + (dis <= 0));
         }
+        //Debug.Log(boxMin + " " + boxMax + " " + isIn);
+        return isOut;
     }
-    //public static bool FrustumCulling(this Camera cam, Vector3 min, Vector3 max, float overRangeNDC)
-    //{
-
-    //}
-    //public static bool FrustumCulling(this Camera cam, Vector3 center, float radius, float overRangeNDC)
-    //{
-
-    //}
-    //public static bool FrustumCulling(this Camera cam, Vector2 center, float radius, float overRangeNDC)
-    //{
-
-    //}
 }
