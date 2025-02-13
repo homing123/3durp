@@ -917,7 +917,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 309327141}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 638e8d276b88d984f891744f4941b96c, type: 3}
   m_Name: 
@@ -3743,8 +3743,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c27b6affacfdc8147b2906351d90be7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RenderDis: 47
-  m_UpdateGrassMaterial: 0
+  m_Update: 0
+  m_GroundSizeMul: 1
+  m_RenterTextureQuality: 8
+  m_RenderTextureObj: {fileID: 0}
 --- !u!114 &1958049054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3757,9 +3759,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16745ec01907a3f45823ed1709427909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_VertexWidth: 11
+  m_CS: {fileID: 7200000, guid: 60afc950ce852b146b3c5752ed4e4a7a, type: 3}
+  m_GradientRadianMul: 1
+  m_TexWidth: 128
+  m_Amplitude: 2.31
+  m_Freaquency: 0.074
+  m_Persistence: 0.569
+  m_Lacunarity: 2.026
+  m_Octave: 3
   m_PerlinOption:
-    width: 128
-    height: 128
+    width: 32
+    height: 32
     offset: {x: 0, y: 0}
     scale: 0
     gradientRadianMul: 1
@@ -3786,6 +3797,7 @@ MonoBehaviour:
   m_GrassPosition: {fileID: 7200000, guid: 0f168f8e90b509a4a920149e9c861b4a, type: 3}
   m_GrassFrustumCulling: {fileID: 7200000, guid: 31435e4a6025b474f8199cca3946cf49,
     type: 3}
+  m_TerrainMaker: {fileID: 7200000, guid: 60afc950ce852b146b3c5752ed4e4a7a, type: 3}
 --- !u!114 &1958049056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3882,6 +3894,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   G_Ground: {fileID: 8519419202444858505, guid: d29221099c4746c4b9b281b476c5770b,
+    type: 3}
+  G_RenderTextureObject: {fileID: 7970738772730552077, guid: f5d27a6e276f327468ba021a29a95c5b,
     type: 3}
   M_Grass: {fileID: 2100000, guid: 18fb8fc200c889a49b6e4a2767168ddb, type: 2}
 --- !u!1 &2029753678 stripped

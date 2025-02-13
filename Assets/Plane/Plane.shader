@@ -11,6 +11,9 @@ Shader "Plane/Grass"
         _NoiseBias("NoiseBias" , Range(0,1)) = 1
     
         _Skybox("Skybox", cube) = "white" {}
+        _HeightMap("heightMap", 2D) = "white"{}
+        _NormalMap("normalMap", 2D) = "white"{}
+
     }
     SubShader
     {
@@ -39,8 +42,6 @@ Shader "Plane/Grass"
             struct appdata
             {
                 float4 posModel : POSITION;
-                float2 uv : TEXCOORD;
-                float3 normal : NORMAL;
             };
             struct v2f
             {
@@ -54,6 +55,8 @@ Shader "Plane/Grass"
             sampler2D _NoiseTex;
             samplerCUBE _Skybox;
 
+            sampler2D _HeightMap;
+            sampler2D _NormalMap;
             CBUFFER_START(UnityPerMaterial)
             float4 _Color;
             float _Ambient;
@@ -62,17 +65,21 @@ Shader "Plane/Grass"
             float4 _NoiseColor;
             float _NoiseBias;
 
+            float4 _HeightMap_ST;
+            float4 _NormalMap_ST;
             CBUFFER_END
 
             v2f vert(appdata i)
             {
                 v2f o;
-                o.posCS = TransformObjectToHClip(i.posModel.xyz);
-                o.uv = i.uv;
+                o.uv = float2((i.posModel.x + 5) / 10.f, (i.posModel.z + 5) / 10.f);
+                o.posWS = TransformObjectToWorld(i.posModel.xyz);
+                o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
+                o.posCS = TransformWorldToHClip(o.posWS);
+
                 VertexPositionInputs vInputs = GetVertexPositionInputs(i.posModel.xyz);
                 o.shadowCoord = GetShadowCoord(vInputs);
-                o.normal = i.normal;
-                o.posWS = TransformObjectToWorld(i.posModel.xyz);
+                o.normal = float3(0, 1, 0);
                 o.fogFactor = ComputeFogFactor(o.posCS.z);
                 
 
@@ -86,7 +93,8 @@ Shader "Plane/Grass"
             {
                 half4 col;
                 col.a = 1;
-
+                //col.r = tex2Dlod(_HeightMap, float4(i.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
+                //return col;
                 Light mainLight = GetMainLight(i.shadowCoord);
                 float3 normal = normalize(i.normal);
                 float ndotl = saturate(dot(normal, mainLight.direction));
@@ -96,6 +104,7 @@ Shader "Plane/Grass"
                 half3 diffuse = albedo * mainLight.color * ndotl * mainLight.shadowAttenuation;
                 half3 ambientInShadow = albedo * mainLight.color * ndotl * (1 - mainLight.shadowAttenuation) * _Ambient;
                 col.rgb = diffuse + ambientInShadow;
+
 
                 ////col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 
 

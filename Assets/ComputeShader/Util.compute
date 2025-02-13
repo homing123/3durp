@@ -1,0 +1,37 @@
+
+#define PI 3.1415926535f
+#define UINT_MAX 0xFFFFFFFF
+
+uint DRandomXORShift(uint seed)
+{
+    seed ^= seed >> 16;
+    seed *= 0x85ebca6b;
+    seed ^= seed >> 13;
+    seed *= 0xc2b2ae35;
+    seed ^= seed >> 16;
+    return seed;
+}
+uint Vector2IntToSeed(int2 vt2Int)
+{
+    uint seed = ((uint)vt2Int.x * 73856093u) ^ ((uint)vt2Int.y * 19349663u) + 104395301u;;
+    return seed;
+}
+
+uint Vector3IntToSeed(uint3 vt3Int)
+{
+    uint seed = (vt3Int.x * 73856093u) ^ (vt3Int.y * 19349663u) ^ (vt3Int.z * 83492791u) + 104395301u;
+    return seed;
+}
+
+
+float PerlinInterpolation(float left, float right, float t)
+{
+    float ease = 6 * pow(t, 5) - 15 * pow(t, 4) + 10 * pow(t, 3);
+    return left + (right - left) * ease;
+}
+
+float3 DotProduct(float3 v1, float3 v2)
+{
+    return float3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
+}
+

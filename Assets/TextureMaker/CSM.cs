@@ -17,4 +17,6 @@ public class CSM : MonoBehaviour
     public ComputeShader m_GrassPosition;
     public ComputeShader m_GrassFrustumCulling;
 
+    public ComputeShader m_TerrainMaker;
+
 }

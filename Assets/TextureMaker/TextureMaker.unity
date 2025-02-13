@@ -279,16 +279,16 @@ MonoBehaviour:
   m_Image: {fileID: 794240400}
   m_AutoUpdate: 1
   m_UseGPU: 1
-  m_ToNormalMap: 1
+  m_ToNormalMap: 0
   m_MapType: 0
   m_PerlinOption:
-    width: 256
-    height: 256
+    width: 512
+    height: 512
     offset: {x: 0, y: 0}
-    scale: 78.125
+    scale: 5
     gradientRadianMul: 1
-    amplitude: 0.911
-    frequency: 0.22
+    amplitude: 1.63
+    frequency: 0.1
     persistence: 0.79
     lacunarity: 2.186
     octave: 2
@@ -355,6 +355,9 @@ MonoBehaviour:
   m_PerlinNoise: {fileID: 7200000, guid: 8e47b8df2dcf01e45bdfc15ec1b8ff59, type: 3}
   m_WorleyNoise: {fileID: 7200000, guid: 8d62595cecda5154b9f9a2879353ebb6, type: 3}
   m_HeightToNormal: {fileID: 7200000, guid: 550967a585066bd42a86c2f35582a114, type: 3}
+  m_GrassPosition: {fileID: 0}
+  m_GrassFrustumCulling: {fileID: 0}
+  m_TerrainMaker: {fileID: 0}
 --- !u!1 &1633065063
 GameObject:
   m_ObjectHideFlags: 0

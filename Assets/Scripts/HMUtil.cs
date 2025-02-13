@@ -168,6 +168,7 @@ public static class HMUtilEx
 
     public static bool FrustumCullingInWorld(this Camera cam, Vector3 boxMin, Vector3 boxMax)
     {
+        //Debug.Log(boxMin + " " + boxMax);
         //절두체와 회전이없는 박스의 충돌체크
         Matrix4x4 v = cam.transform.worldToLocalMatrix;
         Matrix4x4 p = cam.projectionMatrix;

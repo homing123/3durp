@@ -23,10 +23,8 @@ public class GrassMaker : MonoBehaviour
     [Serializable]
     public struct GrassMakerOption
     {
-        public Vector2 GridPos;
-        public Vector2Int HeightBufferSize;
-        public ComputeBuffer HeightBuffer;
-        public ComputeBuffer NormalBuffer;
+        public Vector2 GridCenterPos;
+        public TerrainMaker.TerrainData TerrainData;
     }
 
     public struct ChunkGrassData
@@ -143,15 +141,15 @@ public class GrassMaker : MonoBehaviour
 
     }
 
-    public static void DrawGrass(MapMaker.Chunk[] arr_Chunk)
+    public static void DrawGrass(Chunk[] arr_Chunk)
     {
 
 
-        List<MapMaker.Chunk> l_DrawedChunk = new List<MapMaker.Chunk>();
+        List<Chunk> l_DrawedChunk = new List<Chunk>();
         for (int i = 0; i < arr_Chunk.Length; i++)
         {
-            Vector2 rectMin = (arr_Chunk[i].m_Key - new Vector2(0.5f, 0.5f)) * Ground.GroundSize;
-            Rect rect = new Rect(rectMin, Ground.GroundSize);
+            Vector2 rectMin = arr_Chunk[i].m_Key * Chunk.ChunkSize;
+            Rect rect = new Rect(rectMin, Chunk.ChunkSize);
             bool isOut = Camera.main.FrustumCullingInWorld(new Vector3(rect.min.x,-10, rect.min.y), new Vector3(rect.max.x, 10, rect.max.y));
             if(isOut == false)
             {
@@ -166,6 +164,11 @@ public class GrassMaker : MonoBehaviour
         if (arr_Chunk.Length > GrassBufferCount)
         {
             Debug.Log($"Draw grass chunk so large {arr_Chunk.Length} : {GrassBufferCount}");
+            return;
+        }
+        if(arr_Chunk.Length==0)
+        {
+            Debug.Log("Drawgrass chunk count is zero");
             return;
         }
         int totalGrassCount = 0;
@@ -319,8 +322,8 @@ public class GrassMaker : MonoBehaviour
         Vector2 keyCenter = min + (max - min) * 0.5f;
         Vector2 keySize = max - min;
 
-        Vector3 boundCenter = new Vector3(keyCenter.x * Ground.GroundSize.x, 0, keyCenter.y * Ground.GroundSize.y);
-        Vector3 boundSize = new Vector3(keySize.x * Ground.GroundSize.x, 20, keySize.y * Ground.GroundSize.y);
+        Vector3 boundCenter = new Vector3(keyCenter.x * Chunk.ChunkSize.x, 0, keyCenter.y * Chunk.ChunkSize.y);
+        Vector3 boundSize = new Vector3(keySize.x * Chunk.ChunkSize.x, 20, keySize.y * Chunk.ChunkSize.y);
         Bounds FieldBound = new Bounds(boundCenter, boundSize);
 
         Graphics.DrawMeshInstancedIndirect(Ins.m_GrassMesh, 0, Ins.m_GrassMaterial, FieldBound, Ins.m_ArgsBuffer);
@@ -440,8 +443,8 @@ public class GrassMaker : MonoBehaviour
 
         ChunkGrassData data = new ChunkGrassData();
         data.Option = option;
-        int grassHorizonCount = Mathf.FloorToInt(Ins.m_GrassCountPerOne * Ground.GroundSize.x);
-        int grassVerticalCount = Mathf.FloorToInt(Ins.m_GrassCountPerOne * Ground.GroundSize.y);
+        int grassHorizonCount = Mathf.FloorToInt(Ins.m_GrassCountPerOne * Chunk.ChunkSize.x);
+        int grassVerticalCount = Mathf.FloorToInt(Ins.m_GrassCountPerOne * Chunk.ChunkSize.y);
         int grassCount = grassHorizonCount * grassVerticalCount;
 
         int perlinKernel_x = grassHorizonCount / GrassThreadWidth + (grassHorizonCount % GrassThreadWidth == 0 ? 0 : 1);
@@ -449,16 +452,17 @@ public class GrassMaker : MonoBehaviour
         int structSize = HMUtil.StructSize(typeof(GrassData));
 
 
+        Vector2Int heightMapSize = TerrainMaker.Ins.GetHeightMapSize();
 
         data.GrassBuffer = new ComputeBuffer(grassCount, structSize); //ÄÃ¸µ Àü grassbuffer
 
-        CSGrassPosition.SetBuffer(0, "_HeightBuffer", option.HeightBuffer);
+        CSGrassPosition.SetTexture(0, "_HeightMap", option.TerrainData.heightBuffer);
         CSGrassPosition.SetBuffer(0, "_GrassBuffer", data.GrassBuffer);
-        CSGrassPosition.SetInts("_HeightBufferSize", new int[2] { option.HeightBufferSize.x, option.HeightBufferSize.y });
+        CSGrassPosition.SetInts("_HeightBufferSize", new int[2] { heightMapSize.x, heightMapSize.y });
         CSGrassPosition.SetInt("_GrassHorizonCount", grassHorizonCount);
         CSGrassPosition.SetInt("_GrassVerticalCount", grassVerticalCount);
-        CSGrassPosition.SetFloats("_GridPos", new float[2] { option.GridPos.x - Ground.GroundSize.x * 0.5f, option.GridPos.y - Ground.GroundSize.y * 0.5f });
-        CSGrassPosition.SetFloats("_GridSize", new float[2] { Ground.GroundSize.x, Ground.GroundSize.y });
+        CSGrassPosition.SetFloats("_GridPos", new float[2] { option.GridCenterPos.x - Chunk.ChunkSize.x * 0.5f, option.GridCenterPos.y - Chunk.ChunkSize.y * 0.5f });
+        CSGrassPosition.SetFloats("_GridSize", new float[2] { Chunk.ChunkSize.x, Chunk.ChunkSize.y });
         CSGrassPosition.Dispatch(0, perlinKernel_x, perlinKernel_y, 1);
 
         int groupCount = grassCount / CullingThreadMax + (grassCount % CullingThreadMax == 0 ? 0 : 1);

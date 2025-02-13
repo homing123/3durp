@@ -3,26 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using static GrassMaker;
 using static TerrainMaker;
+using System;
+using System.Net;
 
+public class Chunk
+{
+    public static readonly Vector2 ChunkSize = new Vector2(10, 10); //x,y 같게 사용할건데 편의상 vt2로 만듬
+
+    public Vector2Int m_Key;
+    public GrassMaker.ChunkGrassData m_GrassData;
+}
 public class MapMaker : MonoBehaviour
 {
 
-    public class Chunk
-    {
-        public Vector2Int m_Key;
-        public Ground m_Ground;
-        public GrassMaker.ChunkGrassData m_GrassData;
-        public TerrainMaker.ChunkTerrainData m_TerrainData;
-    }
+    [SerializeField] bool m_Update;
+
+    Dictionary<E_TerrainQuality, Dictionary<Vector2Int, TerrainMaker.TerrainData>> D_TerrainData = new Dictionary<E_TerrainQuality, Dictionary<Vector2Int, TerrainMaker.TerrainData>>();
 
     public static MapMaker Ins;
-    [SerializeField][Range(1, 300)] float m_RenderDis;
-    [SerializeField] bool m_UpdateGrassMaterial;
-    int m_GridCountPerRenderDis;
+    [SerializeField][Range(1, 4)] float m_GroundSizeMul;
 
     Vector2Int m_CurCenterChunkIdxCoord;
     Dictionary<Vector2Int, Chunk> D_Chunk = new Dictionary<Vector2Int, Chunk>();
-
+    [SerializeField] E_TerrainQuality m_RenterTextureQuality;
+    [SerializeField] RenderTextureObject m_RenderTextureObj;
+    List<RenderTextureObject> L_Objs = new List<RenderTextureObject>();
     private void Awake()
     {
         Ins = this;
@@ -31,28 +36,75 @@ public class MapMaker : MonoBehaviour
     {
         MapInit();
     }
-  
+
+    public TerrainMaker.TerrainData GetTerrainData(E_TerrainQuality quality, Vector2Int key)
+    {
+        if (D_TerrainData[quality].ContainsKey(key))
+        {
+            return D_TerrainData[quality][key];
+        }
+        else
+        {
+            D_TerrainData[quality][key] = TerrainMaker.Ins.GetTerrainData(quality, key);
+
+            return D_TerrainData[quality][key];
+        }
+    }
+    [ContextMenu("RenderTexture")]
+    public void CreateRenderTexture()
+    {
+        for(int i=0;i<L_Objs.Count;i++)
+        {
+            Destroy(L_Objs[i].gameObject);
+            L_Objs.RemoveAt(i);
+            i--;
+        }
+
+        foreach (Vector2Int key in D_TerrainData[m_RenterTextureQuality].Keys)
+        {
+            L_Objs.Add(RenderTextureObject.Create(key, m_RenterTextureQuality, D_TerrainData[m_RenterTextureQuality][key].normalBuffer));
+        }
+    }
 
     private void Update()
     {
+        if(m_Update)
+        {
+            foreach (Chunk value in D_Chunk.Values)
+            {
+                value.m_GrassData.Release();
+            }
+            foreach (E_TerrainQuality quality in Enum.GetValues(typeof(E_TerrainQuality)))
+            {
+                foreach (TerrainMaker.TerrainData data in D_TerrainData[quality].Values)
+                {
+                    data.heightBuffer.Release();
+                    data.normalBuffer.Release();
+                }
+            }
+            MapInit();
+        }
         Vector2Int chunkMoveDisIdxCoord = ChunkMoveCheck();
         if (chunkMoveDisIdxCoord != Vector2Int.zero)
         {
             ChunkMove(chunkMoveDisIdxCoord);
         }
-        DrawGrass();
+        //DrawGrass();
     }
     private void OnDestroy()
     {
         foreach (Chunk value in D_Chunk.Values)
         {
-            ChunkRelease(value);
+            value.m_GrassData.Release();
         }
-    }
-    void ChunkRelease(Chunk chunk)
-    {
-        chunk.m_GrassData.Release();
-        chunk.m_TerrainData.Release();
+        foreach(E_TerrainQuality quality in Enum.GetValues(typeof(E_TerrainQuality)))
+        {
+            foreach(TerrainMaker.TerrainData data in D_TerrainData[quality].Values)
+            {
+                data.heightBuffer.Release();
+                data.normalBuffer.Release();
+            }
+        }
     }
 
     void DrawGrass()
@@ -60,7 +112,7 @@ public class MapMaker : MonoBehaviour
         List<Chunk> l_GrassRenderChunk = new List<Chunk>();
         foreach (Vector2Int key in D_Chunk.Keys)
         {
-            Rect rect = new Rect((key.x - 0.5f) * Ground.GroundSize.x, (key.y - 0.5f) * Ground.GroundSize.y, Ground.GroundSize.x, Ground.GroundSize.y);
+            Rect rect = new Rect((key.x - 0.5f) * Chunk.ChunkSize.x, (key.y - 0.5f) * Chunk.ChunkSize.y, Chunk.ChunkSize.x, Chunk.ChunkSize.y);
             Vector2[] vertex = new Vector2[4];
             vertex[0] = new Vector2(rect.xMin, rect.yMin);
             vertex[1] = new Vector2(rect.xMin, rect.yMax);
@@ -94,38 +146,77 @@ public class MapMaker : MonoBehaviour
     }
     void MapInit()
     {
-        //0,0을 시작으로 하고 GroundWidth를 크기로 하는 그리드를 카메라위치를 중심으로 생성
-        //각 그라운드는 그리드점을 중심으로 한다 = 그리드 0,0 => -0.5, -0.5 ~ 0.5, 0.5
         Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
-        Vector2Int centerGridIdxCoord = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / Ground.GroundSize.x), Mathf.FloorToInt(camPosXZ.y / Ground.GroundSize.y)); //중심이 되는 그리드 인덱스좌표
+        Vector2Int centerGridIdxCoord = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / Chunk.ChunkSize.x), Mathf.FloorToInt(camPosXZ.y / Chunk.ChunkSize.y)); //중심이 되는 그리드 인덱스좌표
         m_CurCenterChunkIdxCoord = centerGridIdxCoord;
 
-        //현재그리드 제외하고 중심에서 바깥으로 렌더거리만큼 그리기 위해 필요한 그리드 갯수
-        //3일경우 생성그리드는 7 x 7 크기가 된다
-        m_GridCountPerRenderDis = Mathf.CeilToInt((m_RenderDis) / Ground.GroundSize.x);
-
-        Vector2Int minGridIdxCoord = new Vector2Int(centerGridIdxCoord.x - m_GridCountPerRenderDis, centerGridIdxCoord.y - m_GridCountPerRenderDis);
-
-        int gridWidthCount = m_GridCountPerRenderDis * 2 + 1;
-        for (int y = 0; y < gridWidthCount; y++)
+        foreach (E_TerrainQuality quality in Enum.GetValues(typeof(E_TerrainQuality)))
         {
-            for (int x = 0; x < gridWidthCount; x++)
-            {
-                Vector2Int curGridIdxCoord = new Vector2Int(minGridIdxCoord.x + x, minGridIdxCoord.y + y);
-                Vector2 groundPos = curGridIdxCoord * Ground.GroundSize;
-                D_Chunk[curGridIdxCoord] = CreateChunk(groundPos, camPosXZ, curGridIdxCoord);
-            }
+            D_TerrainData[quality] = new Dictionary<Vector2Int, TerrainMaker.TerrainData>();
         }
 
-        //D_Chunk[new Vector2Int(0, 0)] = CreateChunk(new Vector2(0, 0) * Ground.GroundWidth, camPosXZ);
-        //D_Chunk[new Vector2Int(1, 0)] = CreateChunk(new Vector2(1, 0) * Ground.GroundWidth, camPosXZ);
-        //D_Chunk[new Vector2Int(0, 1)] = CreateChunk(new Vector2(0, 1) * Ground.GroundWidth, camPosXZ);
-        //D_Chunk[new Vector2Int(1, 1)] = CreateChunk(new Vector2(1, 1) * Ground.GroundWidth, camPosXZ);
+        float lowQualityWidth = Chunk.ChunkSize.x * m_GroundSizeMul;
+        Vector2 minXZWorld = new Vector2(camPosXZ.x - lowQualityWidth * 0.5f, camPosXZ.y - lowQualityWidth * 0.5f);
+        Vector2 maxXZWorld = new Vector2(camPosXZ.x + lowQualityWidth * 0.5f, camPosXZ.y + lowQualityWidth * 0.5f);
+
+        //foreach (E_TerrainQuality quality in Enum.GetValues(typeof(E_TerrainQuality)))
+        //{
+        //    Vector2 minXZKey = minXZWorld / (int)quality;
+        //    Vector2 maxXZKey = maxXZWorld / (int)quality;
+        //    Vector2Int minXZInt = new Vector2Int(Mathf.FloorToInt(minXZKey.x), Mathf.FloorToInt(minXZKey.y));
+        //    Vector2Int maxXZInt = new Vector2Int(Mathf.FloorToInt(maxXZKey.x), Mathf.FloorToInt(maxXZKey.y));
+        //    for (int y = minXZInt.y; y <= maxXZInt.y; y++)
+        //    {
+        //        for (int x = minXZInt.x; x <= maxXZInt.x; x++)
+        //        {
+        //            Vector2Int key = new Vector2Int(x, y);
+        //            D_TerrainData[quality][key] = TerrainMaker.Ins.GetTerrainData(quality, key);
+        //        }
+        //    }
+
+        //    if (quality == E_TerrainQuality.Ultra)
+        //    {
+        //        for (int y = minXZInt.y; y <= maxXZInt.y; y++)
+        //        {
+        //            for (int x = minXZInt.x; x <= maxXZInt.x; x++)
+        //            {
+        //                Vector2Int key = new Vector2Int(x, y);
+        //                //D_Chunk[key] = CreateChunk(camPosXZ, key);
+        //            }
+        //        }
+        //    }
+
+        //    Debug.Log($"{quality} {minXZWorld} {maxXZWorld} {minXZKey} {maxXZKey} min: {minXZInt} max : {maxXZInt}");
+        //}
+
+        //E_TerrainQuality qual = E_TerrainQuality.Ultra;
+        //Vector2Int ke = Vector2Int.zero;
+        //D_TerrainData[qual][ke] = TerrainMaker.Ins.GetTerrainData(qual, ke);
+        ////D_Chunk[ke] = CreateChunk(camPosXZ, ke);
+        //foreach (Chunk value in D_Chunk.Values)
+        //{
+        //    Debug.Log($"청크 {value.m_Key}");
+        //}
+        //foreach (E_TerrainQuality quality in Enum.GetValues(typeof(E_TerrainQuality)))
+        //{
+        //    foreach (Vector2Int key in D_TerrainData[quality].Keys)
+        //    {
+        //        Debug.Log($"터레인 {quality} {key}");
+        //    }
+        //}
+        CreateRenderTexture();
+        Vector3 groundPos = new Vector3(camPosXZ.x, 0, camPosXZ.y);
+        Ground.Create(groundPos, E_TerrainQuality.Ultra);
+        Ground.Create(groundPos, E_TerrainQuality.High);
+        Ground.Create(groundPos, E_TerrainQuality.Midium);
+        Ground.Create(groundPos, E_TerrainQuality.Low);
+
+
     }
     Vector2Int ChunkMoveCheck()
     {
         Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
-        Vector2Int centerGridIdxCoord = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / Ground.GroundSize.x), Mathf.FloorToInt(camPosXZ.y / Ground.GroundSize.y)); //중심이 되는 그리드 인덱스좌표
+        Vector2Int centerGridIdxCoord = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / Chunk.ChunkSize.x), Mathf.FloorToInt(camPosXZ.y / Chunk.ChunkSize.y)); //중심이 되는 그리드 인덱스좌표
         if (m_CurCenterChunkIdxCoord != centerGridIdxCoord)
         {
             return centerGridIdxCoord - m_CurCenterChunkIdxCoord;
@@ -136,19 +227,13 @@ public class MapMaker : MonoBehaviour
     {
 
     }
-    Chunk CreateChunk(Vector2 groundPos, Vector2 curCamPos ,Vector2Int key)
+    Chunk CreateChunk(Vector2 curCamPos, Vector2Int key)
     {
         Chunk chunk = new Chunk();
         chunk.m_Key = key;
-        chunk.m_TerrainData = TerrainMaker.Ins.GetChunkTerrainData(groundPos);
-        float dis = Vector2.Distance(curCamPos, groundPos);
-        chunk.m_Ground = Ground.Create(groundPos, dis, chunk.m_TerrainData.arr_MeshLOD);
         GrassMaker.GrassMakerOption grassOption = new GrassMaker.GrassMakerOption();
-        grassOption.GridPos = groundPos;
-        grassOption.HeightBufferSize = chunk.m_TerrainData.HeightBufferSize;
-        grassOption.HeightBuffer = chunk.m_TerrainData.heightBuffer;
-        grassOption.NormalBuffer = chunk.m_TerrainData.normalBuffer;
-
+        grassOption.GridCenterPos = (key + new Vector2(0.5f, 0.5f)) * Chunk.ChunkSize;
+        grassOption.TerrainData = D_TerrainData[E_TerrainQuality.Ultra][key];
         chunk.m_GrassData = GrassMaker.GetChunkGrassData(grassOption);
 
         return chunk;

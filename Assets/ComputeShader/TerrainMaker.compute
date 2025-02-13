@@ -1,50 +1,35 @@
-
-
-
-#pragma kernel PerlinNoise_Texture
-#pragma kernel PerlinNoise_Terrain
-#define PERLIN_THREAD_WIDTH 32
+#pragma kernel HeightMap
+#pragma kernel NormalMap
+#define THREAD_WIDTH 32
 #define GROUP_MAX 512
+#include "Util.compute"
 
-
-#define PI 3.1415926535f
-#define UINT_MAX 0xFFFFFFFF
-
-uint DRandomXORShift(uint seed)
-{
-    seed ^= seed >> 16;
-    seed *= 0x85ebca6b;
-    seed ^= seed >> 13;
-    seed *= 0xc2b2ae35;
-    seed ^= seed >> 16;
-    return seed;
-}
-uint Vector2IntToSeed(int2 vt2Int)
-{
-    uint seed = ((uint)vt2Int.x * 73856093u) ^ ((uint)vt2Int.y * 19349663u) + 104395301u;;
-    return seed;
-}
-
-float PerlinInterpolation(float left, float right, float t)
-{
-    float ease = 6 * pow(t, 5) - 15 * pow(t, 4) + 10 * pow(t, 3);
-    return left + (right - left) * ease;
-}
-
-
-RWStructuredBuffer<float4> _ColorBuffer;
-RWStructuredBuffer<float> _HeightBuffer;
+RWTexture2D<float> _HeightMap;
+RWTexture2D<float> _HeightMapForNormalMap;
+RWTexture2D<uint> _NormalMap;
 float _GradientRadianMul;
 float2 _Offset;
 uint2 _TexSize;
+uint2 _HeightForNormalTexSize;
 float _Scale;
 float _Amplitude;
 float _Frequency;
 float _Persistence;
 float _Lacunarity;
 int _Octaves;
+float2 _D;
 
-float PerlinNoise(uint idx_x, uint idx_y)
+
+
+
+float3 GetNormal(float left, float right, float bottom, float top)
+{
+    float3 horizon = float3(2 * _D.x, 0, right - left);
+    float3 vertical = float3(0, 2 * _D.y, top - bottom);
+    return normalize(DotProduct(horizon, vertical));
+}
+
+float PerlinNoise(int idx_x, int idx_y)
 {
     float value = 0;
     float frequency = _Frequency;
@@ -103,48 +88,69 @@ float PerlinNoise(uint idx_x, uint idx_y)
     return value;
 }
 
-[numthreads(PERLIN_THREAD_WIDTH, PERLIN_THREAD_WIDTH, 1)]
-void PerlinNoise_Texture(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+[numthreads(THREAD_WIDTH, THREAD_WIDTH, 1)]
+void HeightMap(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
 {
-    uint groupCountRow = _TexSize.x / PERLIN_THREAD_WIDTH + (_TexSize.x % PERLIN_THREAD_WIDTH == 0 ? 0 : 1);
+    uint groupCountRow = _HeightForNormalTexSize.x / THREAD_WIDTH + (_HeightForNormalTexSize.x % THREAD_WIDTH == 0 ? 0 : 1);
     uint groupIdx = g_id.x + g_id.y * groupCountRow;
 
     uint group_x = groupIdx % groupCountRow;
     uint group_y = groupIdx / groupCountRow;
 
-    uint idx_x = PERLIN_THREAD_WIDTH * group_x + t_id.x;
-    uint idx_y = PERLIN_THREAD_WIDTH * group_y + t_id.y;
+    uint idx_x = THREAD_WIDTH * group_x + t_id.x;
+    uint idx_y = THREAD_WIDTH * group_y + t_id.y;
 
-    if (idx_x >= _TexSize.x || idx_y >= _TexSize.y)
+    if (idx_x >= _HeightForNormalTexSize.x || idx_y >= _HeightForNormalTexSize.y)
     {
         return;
     }
+    float value = PerlinNoise((int)idx_x - 1, (int)idx_y - 1);
+    uint2 heightForNormalMapIdx = uint2(idx_x, idx_y);
+    uint2 heightMapIdx = uint2(idx_x - 1, idx_y - 1);
 
-    float value = PerlinNoise(idx_x, idx_y) * 0.5f + 0.5f;
-    float4 color = float4(value, value, value, 1);
+    if ((idx_x == 0 || idx_x == _HeightForNormalTexSize.x - 1 || idx_y == 0 || idx_y == _HeightForNormalTexSize.y - 1) == false)
+    {
+        _HeightMap[heightMapIdx] = value;
+        _NormalMap[heightMapIdx] = (255 << 24) | (255 << 16) | (255 << 8) | 255;
+    }
 
-    _ColorBuffer[idx_x + idx_y * _TexSize.x] = color;
+    _HeightMapForNormalMap[heightForNormalMapIdx] = value;
+
 }
 
 
-[numthreads(PERLIN_THREAD_WIDTH, PERLIN_THREAD_WIDTH, 1)]
-void PerlinNoise_Terrain(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+[numthreads(THREAD_WIDTH, THREAD_WIDTH, 1)]
+void NormalMap(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
 {
-    uint groupCountRow = _TexSize.x / PERLIN_THREAD_WIDTH + (_TexSize.x % PERLIN_THREAD_WIDTH == 0 ? 0 : 1);
+    uint groupCountRow = _TexSize.x / THREAD_WIDTH + (_TexSize.x % THREAD_WIDTH == 0 ? 0 : 1);
     uint groupIdx = g_id.x + g_id.y * groupCountRow;
 
     uint group_x = groupIdx % groupCountRow;
     uint group_y = groupIdx / groupCountRow;
 
-    uint idx_x = PERLIN_THREAD_WIDTH * group_x + t_id.x;
-    uint idx_y = PERLIN_THREAD_WIDTH * group_y + t_id.y;
+    uint idx_x = THREAD_WIDTH * group_x + t_id.x;
+    uint idx_y = THREAD_WIDTH * group_y + t_id.y;
 
     if (idx_x >= _TexSize.x || idx_y >= _TexSize.y)
     {
         return;
     }
+    uint2 normalMapIdx = uint2(idx_x, idx_y);
+    uint2 heightMapIdx = uint2(idx_x + 1, idx_y + 1);
+    _NormalMap[normalMapIdx] = asfloat((255 << 24) | (255 << 16) | (255 << 8) | 255);
+    return;
 
-
-    float value = PerlinNoise(idx_x, idx_y);
-    _HeightBuffer[idx_x + idx_y * _TexSize.x] = value;
+    //float left = _HeightMapForNormalMap[heightMapIdx + uint2(-1,0)];
+    //float right = _HeightMapForNormalMap[heightMapIdx + uint2(1, 0)];
+    //float bottom = _HeightMapForNormalMap[heightMapIdx + uint2(0, -1)];
+    //float top = _HeightMapForNormalMap[heightMapIdx + uint2(0, 1)];
+    //float3 normal = GetNormal(left, right, bottom, top); //-1~1
+    //uint x = (uint)((normal.x * 0.5f + 0.5f) * 255.0f);
+    //uint y = (uint)((normal.y * 0.5f + 0.5f) * 255.0f);
+    //uint z = (uint)((normal.z * 0.5f + 0.5f) * 255.0f);
+    //x = 255;
+    //y = 124;
+    //z = 30;
+    //uint rgb = (x << 16) | (y << 8) | z;
+    //_NormalMap[uint2(0,0)] = 255;
 }
