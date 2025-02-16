@@ -115,7 +115,7 @@ public class TerrainMaker : MonoBehaviour
     {
         //scale = 10, width = 256, offset = 0 이면 0~25.6 까지임 2560 * 0.01f = 25.6f
         //ground크기를 width만큼으로 쓰기위해 scale값을 자동으로 조절하자
-        Vector2 d = Chunk.ChunkSize / m_TexWidth;
+        Vector2 d = Chunk.ChunkSize / m_TexWidth * (int)quality;
         TerrainData data = new TerrainData();
         Vector2 offset = key * (int)quality * Chunk.ChunkSize;// - d * key * (int)quality;
         float scale = Chunk.ChunkSize.x / m_TexWidth * 100 * (int)quality;

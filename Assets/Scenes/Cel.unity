@@ -917,7 +917,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 309327141}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 638e8d276b88d984f891744f4941b96c, type: 3}
   m_Name: 
@@ -3759,7 +3759,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16745ec01907a3f45823ed1709427909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_VertexWidth: 11
+  m_VertexWidth: 41
   m_CS: {fileID: 7200000, guid: 60afc950ce852b146b3c5752ed4e4a7a, type: 3}
   m_GradientRadianMul: 1
   m_TexWidth: 128
@@ -4231,6 +4231,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5142259091106689435, guid: fbd34215e598c5a41a9ef998ab706d26,
+        type: 3}
+      propertyPath: m_GrassRenderDis
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 5142259091106689435, guid: fbd34215e598c5a41a9ef998ab706d26,
         type: 3}

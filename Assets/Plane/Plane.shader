@@ -12,6 +12,7 @@ Shader "Plane/Grass"
     
         _Skybox("Skybox", cube) = "white" {}
         _HeightMap("heightMap", 2D) = "white"{}
+        _HighQualityHeightMap("highQualityHeightMap", 2D) = "white"{}
         _NormalMap("normalMap", 2D) = "white"{}
 
     }
@@ -56,6 +57,7 @@ Shader "Plane/Grass"
             samplerCUBE _Skybox;
 
             sampler2D _HeightMap;
+            sampler2D _HighQualityHeightMap;
             sampler2D _NormalMap;
             CBUFFER_START(UnityPerMaterial)
             float4 _Color;
@@ -66,7 +68,10 @@ Shader "Plane/Grass"
             float _NoiseBias;
 
             float4 _HeightMap_ST;
+            float4 _HighQualityHeightMap_ST;
             float4 _NormalMap_ST;
+
+            int _Quality;
             CBUFFER_END
 
             v2f vert(appdata i)
@@ -75,6 +80,7 @@ Shader "Plane/Grass"
                 o.uv = float2((i.posModel.x + 5) / 10.f, (i.posModel.z + 5) / 10.f);
                 o.posWS = TransformObjectToWorld(i.posModel.xyz);
                 o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
+                o.posWS.y += 0.4f / (log2(_Quality) + 1);
                 o.posCS = TransformWorldToHClip(o.posWS);
 
                 VertexPositionInputs vInputs = GetVertexPositionInputs(i.posModel.xyz);
@@ -91,6 +97,11 @@ Shader "Plane/Grass"
 
             half4 frag(v2f i) : SV_Target
             {
+                float2 temp = i.uv - 0.5f;
+                if(abs(temp.x) < 0.22f && abs(temp.y) < 0.22f  && _Quality > 1)
+                {
+                    clip(-1);
+                }
                 half4 col;
                 col.a = 1;
                 //col.r = tex2Dlod(_HeightMap, float4(i.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;

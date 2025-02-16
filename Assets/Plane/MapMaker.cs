@@ -207,9 +207,9 @@ public class MapMaker : MonoBehaviour
         CreateRenderTexture();
         Vector3 groundPos = new Vector3(camPosXZ.x, 0, camPosXZ.y);
         Ground.Create(groundPos, E_TerrainQuality.Ultra);
-        //Ground.Create(groundPos, E_TerrainQuality.High);
-        //Ground.Create(groundPos, E_TerrainQuality.Midium);
-        //Ground.Create(groundPos, E_TerrainQuality.Low);
+        Ground.Create(groundPos, E_TerrainQuality.High);
+        Ground.Create(groundPos, E_TerrainQuality.Midium);
+        Ground.Create(groundPos, E_TerrainQuality.Low);
 
 
     }

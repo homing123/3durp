@@ -40,6 +40,8 @@ public class Ground : MonoBehaviour
         m_NormalBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
         m_HeightBuffer.enableRandomWrite = true;
         m_NormalBuffer.enableRandomWrite = true;
+        m_Mat.SetInt("_Quality", (int)m_Quality);
+
         SetHeightBuffer();
 
     }
@@ -50,7 +52,9 @@ public class Ground : MonoBehaviour
     }
     private void Update()
     {
-        //SetHeightBuffer();
+        Vector2 camXZ = Camera.main.transform.position.Vt2XZ();
+        transform.position = new Vector3(camXZ.x, 0, camXZ.y);
+        SetHeightBuffer();
     }
     void SetHeightBuffer()
     {
