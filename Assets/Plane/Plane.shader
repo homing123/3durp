@@ -79,7 +79,7 @@ Shader "Plane/Grass"
 
                 VertexPositionInputs vInputs = GetVertexPositionInputs(i.posModel.xyz);
                 o.shadowCoord = GetShadowCoord(vInputs);
-                o.normal = float3(0, 1, 0);
+                o.normal = tex2Dlod(_NormalMap, float4(o.uv * _NormalMap_ST.xy + _NormalMap_ST.zw, 0, 0)).rbg;
                 o.fogFactor = ComputeFogFactor(o.posCS.z);
                 
 
@@ -97,6 +97,7 @@ Shader "Plane/Grass"
                 //return col;
                 Light mainLight = GetMainLight(i.shadowCoord);
                 float3 normal = normalize(i.normal);
+              
                 float ndotl = saturate(dot(normal, mainLight.direction));
 
                 float noiseValue = tex2D(_NoiseTex, i.uv * _NoiseTex_ST.xy + _NoiseTex_ST.zw).r;

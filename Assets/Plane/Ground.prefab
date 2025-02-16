@@ -119,5 +119,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b112d50ecbff6140939a90b1f97129f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CS: {fileID: 7200000, guid: ac68d1e5500b7bc4e95e4af86bf949a6, type: 3}
+  m_CSTextureMerge: {fileID: 7200000, guid: ac68d1e5500b7bc4e95e4af86bf949a6, type: 3}
   m_TexWidth: 128

@@ -124,7 +124,7 @@ public class TerrainMaker : MonoBehaviour
         data.heightBuffer.enableRandomWrite = true;
         data.heightBuffer.filterMode = FilterMode.Point;
         data.heightBuffer.wrapMode = TextureWrapMode.Clamp;
-        data.normalBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGB32);
+        data.normalBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
         data.normalBuffer.enableRandomWrite = true;
 
         int curHeightMapForNormalWidth = m_TexWidth + 2;
@@ -152,12 +152,9 @@ public class TerrainMaker : MonoBehaviour
         m_CS.SetFloats("_D", new float[2] { d.x, d.y });
         m_CS.SetTexture((int)E_TerrainMakerKernel.HeightMap, "_HeightMap", data.heightBuffer);
         m_CS.SetTexture((int)E_TerrainMakerKernel.HeightMap, "_HeightMapForNormalMap", m_HeightMapForNormalMap);
-        m_CS.SetTexture((int)E_TerrainMakerKernel.HeightMap, "_NormalMap", data.normalBuffer);
 
         m_CS.SetTexture((int)E_TerrainMakerKernel.NormalMap, "_NormalMap", data.normalBuffer);
         m_CS.SetTexture((int)E_TerrainMakerKernel.NormalMap, "_HeightMapForNormalMap", m_HeightMapForNormalMap);
-        m_CS.SetTexture((int)E_TerrainMakerKernel.NormalMap, "_HeightMap", data.heightBuffer);
-
 
         int heightForNormalMapGroupCountx = curHeightMapForNormalWidth / Kernel_Width + (curHeightMapForNormalWidth % Kernel_Width == 0 ? 0 : 1);
         int heightForNormalMapGroupCounty = curHeightMapForNormalWidth / Kernel_Width + (curHeightMapForNormalWidth % Kernel_Width == 0 ? 0 : 1);
@@ -166,102 +163,51 @@ public class TerrainMaker : MonoBehaviour
         //Debug.Log(quality + " " + key + " " + offset+" " + heightMapGroupCountx+" " + heightMapGroupCounty+" " + scale);
 
         m_CS.Dispatch((int)E_TerrainMakerKernel.HeightMap, heightForNormalMapGroupCountx, heightForNormalMapGroupCounty, 1);
-        //m_CS.Dispatch((int)E_TerrainMakerKernel.NormalMap, normalMapGroupCountx, normalMapGroupCounty, 1);
-
-        //RenderTexture.active = data.normalBuffer;  // RenderTexture 활성화
-
-        //Texture2D tex = new Texture2D(data.normalBuffer.width, data.normalBuffer.height, TextureFormat.ARGB32, false);
-        //tex.ReadPixels(new Rect(0, 0, data.normalBuffer.width, data.normalBuffer.height), 0, 0); // 데이터를 읽어옴
-        //tex.Apply();
-
-        //Color pixelColor = tex.GetPixel(0,0);
-        //Debug.Log($"0,0 Pixel Color: {pixelColor}");
-
-        //RenderTexture.active = null;  // 원래 상태로 복구
-
+        m_CS.Dispatch((int)E_TerrainMakerKernel.NormalMap, normalMapGroupCountx, normalMapGroupCounty, 1);
 
         return data;
 
     }
-    //public ChunkTerrainData GetChunkTerrainData(Vector2 groundPos)
-    //{
-    //    //scale = 10, width = 256, offset = 0 이면 0~25.6 까지임 2560 * 0.01f = 25.6f
-    //    //ground크기를 width만큼으로 쓰기위해 scale값을 자동으로 조절하자
-    //    ChunkTerrainData data = new ChunkTerrainData();
-    //    PerlinNoise.PerlinOption option = m_PerlinOption;
-    //    option.offset = groundPos;
-    //    option.scale = Chunk.ChunkSize.x / m_PerlinOption.width * 100;
-    //    option.width = m_PerlinOption.width + 3; // +1 은 맵이 이어지기위해필요, +2은 heightMap -> normalMap reduce로 진행하기때문에 필요 => height가 4x4 면 normal은 2x2로 나옴
-    //    option.height = m_PerlinOption.height + 3;
 
-    //    data.heightBuffer = PerlinNoise.PerlinNoiseGPU(option, PerlinNoise.E_PerlinBufferType.Height);
-    //    data.normalBuffer = NormalMapMaker.HeightMapToNormalMapGPU(option.width - 2, option.height - 2, data.heightBuffer, NormalMapMaker.E_NormalBufferType.FloatToVector3, Chunk.ChunkSize, NormalMapMaker.E_NormalSideType.Reduce);
-    //    data.arr_Height = new float[option.width * option.height];
-    //    data.arr_Normal = new Vector3[(option.width - 2) * (option.height - 2)];
-    //    data.heightBuffer.GetData(data.arr_Height);
-    //    data.normalBuffer.GetData(data.arr_Normal);
-    //    data.arr_MeshLOD = new Mesh[1];
-    //    data.HeightBufferSize = new Vector2Int(option.width, option.height);
+    public void DebugRenderTexturePixels(RenderTexture rt)
+    {
+        // 현재 활성화된 RenderTexture를 저장
+        RenderTexture currentRT = RenderTexture.active;
 
+        // 임시 Texture2D 생성
+        Texture2D tex = new Texture2D(rt.width, rt.height, TextureFormat.RGBAFloat, false);
 
-    //    int[] AxisVertexCount = new int[1] { 21 };
-         
-    //    for(int i=0;i< data.arr_MeshLOD.Length;i++)
-    //    {
-    //        Mesh mesh = new Mesh();
-    //        Vector3[] vertices = new Vector3[AxisVertexCount[i] * AxisVertexCount[i]];
-    //        Vector2[] uvs = new Vector2[AxisVertexCount[i] * AxisVertexCount[i]];
-    //        Vector3[] normals = new Vector3[AxisVertexCount[i] * AxisVertexCount[i]];
-    //        //-ground크기 / 2 ~ ground크기 / 2
-    //        Vector3 startPos = new Vector3(-Chunk.ChunkSize.x * 0.5f, 0, -Chunk.ChunkSize.y * 0.5f);
-    //        float dVertex = Chunk.ChunkSize.x / (AxisVertexCount[i] - 1);
-    //        float dUV = 1.0f / (AxisVertexCount[i] - 1);
-    //        for (int z = 0; z < AxisVertexCount[i];z++)
-    //        {
-    //            for(int x = 0; x < AxisVertexCount[i];x++)
-    //            {
-    //                Vector2 curUV = new Vector2(dUV * x, dUV * z);
-    //                int heightMapIdx_x = Mathf.RoundToInt(curUV.x * (option.width - 2)) + 1;
-    //                heightMapIdx_x = heightMapIdx_x == option.width - 1 ? heightMapIdx_x - 1 : heightMapIdx_x;
-    //                int heightMapIdx_y = Mathf.RoundToInt(curUV.y * (option.height - 2)) + 1;
-    //                heightMapIdx_y = heightMapIdx_y == option.height - 1 ? heightMapIdx_y - 1 : heightMapIdx_y;
-    //                int heightMapIdx = heightMapIdx_x + heightMapIdx_y * option.width;
-    //                int normalMapIdx = (heightMapIdx_x - 1) + (heightMapIdx_y - 1) * (option.width - 2);
-    //                float curHeight = data.arr_Height[heightMapIdx];
-    //                Vector3 curPos = startPos + new Vector3(dVertex * x, curHeight, dVertex * z);
-    //                int curIdx = x + z * AxisVertexCount[i];
-    //                Vector3 curNormal = data.arr_Normal[normalMapIdx];
-    //                curNormal = new Vector3(curNormal.x, curNormal.z, curNormal.y); //z와 y 바꿔야함 tangent bitangent 할필요없음
-    //                vertices[curIdx] = curPos;
-    //                uvs[curIdx] = curUV;
-    //                normals[curIdx] = curNormal;
-    //            }
-    //        }
-    //        mesh.vertices = vertices;
-    //        mesh.uv = uvs;
-    //        mesh.normals = normals;
+        try
+        {
+            // RenderTexture를 활성화
+            RenderTexture.active = rt;
 
-    //        int[] indices = new int[(AxisVertexCount[i] - 1) * (AxisVertexCount[i] - 1) * 2 * 3];
-    //        for (int z = 0; z < AxisVertexCount[i] - 1; z++)
-    //        {
-    //            for (int x = 0; x < AxisVertexCount[i] - 1; x++)
-    //            {
-    //                int curIndexIdx = x + z * (AxisVertexCount[i] - 1);
-    //                int curVertexIdx = x + z * AxisVertexCount[i];
+            // RenderTexture의 내용을 Texture2D로 읽어옴
+            tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+            tex.Apply();
 
-    //                indices[curIndexIdx * 6 + 0] = curVertexIdx;
-    //                indices[curIndexIdx * 6 + 1] = curVertexIdx + AxisVertexCount[i];
-    //                indices[curIndexIdx * 6 + 2] = curVertexIdx + 1; 
-    //                indices[curIndexIdx * 6 + 3] = curVertexIdx + 1; 
-    //                indices[curIndexIdx * 6 + 4] = curVertexIdx + AxisVertexCount[i];
-    //                indices[curIndexIdx * 6 + 5] = curVertexIdx + 1 + AxisVertexCount[i];
+            // 픽셀 데이터 가져오기
+            Color[] pixels = tex.GetPixels();
 
-    //            }
-    //        }
-    //        mesh.SetIndices(indices, MeshTopology.Triangles, 0);
-
-    //        data.arr_MeshLOD[i] = mesh;
-    //    }
-    //    return data;
-    //}
+            // 픽셀 값 출력
+            for (int y = 0; y < rt.height; y++)
+            {
+                for (int x = 0; x < rt.width; x++)
+                {
+                    int index = y * rt.width + x;
+                    Color pixel = pixels[index];
+                    if (x == 0 && y == 0)
+                    {
+                        Debug.Log($"Pixel [{x}, {y}]: R={pixel.r:F3}, G={pixel.g:F3}, B={pixel.b:F3}, A={pixel.a:F3}");
+                    }
+                }
+            }
+        }
+        finally
+        {
+            // 정리
+            RenderTexture.active = currentRT;
+            Object.Destroy(tex);
+        }
+    }
 }

@@ -11,10 +11,10 @@ SamplerState sampler_HeightMap1;
 SamplerState sampler_HeightMap2;
 SamplerState sampler_HeightMap3;
 
-Texture2D<uint> _NormalMap0;
-Texture2D<uint> _NormalMap1;
-Texture2D<uint> _NormalMap2;
-Texture2D<uint> _NormalMap3;
+Texture2D<float4> _NormalMap0;
+Texture2D<float4> _NormalMap1;
+Texture2D<float4> _NormalMap2;
+Texture2D<float4> _NormalMap3;
 SamplerState sampler_NormalMap0;
 SamplerState sampler_NormalMap1;
 SamplerState sampler_NormalMap2;
@@ -22,7 +22,7 @@ SamplerState sampler_NormalMap3;
 
 
 RWTexture2D<float> _HeightMergeMap;
-RWTexture2D<uint> _NormalMergeMap;
+RWTexture2D<float4> _NormalMergeMap;
 
 int2 _MergeTexSize;
 int2 _DataTexSize;
@@ -53,27 +53,27 @@ void TextureMerge2x2(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
     float2 localUV = uv - tileIndex;
 
     float height = 0.0f;
-    float normal = 0;
+    float4 normal = 0;
 
     if (tileIndex.x == 0 && tileIndex.y == 0)
     {
         height = _HeightMap0.SampleLevel(sampler_HeightMap0, localUV, 0);
-        normal = _NormalMap0.Load(uint3(localUV, 0));
+        normal = _NormalMap0.SampleLevel(sampler_NormalMap0, localUV, 0);
     }
     else if (tileIndex.x == 1 && tileIndex.y == 0)
     {
         height = _HeightMap1.SampleLevel(sampler_HeightMap1, localUV, 0);
-        normal = _NormalMap1.Load(uint3(localUV, 0));
+        normal = _NormalMap1.SampleLevel(sampler_NormalMap1, localUV, 0);
     }
     else if (tileIndex.x == 0 && tileIndex.y == 1)
     {
         height = _HeightMap2.SampleLevel(sampler_HeightMap2, localUV, 0);
-        normal = _NormalMap2.Load(uint3(localUV, 0));
+        normal = _NormalMap2.SampleLevel(sampler_NormalMap2, localUV, 0);
     }
     else if (tileIndex.x == 1 && tileIndex.y == 1)
     {
         height = _HeightMap3.SampleLevel(sampler_HeightMap3, localUV, 0);
-        normal = _NormalMap3.Load(uint3(localUV, 0));
+        normal = _NormalMap3.SampleLevel(sampler_NormalMap3, localUV, 0);
     }
 
     // Store merged height

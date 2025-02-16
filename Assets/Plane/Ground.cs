@@ -11,7 +11,7 @@ public class Ground : MonoBehaviour
         ground.m_Quality = quality;
         return ground;
     }
-    [SerializeField] ComputeShader m_CS;
+    [SerializeField] ComputeShader m_CSTextureMerge;
     [SerializeField] int m_TexWidth;
     TerrainMaker.E_TerrainQuality m_Quality;
     Vector2 m_Pos;
@@ -37,7 +37,7 @@ public class Ground : MonoBehaviour
         transform.localScale = new Vector3((int)m_Quality, (int)m_Quality, (int)m_Quality);
         transform.position = new Vector3(m_Pos.x, 0, m_Pos.y);
         m_HeightBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.RFloat);
-        m_NormalBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGB32);
+        m_NormalBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
         m_HeightBuffer.enableRandomWrite = true;
         m_NormalBuffer.enableRandomWrite = true;
         SetHeightBuffer();
@@ -73,8 +73,8 @@ public class Ground : MonoBehaviour
             {
                 Vector2Int curKey = new Vector2Int(x, y);
                 arr_Data[idx] = MapMaker.Ins.GetTerrainData(m_Quality, curKey);
-                m_CS.SetTexture(0, "_HeightMap" + idx, arr_Data[idx].heightBuffer);
-                m_CS.SetTexture(0, "_NormalMap" + idx, arr_Data[idx].normalBuffer);
+                m_CSTextureMerge.SetTexture(0, "_HeightMap" + idx, arr_Data[idx].heightBuffer);
+                m_CSTextureMerge.SetTexture(0, "_NormalMap" + idx, arr_Data[idx].normalBuffer);
                 idx++;
 
             }
@@ -87,18 +87,19 @@ public class Ground : MonoBehaviour
         uvMax = uvMax * dataSize;
         //Debug.Log($"{heightMapMinWorld} {heightMapMaxWorld} {minWorld} {maxWorld} {uvMin} {uvMax}");
 
-        m_CS.SetInts("_MergeTexSize", new int[2] { m_TexWidth, m_TexWidth });
-        m_CS.SetInts("_DataTexSize", new int[2] { TerrainMaker.Ins.m_TexWidth, TerrainMaker.Ins.m_TexWidth });
-        m_CS.SetInts("_DataTexCount", new int[2] { dataSize.x, dataSize.y });
-        m_CS.SetFloats("_UVMin", new float[2] { uvMin.x, uvMin.y });
-        m_CS.SetFloats("_UVMax", new float[2] { uvMax.x, uvMax.y });
-        m_CS.SetTexture(0, "_HeightMergeMap", m_HeightBuffer);
-        m_CS.SetTexture(0, "_NormalMergeMap", m_NormalBuffer);
+        m_CSTextureMerge.SetInts("_MergeTexSize", new int[2] { m_TexWidth, m_TexWidth });
+        m_CSTextureMerge.SetInts("_DataTexSize", new int[2] { TerrainMaker.Ins.m_TexWidth, TerrainMaker.Ins.m_TexWidth });
+        m_CSTextureMerge.SetInts("_DataTexCount", new int[2] { dataSize.x, dataSize.y });
+        m_CSTextureMerge.SetFloats("_UVMin", new float[2] { uvMin.x, uvMin.y });
+        m_CSTextureMerge.SetFloats("_UVMax", new float[2] { uvMax.x, uvMax.y });
+        m_CSTextureMerge.SetTexture(0, "_HeightMergeMap", m_HeightBuffer);
+        m_CSTextureMerge.SetTexture(0, "_NormalMergeMap", m_NormalBuffer);
         m_Mat.SetTexture("_HeightMap", m_HeightBuffer);
         m_Mat.SetTexture("_NormalMap", m_NormalBuffer);
 
+
         int groupx = m_TexWidth / Thread_Width + (m_TexWidth % Thread_Width == 0 ? 0 : 1);
-        m_CS.Dispatch(0, groupx, groupx, 1);
+        m_CSTextureMerge.Dispatch(0, groupx, groupx, 1);
     }
 
 
