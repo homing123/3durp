@@ -43,7 +43,7 @@ public class CamMove : MonoBehaviour
         if (m_TerrainMeshGridKey != curCamPosXZ)
         {
             m_TerrainMeshGridKey = curCamPosXZ;
-            float terrainMeshGridSize = TerrainMaker.Ins.GetTerrainMeshGridSize();
+            float terrainMeshGridSize = TerrainMaker.Ins.TerrainMeshGridSize;
             ev_TerrainPosUpdate?.Invoke(new Vector2(curCamPosXZ.x * terrainMeshGridSize, curCamPosXZ.y * terrainMeshGridSize));
         }
     }

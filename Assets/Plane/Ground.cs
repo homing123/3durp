@@ -12,7 +12,6 @@ public class Ground : MonoBehaviour
         return ground;
     }
     [SerializeField] ComputeShader m_CSTextureMerge;
-    [SerializeField] int m_TexWidth;
     TerrainMaker.E_TerrainQuality m_Quality;
     Vector2 m_Pos;
     Material m_Mat;
@@ -34,13 +33,16 @@ public class Ground : MonoBehaviour
     private void Start()
     {
         m_MeshFilter.mesh = TerrainMaker.Ins.m_Mesh;
+        int texWidth = TerrainMaker.Ins.m_TexWidth;
+
         transform.localScale = new Vector3((int)m_Quality, (int)m_Quality, (int)m_Quality);
         transform.position = new Vector3(m_Pos.x, 0, m_Pos.y);
-        m_HeightBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.RFloat);
-        m_NormalBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
+        m_HeightBuffer = new RenderTexture(texWidth, texWidth, 0, RenderTextureFormat.RFloat);
+        m_NormalBuffer = new RenderTexture(texWidth, texWidth, 0, RenderTextureFormat.ARGBFloat);
         m_HeightBuffer.enableRandomWrite = true;
         m_NormalBuffer.enableRandomWrite = true;
         m_Mat.SetInt("_Quality", (int)m_Quality);
+        m_Mat.SetInt("_MeshSize", TerrainMaker.Ins.m_MeshSize);
 
         SetHeightBuffer();
         CamMove.ev_TerrainPosUpdate += Move;
@@ -65,18 +67,21 @@ public class Ground : MonoBehaviour
     }
     void SetHeightBuffer()
     {
-        Vector2 curSize = Chunk.ChunkSize * (int)m_Quality;
+        int groundSize = TerrainMaker.Ins.m_MeshSize * (int)m_Quality;
+        int texWidth = TerrainMaker.Ins.m_TexWidth;
+        Vector2 curSize = new Vector2(groundSize, groundSize);
         Vector2 curPosXZ = transform.position.Vt2XZ();
 
         Vector2 minWorld = curPosXZ - curSize * 0.5f;
         Vector2 maxWorld = curPosXZ + curSize * 0.5f;
-        Vector2 minChunkGrid = minWorld / ((int)m_Quality * Chunk.ChunkSize.x);
-        Vector2 maxChunkGrid = maxWorld / ((int)m_Quality * Chunk.ChunkSize.x);
-        Vector2Int minKey = new Vector2Int(Mathf.FloorToInt(minChunkGrid.x), Mathf.FloorToInt(minChunkGrid.y));
-        Vector2Int maxKey = new Vector2Int(Mathf.FloorToInt(maxChunkGrid.x), Mathf.FloorToInt(maxChunkGrid.y));
-        //Debug.Log($"{m_Quality} {minWorld} {maxWorld} {minChunkGrid} {maxChunkGrid} {minKey} {maxKey}");
+        Vector2 minGrid = minWorld / curSize;
+        Vector2 maxGrid = maxWorld / curSize;
+        Vector2Int minKey = new Vector2Int(Mathf.FloorToInt(minGrid.x), Mathf.FloorToInt(minGrid.y));
+        Vector2Int maxKey = new Vector2Int(Mathf.FloorToInt(maxGrid.x), Mathf.FloorToInt(maxGrid.y));
         Vector2Int dataSize = new Vector2Int(maxKey.x - minKey.x + 1, maxKey.y - minKey.y + 1);
-        TerrainMaker.TerrainData[] arr_Data = new TerrainMaker.TerrainData[dataSize.x * dataSize.y];
+        TerrainData[] arr_Data = new TerrainData[dataSize.x * dataSize.y];
+        //Debug.Log($"{minWorld} {maxWorld} {minGrid} {maxGrid} {minKey} {maxKey}");
+
         int idx = 0;
         for (int y=minKey.y; y<=maxKey.y; y++)
         {
@@ -84,21 +89,21 @@ public class Ground : MonoBehaviour
             {
                 Vector2Int curKey = new Vector2Int(x, y);
                 arr_Data[idx] = MapMaker.Ins.GetTerrainData(m_Quality, curKey);
-                m_CSTextureMerge.SetTexture(0, "_HeightMap" + idx, arr_Data[idx].heightBuffer);
-                m_CSTextureMerge.SetTexture(0, "_NormalMap" + idx, arr_Data[idx].normalBuffer);
+                m_CSTextureMerge.SetTexture(0, "_HeightMap" + idx, arr_Data[idx].heightTexture);
+                m_CSTextureMerge.SetTexture(0, "_NormalMap" + idx, arr_Data[idx].normalTexture);
                 idx++;
 
             }
         }
-        Vector2 heightMapMinWorld = minKey * (int)m_Quality * Chunk.ChunkSize;
-        Vector2 heightMapMaxWorld = (maxKey + new Vector2Int(1, 1)) * (int)m_Quality * Chunk.ChunkSize;
+        Vector2 heightMapMinWorld = minKey * groundSize;
+        Vector2 heightMapMaxWorld = (maxKey + new Vector2Int(1, 1)) * groundSize;
         Vector2 uvMin = (minWorld - heightMapMinWorld) / (heightMapMaxWorld - heightMapMinWorld);
         Vector2 uvMax = (maxWorld - heightMapMinWorld) / (heightMapMaxWorld - heightMapMinWorld);
         uvMin = uvMin * dataSize;
         uvMax = uvMax * dataSize;
         //Debug.Log($"{heightMapMinWorld} {heightMapMaxWorld} {minWorld} {maxWorld} {uvMin} {uvMax}");
 
-        m_CSTextureMerge.SetInts("_MergeTexSize", new int[2] { m_TexWidth, m_TexWidth });
+        m_CSTextureMerge.SetInts("_MergeTexSize", new int[2] { texWidth, texWidth });
         m_CSTextureMerge.SetInts("_DataTexSize", new int[2] { TerrainMaker.Ins.m_TexWidth, TerrainMaker.Ins.m_TexWidth });
         m_CSTextureMerge.SetInts("_DataTexCount", new int[2] { dataSize.x, dataSize.y });
         m_CSTextureMerge.SetFloats("_UVMin", new float[2] { uvMin.x, uvMin.y });
@@ -109,7 +114,7 @@ public class Ground : MonoBehaviour
         m_Mat.SetTexture("_NormalMap", m_NormalBuffer);
 
 
-        int groupx = m_TexWidth / Thread_Width + (m_TexWidth % Thread_Width == 0 ? 0 : 1);
+        int groupx = texWidth / Thread_Width + (texWidth % Thread_Width == 0 ? 0 : 1);
         m_CSTextureMerge.Dispatch(0, groupx, groupx, 1);
     }
 

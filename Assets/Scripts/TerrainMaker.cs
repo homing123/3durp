@@ -21,9 +21,10 @@ public class TerrainMaker : MonoBehaviour
     public Mesh m_Mesh { get; private set; }
     RenderTexture m_HeightMapForNormalMap;
     int m_LastHeightMapForNormalWidth = 0;
+    [SerializeField] ComputeShader m_CSTerrainMaker;
 
+    [Range(10, 100)] public int m_MeshSize;
     [SerializeField][Range(11, 101)] int m_VertexWidth;
-    [SerializeField] ComputeShader m_CS;
     [SerializeField] [Min(0f)] float m_GradientRadianMul;
     [SerializeField] [Range(32, 1024)] public int m_TexWidth;
     [SerializeField] [Range(1, 10)] float m_Amplitude;
@@ -32,33 +33,27 @@ public class TerrainMaker : MonoBehaviour
     [SerializeField] [Range(1.5f, 2.5f)] float m_Lacunarity;
     [SerializeField] [Range(1, 9)] int m_Octave;
 
-    const int Kernel_Width = 32;
-
-
-  
-    public struct TerrainData
+    public Vector2Int HeightMapSize
     {
-        public RenderTexture heightBuffer;
-        public RenderTexture normalBuffer;
-
-        public void Release()
+        get
         {
-            heightBuffer.Release();
-            normalBuffer.Release();
+            return new Vector2Int(m_TexWidth, m_TexWidth);
         }
-
     }
-    [SerializeField] PerlinNoise.PerlinOption m_PerlinOption;
+    public float TerrainMeshGridSize
+    {
+        get
+        {
+            return (m_MeshSize * (int)TerrainMaker.E_TerrainQuality.Low) / (float)(m_VertexWidth - 1);
+        }
+    }
+    const int Kernel_Width = 32;
 
     public static TerrainMaker Ins;
     private void Awake()
     {
         Ins = this;
         MeshInit();
-    }
-    public Vector2Int GetHeightMapSize()
-    {
-        return new Vector2Int(m_TexWidth, m_TexWidth);
     }
 
     void Start()
@@ -72,13 +67,10 @@ public class TerrainMaker : MonoBehaviour
     {
         
     }
-    public float GetTerrainMeshGridSize()
-    {
-        return (Chunk.ChunkSize.x * (int)TerrainMaker.E_TerrainQuality.Low) / (m_VertexWidth - 1);   }
+   
     public Vector2Int GetTerrainMeshGridKey(Vector2 vt2xz)
     {
-        float terrainMeshGridSize = (Chunk.ChunkSize.x * (int)TerrainMaker.E_TerrainQuality.Low) / (m_VertexWidth - 1);
-        Vector2 quotient = vt2xz / terrainMeshGridSize;
+        Vector2 quotient = vt2xz / TerrainMeshGridSize;
         return new Vector2Int(Mathf.FloorToInt(quotient.x), Mathf.FloorToInt(quotient.y));
     }
     void MeshInit()
@@ -91,8 +83,8 @@ public class TerrainMaker : MonoBehaviour
         int[] indices = new int[indicesCount];
      
         //-ground크기 / 2 ~ ground크기 / 2
-        Vector3 startPos = new Vector3(-Chunk.ChunkSize.x * 0.5f, 0, -Chunk.ChunkSize.y * 0.5f);
-        float dVertex = Chunk.ChunkSize.x / (m_VertexWidth - 1);
+        Vector3 startPos = new Vector3(-m_MeshSize * 0.5f, 0, -m_MeshSize * 0.5f);
+        float dVertex = m_MeshSize / (float)(m_VertexWidth - 1);
         for (int z = 0; z < m_VertexWidth; z++)
         {
             for (int x = 0; x < m_VertexWidth; x++)
@@ -127,17 +119,17 @@ public class TerrainMaker : MonoBehaviour
     {
         //scale = 10, width = 256, offset = 0 이면 0~25.6 까지임 2560 * 0.01f = 25.6f
         //ground크기를 width만큼으로 쓰기위해 scale값을 자동으로 조절하자
-        Vector2 d = Chunk.ChunkSize / m_TexWidth * (int)quality;
+        float d = m_MeshSize / (float)m_TexWidth * (int)quality;
         TerrainData data = new TerrainData();
-        Vector2 offset = key * (int)quality * Chunk.ChunkSize;// - d * key * (int)quality;
-        float scale = Chunk.ChunkSize.x / m_TexWidth * 100 * (int)quality;
+        Vector2 offset = key * (int)quality * m_MeshSize;// - d * key * (int)quality;
+        float scale = m_MeshSize / (float)m_TexWidth * 100 * (int)quality;
 
-        data.heightBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.RFloat);
-        data.heightBuffer.enableRandomWrite = true;
-        data.heightBuffer.filterMode = FilterMode.Point;
-        data.heightBuffer.wrapMode = TextureWrapMode.Clamp;
-        data.normalBuffer = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
-        data.normalBuffer.enableRandomWrite = true;
+        data.heightTexture = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.RFloat);
+        data.heightTexture.enableRandomWrite = true;
+        data.heightTexture.filterMode = FilterMode.Bilinear;
+        data.heightTexture.wrapMode = TextureWrapMode.Clamp;
+        data.normalTexture = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
+        data.normalTexture.enableRandomWrite = true;
 
         int curHeightMapForNormalWidth = m_TexWidth + 2;
         if (m_LastHeightMapForNormalWidth < curHeightMapForNormalWidth)
@@ -151,22 +143,22 @@ public class TerrainMaker : MonoBehaviour
             m_LastHeightMapForNormalWidth = curHeightMapForNormalWidth;
         }
 
-        m_CS.SetFloat("_GradientRadianMul", m_GradientRadianMul);
-        m_CS.SetFloats("_Offset", new float[2] { offset.x, offset.y });
-        m_CS.SetInts("_TexSize", new int[2] {m_TexWidth, m_TexWidth});
-        m_CS.SetInts("_HeightForNormalTexSize", new int[2] { curHeightMapForNormalWidth , curHeightMapForNormalWidth });
-        m_CS.SetFloat("_Scale", scale);
-        m_CS.SetFloat("_Amplitude", m_Amplitude);
-        m_CS.SetFloat("_Frequency", m_Freaquency);
-        m_CS.SetFloat("_Persistence", m_Persistence);
-        m_CS.SetFloat("_Lacunarity", m_Lacunarity);
-        m_CS.SetInt("_Octaves", m_Octave);
-        m_CS.SetFloats("_D", new float[2] { d.x, d.y });
-        m_CS.SetTexture((int)E_TerrainMakerKernel.HeightMap, "_HeightMap", data.heightBuffer);
-        m_CS.SetTexture((int)E_TerrainMakerKernel.HeightMap, "_HeightMapForNormalMap", m_HeightMapForNormalMap);
 
-        m_CS.SetTexture((int)E_TerrainMakerKernel.NormalMap, "_NormalMap", data.normalBuffer);
-        m_CS.SetTexture((int)E_TerrainMakerKernel.NormalMap, "_HeightMapForNormalMap", m_HeightMapForNormalMap);
+        m_CSTerrainMaker.SetFloat("_GradientRadianMul", m_GradientRadianMul);
+        m_CSTerrainMaker.SetFloats("_Offset", new float[2] { offset.x, offset.y });
+        m_CSTerrainMaker.SetInts("_TexSize", new int[2] {m_TexWidth, m_TexWidth});
+        m_CSTerrainMaker.SetInts("_HeightForNormalTexSize", new int[2] { curHeightMapForNormalWidth , curHeightMapForNormalWidth });
+        m_CSTerrainMaker.SetFloat("_Scale", scale);
+        m_CSTerrainMaker.SetFloat("_Amplitude", m_Amplitude);
+        m_CSTerrainMaker.SetFloat("_Frequency", m_Freaquency);
+        m_CSTerrainMaker.SetFloat("_Persistence", m_Persistence);
+        m_CSTerrainMaker.SetFloat("_Lacunarity", m_Lacunarity);
+        m_CSTerrainMaker.SetInt("_Octaves", m_Octave);
+        m_CSTerrainMaker.SetFloats("_D", new float[2] { d, d });
+        m_CSTerrainMaker.SetTexture((int)E_TerrainMakerKernel.HeightMap, "_HeightMap", data.heightTexture);
+        m_CSTerrainMaker.SetTexture((int)E_TerrainMakerKernel.HeightMap, "_HeightMapForNormalMap", m_HeightMapForNormalMap);
+        m_CSTerrainMaker.SetTexture((int)E_TerrainMakerKernel.NormalMap, "_NormalMap", data.normalTexture);
+        m_CSTerrainMaker.SetTexture((int)E_TerrainMakerKernel.NormalMap, "_HeightMapForNormalMap", m_HeightMapForNormalMap);
 
         int heightForNormalMapGroupCountx = curHeightMapForNormalWidth / Kernel_Width + (curHeightMapForNormalWidth % Kernel_Width == 0 ? 0 : 1);
         int heightForNormalMapGroupCounty = curHeightMapForNormalWidth / Kernel_Width + (curHeightMapForNormalWidth % Kernel_Width == 0 ? 0 : 1);
@@ -174,8 +166,8 @@ public class TerrainMaker : MonoBehaviour
         int normalMapGroupCounty = m_TexWidth / Kernel_Width + (m_TexWidth % Kernel_Width == 0 ? 0 : 1);
         //Debug.Log(quality + " " + key + " " + offset+" " + heightMapGroupCountx+" " + heightMapGroupCounty+" " + scale);
 
-        m_CS.Dispatch((int)E_TerrainMakerKernel.HeightMap, heightForNormalMapGroupCountx, heightForNormalMapGroupCounty, 1);
-        m_CS.Dispatch((int)E_TerrainMakerKernel.NormalMap, normalMapGroupCountx, normalMapGroupCounty, 1);
+        m_CSTerrainMaker.Dispatch((int)E_TerrainMakerKernel.HeightMap, heightForNormalMapGroupCountx, heightForNormalMapGroupCounty, 1);
+        m_CSTerrainMaker.Dispatch((int)E_TerrainMakerKernel.NormalMap, normalMapGroupCountx, normalMapGroupCounty, 1);
 
         return data;
 

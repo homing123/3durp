@@ -12,9 +12,8 @@ public class RenderTextureObject : MonoBehaviour
     {
         Material mat = GetComponent<Renderer>().material;
         GetComponent<Renderer>().material = new Material(mat);
-        transform.localScale = (int)(m_Quality) * Chunk.ChunkSize;
-        transform.position = new Vector3(m_Key.x * (int)(m_Quality) * Chunk.ChunkSize.x, 0, m_Key.y*(int)(m_Quality) * Chunk.ChunkSize.y) + new Vector3(Chunk.ChunkSize.x * 0.5f,0, Chunk.ChunkSize.y * 0.5f) * (int)(m_Quality);
-        Debug.Log(m_Key + " " + (int)(m_Quality) + " " + Chunk.ChunkSize);
+        transform.localScale = Vector3.one * TerrainMaker.Ins.m_MeshSize * (int)(m_Quality);
+        transform.position = new Vector3(m_Key.x * TerrainMaker.Ins.m_MeshSize * (int)(m_Quality), 0, m_Key.y* TerrainMaker.Ins.m_MeshSize * (int)(m_Quality)) + new Vector3(TerrainMaker.Ins.m_MeshSize * 0.5f,0, TerrainMaker.Ins.m_MeshSize * 0.5f) * (int)(m_Quality);
         SetRenderTexture(m_RT);
     }
 

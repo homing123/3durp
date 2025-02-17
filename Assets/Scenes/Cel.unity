@@ -3743,9 +3743,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c27b6affacfdc8147b2906351d90be7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Update: 0
-  m_GroundSizeMul: 1
-  m_RenterTextureQuality: 8
+  m_RenterTextureQuality: 1
   m_RenderTextureObj: {fileID: 0}
 --- !u!114 &1958049054
 MonoBehaviour:
@@ -3759,8 +3757,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16745ec01907a3f45823ed1709427909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CSTerrainMaker: {fileID: 7200000, guid: 60afc950ce852b146b3c5752ed4e4a7a, type: 3}
+  m_MeshSize: 20
   m_VertexWidth: 41
-  m_CS: {fileID: 7200000, guid: 60afc950ce852b146b3c5752ed4e4a7a, type: 3}
   m_GradientRadianMul: 1
   m_TexWidth: 128
   m_Amplitude: 2.31
@@ -3768,17 +3767,6 @@ MonoBehaviour:
   m_Persistence: 0.569
   m_Lacunarity: 2.026
   m_Octave: 3
-  m_PerlinOption:
-    width: 32
-    height: 32
-    offset: {x: 0, y: 0}
-    scale: 0
-    gradientRadianMul: 1
-    amplitude: 19
-    frequency: 0.01
-    persistence: 0.35
-    lacunarity: 2.186
-    octave: 3
 --- !u!114 &1958049055
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -72,16 +72,18 @@ Shader "Plane/Grass"
             float4 _NormalMap_ST;
 
             int _Quality;
+            int _MeshSize;
             CBUFFER_END
 
             v2f vert(appdata i)
             {
                 v2f o;
-                o.uv = float2((i.posModel.x + 5) / 10.f, (i.posModel.z + 5) / 10.f);
+                o.uv = i.posModel.xz / _MeshSize + 0.5f;
                 o.posWS = TransformObjectToWorld(i.posModel.xyz);
                 o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
                 float2 temp = abs(o.uv - 0.5f); //0.5로 부터 uv거리
                 float2 weight = saturate(temp * -4 + 1); //0.5 ~ 0 => -1 ~ 1, 0.25 ~ 0 => 0 ~ 1
+                //weight = 0;
                 o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
                 o.posCS = TransformWorldToHClip(o.posWS);
 
@@ -102,7 +104,9 @@ Shader "Plane/Grass"
 
                 half4 col;
                 col.a = 1;
-
+              /*  col.r = tex2Dlod(_HeightMap, float4(i.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
+                col.gb = 0;
+                return col;*/
                 Light mainLight = GetMainLight(i.shadowCoord);
                 float3 normal = normalize(i.normal);
               
