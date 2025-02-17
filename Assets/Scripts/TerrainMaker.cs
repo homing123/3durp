@@ -34,6 +34,8 @@ public class TerrainMaker : MonoBehaviour
 
     const int Kernel_Width = 32;
 
+
+  
     public struct TerrainData
     {
         public RenderTexture heightBuffer;
@@ -61,13 +63,23 @@ public class TerrainMaker : MonoBehaviour
 
     void Start()
     {
-
+        
+        
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+    public float GetTerrainMeshGridSize()
+    {
+        return (Chunk.ChunkSize.x * (int)TerrainMaker.E_TerrainQuality.Low) / (m_VertexWidth - 1);   }
+    public Vector2Int GetTerrainMeshGridKey(Vector2 vt2xz)
+    {
+        float terrainMeshGridSize = (Chunk.ChunkSize.x * (int)TerrainMaker.E_TerrainQuality.Low) / (m_VertexWidth - 1);
+        Vector2 quotient = vt2xz / terrainMeshGridSize;
+        return new Vector2Int(Mathf.FloorToInt(quotient.x), Mathf.FloorToInt(quotient.y));
     }
     void MeshInit()
     {

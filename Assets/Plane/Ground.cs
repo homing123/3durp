@@ -43,17 +43,24 @@ public class Ground : MonoBehaviour
         m_Mat.SetInt("_Quality", (int)m_Quality);
 
         SetHeightBuffer();
-
+        CamMove.ev_TerrainPosUpdate += Move;
     }
     private void OnDestroy()
     {
         m_HeightBuffer.Release();
         m_NormalBuffer.Release();
+        CamMove.ev_TerrainPosUpdate -= Move;
     }
     private void Update()
     {
         Vector2 camXZ = Camera.main.transform.position.Vt2XZ();
-        transform.position = new Vector3(camXZ.x, 0, camXZ.y);
+        //transform.position = new Vector3(camXZ.x, 0, camXZ.y);
+        //SetHeightBuffer();
+    }
+    void Move(Vector2 pos)
+    { //각자 그리드 크기에 맞춰서 이동해야함
+
+        transform.position = new Vector3(pos.x, 0, pos.y);
         SetHeightBuffer();
     }
     void SetHeightBuffer()

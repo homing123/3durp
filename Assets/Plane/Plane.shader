@@ -80,7 +80,9 @@ Shader "Plane/Grass"
                 o.uv = float2((i.posModel.x + 5) / 10.f, (i.posModel.z + 5) / 10.f);
                 o.posWS = TransformObjectToWorld(i.posModel.xyz);
                 o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
-                o.posWS.y += 0.4f / (log2(_Quality) + 1);
+                float2 temp = abs(o.uv - 0.5f); //0.5로 부터 uv거리
+                float2 weight = saturate(temp * -4 + 1); //0.5 ~ 0 => -1 ~ 1, 0.25 ~ 0 => 0 ~ 1
+                o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
                 o.posCS = TransformWorldToHClip(o.posWS);
 
                 VertexPositionInputs vInputs = GetVertexPositionInputs(i.posModel.xyz);
@@ -97,21 +99,16 @@ Shader "Plane/Grass"
 
             half4 frag(v2f i) : SV_Target
             {
-                float2 temp = i.uv - 0.5f;
-                if(abs(temp.x) < 0.22f && abs(temp.y) < 0.22f  && _Quality > 1)
-                {
-                    clip(-1);
-                }
+
                 half4 col;
                 col.a = 1;
-                //col.r = tex2Dlod(_HeightMap, float4(i.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
-                //return col;
+
                 Light mainLight = GetMainLight(i.shadowCoord);
                 float3 normal = normalize(i.normal);
               
                 float ndotl = saturate(dot(normal, mainLight.direction));
 
-                float noiseValue = tex2D(_NoiseTex, i.uv * _NoiseTex_ST.xy + _NoiseTex_ST.zw).r;
+                float noiseValue = tex2D(_NoiseTex, i.posWS.xz * _NoiseTex_ST.xy + _NoiseTex_ST.zw).r;
                 half3 albedo = noiseValue > _NoiseBias ? _NoiseColor : _Color.rgb;
                 half3 diffuse = albedo * mainLight.color * ndotl * mainLight.shadowAttenuation;
                 half3 ambientInShadow = albedo * mainLight.color * ndotl * (1 - mainLight.shadowAttenuation) * _Ambient;
