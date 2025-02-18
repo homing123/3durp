@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Ground : MonoBehaviour
 {
-    public static Ground Create(Vector2 pos, TerrainMaker.E_TerrainQuality quality)
+    public static Ground Create(Vector2 pos, int quality)
     {
         Ground ground = Instantiate(Prefabs.Ins.G_Ground, MapMaker.Ins.transform).GetComponent<Ground>();
         ground.m_Pos = pos;
@@ -12,7 +12,7 @@ public class Ground : MonoBehaviour
         return ground;
     }
     [SerializeField] ComputeShader m_CSTextureMerge;
-    TerrainMaker.E_TerrainQuality m_Quality;
+    int m_Quality;
     Vector2 m_Pos;
     Material m_Mat;
     MeshFilter m_MeshFilter;
@@ -35,12 +35,14 @@ public class Ground : MonoBehaviour
         m_MeshFilter.mesh = TerrainMaker.Ins.m_Mesh;
         int texWidth = TerrainMaker.Ins.m_TexWidth;
 
-        transform.localScale = new Vector3((int)m_Quality, (int)m_Quality, (int)m_Quality);
+        transform.localScale = new Vector3(m_Quality, m_Quality, m_Quality);
         transform.position = new Vector3(m_Pos.x, 0, m_Pos.y);
         m_HeightBuffer = new RenderTexture(texWidth, texWidth, 0, RenderTextureFormat.RFloat);
         m_NormalBuffer = new RenderTexture(texWidth, texWidth, 0, RenderTextureFormat.ARGBFloat);
         m_HeightBuffer.enableRandomWrite = true;
         m_NormalBuffer.enableRandomWrite = true;
+        m_HeightBuffer.filterMode = FilterMode.Bilinear;
+        m_NormalBuffer.filterMode = FilterMode.Bilinear;
         m_Mat.SetInt("_Quality", (int)m_Quality);
         m_Mat.SetInt("_MeshSize", TerrainMaker.Ins.m_MeshSize);
 

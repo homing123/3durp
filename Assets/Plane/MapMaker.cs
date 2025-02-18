@@ -45,11 +45,13 @@ public class MapMaker : MonoBehaviour
     public static MapMaker Ins;
 
     public const int ChunkSize = 16;
-    [SerializeField] E_TerrainQuality m_RenterTextureQuality;
+    [SerializeField] int m_RenterTextureQuality;
     [SerializeField] RenderTextureObject m_RenderTextureObj;
+    public const int TerrainCount = 2;
+
     List<RenderTextureObject> L_Objs = new List<RenderTextureObject>();
 
-    Dictionary<E_TerrainQuality, Dictionary<Vector2Int, TerrainData>> D_TerrainData = new Dictionary<E_TerrainQuality, Dictionary<Vector2Int, TerrainData>>();
+    Dictionary<int, Dictionary<Vector2Int, TerrainData>> D_TerrainData = new Dictionary<int, Dictionary<Vector2Int, TerrainData>>();
     Dictionary<Vector2Int, ChunkData> D_ChunkData = new Dictionary<Vector2Int, ChunkData>();
     Vector2Int m_CurChunkKey;
 
@@ -78,15 +80,15 @@ public class MapMaker : MonoBehaviour
         {
             value.Release();
         }
-        foreach (E_TerrainQuality quality in Enum.GetValues(typeof(E_TerrainQuality)))
+        for (int i = 1; i <= TerrainCount; i++)
         {
-            foreach (TerrainData data in D_TerrainData[quality].Values)
+            foreach (TerrainData data in D_TerrainData[i].Values)
             {
                 data.Release();
             }
         }
     }
-    public TerrainData GetTerrainData(E_TerrainQuality quality, Vector2Int key)
+    public TerrainData GetTerrainData(int quality, Vector2Int key)
     {
         if (D_TerrainData[quality].ContainsKey(key))
         {
@@ -114,7 +116,7 @@ public class MapMaker : MonoBehaviour
         chunk.key = key;
         GrassMakerOption grassOption = new GrassMakerOption();
         grassOption.chunkCenterPos = (key + new Vector2(0.5f, 0.5f)) * ChunkSize;
-        grassOption.terrainData = D_TerrainData[E_TerrainQuality.Ultra][key];
+        grassOption.terrainData = D_TerrainData[TerrainCount - 1][key];
         chunk.grassData = GrassMaker.Ins.GetChunkGrassData(grassOption);
     }
 
@@ -122,21 +124,21 @@ public class MapMaker : MonoBehaviour
     {
         Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
         m_CurChunkKey = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / ChunkSize), Mathf.FloorToInt(camPosXZ.y / ChunkSize)); //현재 카메라위치가 속한 청크의 키
+        Vector3 groundPos = new Vector3(camPosXZ.x, 0, camPosXZ.y);
 
-        foreach (E_TerrainQuality quality in Enum.GetValues(typeof(E_TerrainQuality)))
+        for (int i = 1; i <= TerrainCount; i++)
         {
-            D_TerrainData[quality] = new Dictionary<Vector2Int, TerrainData>();
+            D_TerrainData[i] = new Dictionary<Vector2Int, TerrainData>();
         }
 
         //float lowQualityWidth = ChunkSize * m_GroundSizeMul;
         //Vector2 minXZWorld = new Vector2(camPosXZ.x - lowQualityWidth * 0.5f, camPosXZ.y - lowQualityWidth * 0.5f);
         //Vector2 maxXZWorld = new Vector2(camPosXZ.x + lowQualityWidth * 0.5f, camPosXZ.y + lowQualityWidth * 0.5f);
 
-        Vector3 groundPos = new Vector3(camPosXZ.x, 0, camPosXZ.y);
-        Ground.Create(groundPos, E_TerrainQuality.Ultra);
-        Ground.Create(groundPos, E_TerrainQuality.High);
-        Ground.Create(groundPos, E_TerrainQuality.Midium);
-        Ground.Create(groundPos, E_TerrainQuality.Low);
+        for (int i = 1; i <= TerrainCount;i++)
+        {
+            Ground.Create(groundPos, i);
+        }
 
 
     }

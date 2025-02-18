@@ -3758,10 +3758,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CSTerrainMaker: {fileID: 7200000, guid: 60afc950ce852b146b3c5752ed4e4a7a, type: 3}
-  m_MeshSize: 20
-  m_VertexWidth: 41
+  m_MeshSize: 60
+  m_VertexWidth: 65
   m_GradientRadianMul: 1
-  m_TexWidth: 128
+  m_TexWidth: 64
   m_Amplitude: 2.31
   m_Freaquency: 0.074
   m_Persistence: 0.569

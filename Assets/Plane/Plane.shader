@@ -82,7 +82,7 @@ Shader "Plane/Grass"
                 o.posWS = TransformObjectToWorld(i.posModel.xyz);
                 o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
                 float2 temp = abs(o.uv - 0.5f); //0.5로 부터 uv거리
-                float2 weight = saturate(temp * -4 + 1); //0.5 ~ 0 => -1 ~ 1, 0.25 ~ 0 => 0 ~ 1
+                float2 weight = saturate(temp * -4 + 1) * 10; //0.5 ~ 0 => -1 ~ 1, 0.25 ~ 0 => 0 ~ 1
                 //weight = 0;
                 o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
                 o.posCS = TransformWorldToHClip(o.posWS);

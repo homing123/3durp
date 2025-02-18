@@ -5,13 +5,6 @@ using UnityEngine;
 
 public class TerrainMaker : MonoBehaviour
 {
-    public enum E_TerrainQuality
-    {
-        Ultra = 1,
-        High = 2,
-        Midium = 4,
-        Low = 8,
-    }
     public enum E_TerrainMakerKernel
     {
         HeightMap = 0,
@@ -24,9 +17,9 @@ public class TerrainMaker : MonoBehaviour
     [SerializeField] ComputeShader m_CSTerrainMaker;
 
     [Range(10, 100)] public int m_MeshSize;
-    [SerializeField][Range(11, 101)] int m_VertexWidth;
+    [SerializeField][Range(1, 101)] int m_VertexWidth;
     [SerializeField] [Min(0f)] float m_GradientRadianMul;
-    [SerializeField] [Range(32, 1024)] public int m_TexWidth;
+    [SerializeField] [Range(1, 1024)] public int m_TexWidth;
     [SerializeField] [Range(1, 10)] float m_Amplitude;
     [SerializeField] [Range(0.01f, 1)] float m_Freaquency;
     [SerializeField] [Range(0.01f, 1)] float m_Persistence;
@@ -44,7 +37,7 @@ public class TerrainMaker : MonoBehaviour
     {
         get
         {
-            return (m_MeshSize * (int)TerrainMaker.E_TerrainQuality.Low) / (float)(m_VertexWidth - 1);
+            return (m_MeshSize * (1 << (MapMaker.TerrainCount - 1))) / (float)(m_VertexWidth - 1);
         }
     }
     const int Kernel_Width = 32;
@@ -115,20 +108,21 @@ public class TerrainMaker : MonoBehaviour
         m_Mesh.SetIndices(indices, MeshTopology.Triangles, 0);
 
     }
-    public TerrainData GetTerrainData(E_TerrainQuality quality, Vector2Int key)
+    public TerrainData GetTerrainData(int quality, Vector2Int key)
     {
         //scale = 10, width = 256, offset = 0 이면 0~25.6 까지임 2560 * 0.01f = 25.6f
         //ground크기를 width만큼으로 쓰기위해 scale값을 자동으로 조절하자
-        float d = m_MeshSize / (float)m_TexWidth * (int)quality;
+        float d = m_MeshSize / (float)m_TexWidth * quality;
         TerrainData data = new TerrainData();
-        Vector2 offset = key * (int)quality * m_MeshSize;// - d * key * (int)quality;
-        float scale = m_MeshSize / (float)m_TexWidth * 100 * (int)quality;
+        Vector2 offset = key * quality * m_MeshSize;// - d * key * (int)quality;
+        float scale = m_MeshSize / (float)m_TexWidth * 100 * quality;
 
         data.heightTexture = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.RFloat);
         data.heightTexture.enableRandomWrite = true;
-        data.heightTexture.filterMode = FilterMode.Bilinear;
+        data.heightTexture.filterMode = FilterMode.Point;
         data.heightTexture.wrapMode = TextureWrapMode.Clamp;
         data.normalTexture = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
+        data.normalTexture.filterMode = FilterMode.Point;
         data.normalTexture.enableRandomWrite = true;
 
         int curHeightMapForNormalWidth = m_TexWidth + 2;

@@ -129,6 +129,8 @@ public class GrassMaker : MonoBehaviour
 
     }
 
+
+    //잔디 하기전에 땅 퀄리티 갯수 지정할수있게변경
     public void DrawGrass(ChunkData[] arr_Chunk)
     {
         List<ChunkData> l_DrawedChunk = new List<ChunkData>();
