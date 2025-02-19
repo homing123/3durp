@@ -9,9 +9,13 @@ using System.Net;
 public struct ChunkData
 {
     public Vector2Int key;
+    public RenderTexture heightTexture;
+    public RenderTexture normalTexture;
     public Chunk_GrassData grassData;
     public void Release()
     {
+        heightTexture.Release();
+        normalTexture.Release();
         grassData.Release();
     }
 }
@@ -45,9 +49,13 @@ public class MapMaker : MonoBehaviour
     public static MapMaker Ins;
 
     public const int ChunkSize = 16;
+    public const int ChunkTextureWIdth = 256;
     [SerializeField] int m_RenterTextureQuality;
     [SerializeField] RenderTextureObject m_RenderTextureObj;
+    [SerializeField][Range(1, 7)] int m_RenderChunkDis;
+    [SerializeField] ComputeShader m_CSTextureMerge;
     public const int TerrainCount = 2;
+    const int Thread_Width = 32;
 
     List<RenderTextureObject> L_Objs = new List<RenderTextureObject>();
 
@@ -115,32 +123,97 @@ public class MapMaker : MonoBehaviour
         ChunkData chunk = new ChunkData();
         chunk.key = key;
         GrassMakerOption grassOption = new GrassMakerOption();
-        grassOption.chunkCenterPos = (key + new Vector2(0.5f, 0.5f)) * ChunkSize;
-        grassOption.terrainData = D_TerrainData[TerrainCount - 1][key];
-        chunk.grassData = GrassMaker.Ins.GetChunkGrassData(grassOption);
-    }
+        chunk.heightTexture = new RenderTexture(ChunkTextureWIdth, ChunkTextureWIdth, 0, RenderTextureFormat.RFloat);
+        chunk.normalTexture = new RenderTexture(ChunkTextureWIdth, ChunkTextureWIdth, 0, RenderTextureFormat.ARGBFloat);
+        chunk.heightTexture.enableRandomWrite = true;
+        chunk.normalTexture.enableRandomWrite = true;
+        chunk.heightTexture.filterMode = FilterMode.Bilinear;
+        chunk.normalTexture.filterMode = FilterMode.Bilinear;
+        MergeHeightNormalTexture(key, ref chunk.heightTexture, ref chunk.normalTexture);
 
+        grassOption.chunkCenterPos = (key + new Vector2(0.5f, 0.5f)) * ChunkSize;
+        grassOption.heightTexture = chunk.heightTexture;
+        chunk.grassData = GrassMaker.Ins.GetChunkGrassData(grassOption);
+        D_ChunkData[key] = chunk;
+    }
+    void MergeHeightNormalTexture(Vector2Int chunkKeyref,ref RenderTexture heightMergeTexture, ref RenderTexture normalMergeTexture)
+    {
+        int texWidth = ChunkTextureWIdth;
+        Vector2 curSize = new Vector2(ChunkSize, ChunkSize);
+        Vector2 curCenterPosXZ = chunkKeyref * ChunkSize + curSize * 0.5f;
+
+        Vector2 minWorld = curCenterPosXZ - curSize * 0.5f;
+        Vector2 maxWorld = curCenterPosXZ + curSize * 0.5f;
+        Vector2 minTerrainGrid = minWorld / TerrainMaker.Ins.m_MeshSize;
+        Vector2 maxTerrainGrid = maxWorld / TerrainMaker.Ins.m_MeshSize;
+        Vector2 minChunkGrid = minWorld / ChunkSize;
+        Vector2 maxChunkGrid = maxWorld / ChunkSize;
+        Vector2Int minTerrainKey = new Vector2Int(Mathf.FloorToInt(minTerrainGrid.x), Mathf.FloorToInt(minTerrainGrid.y));
+        Vector2Int maxTerrainKey = new Vector2Int(Mathf.FloorToInt(maxTerrainGrid.x), Mathf.FloorToInt(maxTerrainGrid.y)); 
+        Vector2Int minChunkKey = new Vector2Int(Mathf.FloorToInt(minChunkGrid.x), Mathf.FloorToInt(minChunkGrid.y));
+        Vector2Int maxChunkKey = new Vector2Int(Mathf.FloorToInt(maxChunkGrid.x), Mathf.FloorToInt(maxChunkGrid.y));
+        Vector2Int dataSize = new Vector2Int(maxTerrainKey.x - minTerrainKey.x + 1, maxTerrainKey.y - minTerrainKey.y + 1);
+        TerrainData[] arr_Data = new TerrainData[dataSize.x * dataSize.y];
+        //Debug.Log($"chunk mergetextue {minWorld} {maxWorld} {minGrid} {maxGrid} {minKey} {maxKey}");
+
+        int idx = 0;
+        for (int y = minTerrainKey.y; y <= maxTerrainKey.y; y++)
+        {
+            for (int x = minTerrainKey.x; x <= maxTerrainKey.x; x++)
+            {
+                Vector2Int curKey = new Vector2Int(x, y);
+                arr_Data[idx] = MapMaker.Ins.GetTerrainData(1, curKey);
+                m_CSTextureMerge.SetTexture(0, "_HeightMap" + idx, arr_Data[idx].heightTexture);
+                m_CSTextureMerge.SetTexture(0, "_NormalMap" + idx, arr_Data[idx].normalTexture);
+                idx++;
+
+            }
+        }
+        Vector2 heightMapMinWorld = minTerrainKey * TerrainMaker.Ins.m_MeshSize;
+        Vector2 heightMapMaxWorld = (maxTerrainKey + new Vector2Int(1, 1)) * TerrainMaker.Ins.m_MeshSize;
+        Vector2 uvMin = (minWorld - heightMapMinWorld) / (heightMapMaxWorld - heightMapMinWorld);
+        Vector2 uvMax = (maxWorld - heightMapMinWorld) / (heightMapMaxWorld - heightMapMinWorld);
+        uvMin = uvMin * dataSize;
+        uvMax = uvMax * dataSize;
+        //Debug.Log($"{heightMapMinWorld} {heightMapMaxWorld} {minWorld} {maxWorld} {uvMin} {uvMax}");
+
+        m_CSTextureMerge.SetInts("_MergeTexSize", new int[2] { texWidth, texWidth });
+        m_CSTextureMerge.SetInts("_DataTexSize", new int[2] { TerrainMaker.Ins.m_TexWidth, TerrainMaker.Ins.m_TexWidth });
+        m_CSTextureMerge.SetInts("_DataTexCount", new int[2] { dataSize.x, dataSize.y });
+        m_CSTextureMerge.SetFloats("_UVMin", new float[2] { uvMin.x, uvMin.y });
+        m_CSTextureMerge.SetFloats("_UVMax", new float[2] { uvMax.x, uvMax.y });
+        m_CSTextureMerge.SetTexture(0, "_HeightMergeMap", heightMergeTexture);
+        m_CSTextureMerge.SetTexture(0, "_NormalMergeMap", normalMergeTexture);
+
+        int groupx = texWidth / Thread_Width + (texWidth % Thread_Width == 0 ? 0 : 1);
+        m_CSTextureMerge.Dispatch(0, groupx, groupx, 1);
+    }
     void MapInit()
     {
         Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
-        m_CurChunkKey = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / ChunkSize), Mathf.FloorToInt(camPosXZ.y / ChunkSize)); //현재 카메라위치가 속한 청크의 키
-        Vector3 groundPos = new Vector3(camPosXZ.x, 0, camPosXZ.y);
+        Vector2Int curTerrainMeshGridKey = TerrainMaker.Ins.GetTerrainMeshGridKey(CamMove.Ins.transform.position.Vt2XZ());
 
+        Vector3 groundPos = new Vector3(curTerrainMeshGridKey.x, 0, curTerrainMeshGridKey.y) * TerrainMaker.Ins.TerrainMeshGridSize;
+        //create terrain
         for (int i = 1; i <= TerrainCount; i++)
         {
             D_TerrainData[i] = new Dictionary<Vector2Int, TerrainData>();
-        }
-
-        //float lowQualityWidth = ChunkSize * m_GroundSizeMul;
-        //Vector2 minXZWorld = new Vector2(camPosXZ.x - lowQualityWidth * 0.5f, camPosXZ.y - lowQualityWidth * 0.5f);
-        //Vector2 maxXZWorld = new Vector2(camPosXZ.x + lowQualityWidth * 0.5f, camPosXZ.y + lowQualityWidth * 0.5f);
-
-        for (int i = 1; i <= TerrainCount;i++)
-        {
             Ground.Create(groundPos, i);
         }
 
-
+        //create chunk data
+        m_CurChunkKey = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / ChunkSize), Mathf.FloorToInt(camPosXZ.y / ChunkSize)); //현재 카메라위치가 속한 청크의 키
+        int chunkWidth = m_RenderChunkDis * 2 + 1;
+        Vector2Int chunkKeyMin = m_CurChunkKey - new Vector2Int(m_RenderChunkDis, m_RenderChunkDis);
+        for (int y = 0; y < chunkWidth; y++)
+        {
+            for (int x = 0; x < chunkWidth; x++)
+            {
+                Vector2Int curChunkKey = new Vector2Int(x, y) + chunkKeyMin;
+                CreateChunkData(ref curChunkKey);
+            }
+        }
+        //CreateChunkData(ref m_CurChunkKey);
     }
 
 
@@ -209,10 +282,16 @@ public class MapMaker : MonoBehaviour
             i--;
         }
 
-        foreach (Vector2Int key in D_TerrainData[m_RenterTextureQuality].Keys)
+        foreach (Vector2Int key in D_ChunkData.Keys)
         {
-            L_Objs.Add(RenderTextureObject.Create(key, m_RenterTextureQuality, D_TerrainData[m_RenterTextureQuality][key].heightTexture));
+            L_Objs.Add(RenderTextureObject.Create(key, ChunkSize, D_ChunkData[key].heightTexture));
         }
+
+        //foreach (Vector2Int key in D_TerrainData[m_RenterTextureQuality].Keys)
+        //{
+        //    L_Objs.Add(RenderTextureObject.Create(key, m_RenterTextureQuality, D_TerrainData[m_RenterTextureQuality][key].heightTexture));
+        //    return;
+        //}
     }
 
 

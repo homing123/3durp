@@ -94,11 +94,10 @@ public class Ground : MonoBehaviour
                 m_CSTextureMerge.SetTexture(0, "_HeightMap" + idx, arr_Data[idx].heightTexture);
                 m_CSTextureMerge.SetTexture(0, "_NormalMap" + idx, arr_Data[idx].normalTexture);
                 idx++;
-
             }
         }
-        Vector2 heightMapMinWorld = minKey * groundSize;
-        Vector2 heightMapMaxWorld = (maxKey + new Vector2Int(1, 1)) * groundSize;
+        Vector2 heightMapMinWorld = minKey * groundSize; //arr_data안의 높이맵의 범위 min
+        Vector2 heightMapMaxWorld = (maxKey + new Vector2Int(1, 1)) * groundSize; //arr_data안의 높이맵의 범위 max
         Vector2 uvMin = (minWorld - heightMapMinWorld) / (heightMapMaxWorld - heightMapMinWorld);
         Vector2 uvMax = (maxWorld - heightMapMinWorld) / (heightMapMaxWorld - heightMapMinWorld);
         uvMin = uvMin * dataSize;

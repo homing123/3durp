@@ -17,9 +17,10 @@ public class TerrainMaker : MonoBehaviour
     [SerializeField] ComputeShader m_CSTerrainMaker;
 
     [Range(10, 100)] public int m_MeshSize;
-    [SerializeField][Range(1, 101)] int m_VertexWidth;
+    [SerializeField][Range(11, 101)] int m_VertexWidth;
     [SerializeField] [Min(0f)] float m_GradientRadianMul;
-    [SerializeField] [Range(1, 1024)] public int m_TexWidth;
+    [SerializeField] [Range(1, 8)] int m_TexWidthMul;
+    public int m_TexWidth { get; private set; }
     [SerializeField] [Range(1, 10)] float m_Amplitude;
     [SerializeField] [Range(0.01f, 1)] float m_Freaquency;
     [SerializeField] [Range(0.01f, 1)] float m_Persistence;
@@ -46,6 +47,7 @@ public class TerrainMaker : MonoBehaviour
     private void Awake()
     {
         Ins = this;
+        m_TexWidth = (m_VertexWidth - 1) * m_TexWidthMul;
         MeshInit();
     }
 
@@ -167,7 +169,7 @@ public class TerrainMaker : MonoBehaviour
 
     }
 
-    public void DebugRenderTexturePixels(RenderTexture rt)
+    public static void DebugRenderTexturePixels(RenderTexture rt)
     {
         // 현재 활성화된 RenderTexture를 저장
         RenderTexture currentRT = RenderTexture.active;
@@ -194,10 +196,9 @@ public class TerrainMaker : MonoBehaviour
                 {
                     int index = y * rt.width + x;
                     Color pixel = pixels[index];
-                    if (x == 0 && y == 0)
-                    {
-                        Debug.Log($"Pixel [{x}, {y}]: R={pixel.r:F3}, G={pixel.g:F3}, B={pixel.b:F3}, A={pixel.a:F3}");
-                    }
+                    
+                    Debug.Log($"Pixel [{x}, {y}]: R={pixel.r:F3}, G={pixel.g:F3}, B={pixel.b:F3}, A={pixel.a:F3}");
+                    
                 }
             }
         }

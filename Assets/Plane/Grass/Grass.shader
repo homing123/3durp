@@ -135,7 +135,6 @@ Shader "Grass/Grass"
                     dryNoise = GetNoiseToNormRange(dryNoise);
                     sizeNoise = GetNoiseToNormRange(sizeNoise);
                     bendingNoise = GetNoiseToNormRange(bendingNoise);
-
                     float width = _GrassSize * (1 + sizeNoise * _GrassSizeRandomMul);
                     float height = _GrassSize * (1 + sizeNoise * _GrassSizeRandomMul);
 

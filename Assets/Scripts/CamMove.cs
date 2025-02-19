@@ -21,30 +21,31 @@ public class CamMove : MonoBehaviour
     float m_CurMouseY;
 
     public Vector2Int m_TerrainMeshGridKey { get; private set; }
+    public static CamMove Ins;
     public static event Action<Vector2> ev_TerrainPosUpdate;
     // Start is called before the first frame update
     private void Awake()
     {
-        
+        Ins = this;
+        CharacterMoveMode();
+        transform.rotation = Quaternion.Euler(m_RotX, m_Character.transform.eulerAngles.y, 0);
     }
     void Start()
     {
-        CharacterMoveMode();
-        transform.rotation = Quaternion.Euler(m_RotX, m_Character.transform.eulerAngles.y, 0);
         m_TerrainMeshGridKey = TerrainMaker.Ins.GetTerrainMeshGridKey(transform.position.Vt2XZ());
     }
 
-    
+
     // Update is called once per frame
     void Update()
     {
         CharacterMoveMode();
-        Vector2Int curCamPosXZ = TerrainMaker.Ins.GetTerrainMeshGridKey(transform.position.Vt2XZ());
-        if (m_TerrainMeshGridKey != curCamPosXZ)
+        Vector2Int curCamTerrainMeshGridKey = TerrainMaker.Ins.GetTerrainMeshGridKey(transform.position.Vt2XZ());
+        if (m_TerrainMeshGridKey != curCamTerrainMeshGridKey)
         {
-            m_TerrainMeshGridKey = curCamPosXZ;
+            m_TerrainMeshGridKey = curCamTerrainMeshGridKey;
             float terrainMeshGridSize = TerrainMaker.Ins.TerrainMeshGridSize;
-            ev_TerrainPosUpdate?.Invoke(new Vector2(curCamPosXZ.x * terrainMeshGridSize, curCamPosXZ.y * terrainMeshGridSize));
+            ev_TerrainPosUpdate?.Invoke(new Vector2(curCamTerrainMeshGridKey.x * terrainMeshGridSize, curCamTerrainMeshGridKey.y * terrainMeshGridSize));
         }
     }
 
