@@ -70,7 +70,6 @@ public class MapMaker : MonoBehaviour
     private void Start()
     {
         MapInit();
-        Mathf.rad
     }
 
     private void Update()
