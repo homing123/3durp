@@ -41,7 +41,7 @@ public class Ground : MonoBehaviour
         m_NormalBuffer = new RenderTexture(texWidth, texWidth, 0, RenderTextureFormat.ARGBFloat);
         m_HeightBuffer.enableRandomWrite = true;
         m_NormalBuffer.enableRandomWrite = true;
-        m_HeightBuffer.filterMode = FilterMode.Bilinear;
+        m_HeightBuffer.filterMode = FilterMode.Point;
         m_NormalBuffer.filterMode = FilterMode.Bilinear;
         m_Mat.SetInt("_Quality", (int)m_Quality);
         m_Mat.SetInt("_MeshSize", TerrainMaker.Ins.m_MeshSize);

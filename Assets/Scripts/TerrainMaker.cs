@@ -124,7 +124,7 @@ public class TerrainMaker : MonoBehaviour
         data.heightTexture.filterMode = FilterMode.Point;
         data.heightTexture.wrapMode = TextureWrapMode.Clamp;
         data.normalTexture = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
-        data.normalTexture.filterMode = FilterMode.Point;
+        data.normalTexture.filterMode = FilterMode.Bilinear;
         data.normalTexture.enableRandomWrite = true;
 
         int curHeightMapForNormalWidth = m_TexWidth + 2;

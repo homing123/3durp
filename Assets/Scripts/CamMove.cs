@@ -58,9 +58,9 @@ public class CamMove : MonoBehaviour
         float rotY = transform.eulerAngles.y;
         rotY += Input.GetAxisRaw("Mouse X") * m_MouseSensitivity * Time.deltaTime;
 
-        //m_CurMouseY -= Input.GetAxisRaw("Mouse Y") * m_MouseSensitivity * Time.deltaTime;
+        m_CurMouseY -= Input.GetAxisRaw("Mouse Y") * m_MouseSensitivity * Time.deltaTime;
 
-        //m_CurMouseY = Mathf.Clamp(m_CurMouseY, -90f, 90f); //Clamp를 통해 최소값 최대값을 넘지 않도록함
+        m_CurMouseY = Mathf.Clamp(m_CurMouseY, -45f, 25f); //Clamp를 통해 최소값 최대값을 넘지 않도록함
 
         Vector3 chaPos = m_Character.transform.position;
         Vector3 camPos;
@@ -69,7 +69,7 @@ public class CamMove : MonoBehaviour
         camPos.x = -xz.x;
         camPos.z = -xz.y;
         transform.position = camPos + chaPos;
-        transform.rotation = Quaternion.Euler(m_RotX, rotY, 0);
+        transform.rotation = Quaternion.Euler(m_CurMouseY, rotY, 0);
 
 
 

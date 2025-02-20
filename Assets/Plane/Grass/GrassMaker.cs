@@ -128,13 +128,17 @@ public class GrassMaker : MonoBehaviour
         m_GrassMaterial.SetBuffer("_GrassBuffer", m_DrawedGrassBuffer);
 
     }
-
+    [SerializeField] Vector2Int m_TestKey;
 
     public void DrawGrass(ChunkData[] arr_Chunk)
     {
         List<ChunkData> l_DrawedChunk = new List<ChunkData>();
         for (int i = 0; i < arr_Chunk.Length; i++)
         {
+            if (arr_Chunk[i].key != m_TestKey)
+            {
+                continue;
+            }
             Vector2 rectMin = arr_Chunk[i].key * MapMaker.ChunkSize;
             Rect rect = new Rect(rectMin, new Vector2(MapMaker.ChunkSize, MapMaker.ChunkSize));
             bool isOut = Camera.main.FrustumCullingInWorld(new Vector3(rect.min.x,-10, rect.min.y), new Vector3(rect.max.x, 10, rect.max.y));

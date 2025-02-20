@@ -50,9 +50,11 @@ void GetPosition(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
     randomPosAngle *= 2 * PI;
     
     float3 randomAdditionalPos = float3(cos(randomPosAngle) * randomDis, randomHeight * 0.05f, sin(randomPosAngle) * randomDis);
-    curPos += randomAdditionalPos * float3(dis_x, (dis_x + dis_y) * 0.05f, dis_y) * 0.5f;
+    curPos += randomAdditionalPos * float3(dis_x, (dis_x + dis_y) * 0.05f, dis_y);
 
     float2 uv = (curPos.xz - minxz) / _GridSize;
+    uv.x = saturate(uv.x);
+    uv.y = saturate(uv.y);
     uint heightMapIdx_x = uv.x == 1 ? _HeightBufferSize.x - 1 : uv.x * _HeightBufferSize.x;
     uint heightMapIdx_y = uv.y == 1 ? _HeightBufferSize.y - 1 : uv.y * _HeightBufferSize.y;
     uint2 heightMapIdx = uint2(heightMapIdx_x, heightMapIdx_y);

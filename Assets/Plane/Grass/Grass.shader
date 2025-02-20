@@ -35,7 +35,6 @@ Shader "Grass/Grass"
             Tags { "RenderType" = "Opaque" }
 
             Cull Off
-
             
             Pass
             {
