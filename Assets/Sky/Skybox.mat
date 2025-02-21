@@ -33,8 +33,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _DayTime: 0.5313409
     - _Rotation: 92
+    - _SunShiningIntensity: 1
+    - _SunShiningRange: 1
     - _SunSize: 0.176
+    - _Temp: 0
     m_Colors:
     - _SunColor: {r: 1, g: 0.9908942, b: 0.9858491, a: 1}
   m_BuildTextureStacks: []
