@@ -12,6 +12,11 @@ Shader "Custom/SkyboxCubeMap"
         _SunSize("SunSize", Range(0,0.5)) = 0.3
         _SunShiningRange("SunShiningRange", Range(0,2)) = 1
         _SunShiningIntensity("SunShiningIntensity", Range(0,1)) = 1
+
+        _MoonColor("MoonColor", Color) = (0,0,0,1)
+        _MoonSize("MoonSize", Range(0,0.5)) = 0.25
+        _MoonShiningRange("MoonShinigRange", Range(0,2)) = 0.5
+        _MoonShiningIntensity("MoonShiningIntensity", Range(0,1)) = 1
         _DayTime("DayTime", Range(0,1)) = 0
         _Temp("temp", Range(0,1))=0
     }
@@ -89,15 +94,18 @@ Shader "Custom/SkyboxCubeMap"
                 float sunFadeStartSize = _SunSize * 0.9f;
                 float sunDensity = saturate(1 - (sunDis - sunFadeStartSize) / (_SunSize - sunFadeStartSize));
                 sunDensity = smoothstep(0,1,sunDensity);
-                float sunDirElevationAngle = atan2(sunDir.) //고도각
-                float sunAzimuthAngle = atan2(sunDirElevationAngle.x) //방위각
 
+                //일몰 영역 sunriseDensity
+                float3 VTS = sunDir - viewDir;
+                float sunriseDensity = 1 - saturate(sqrt(VTS.x * VTS.x * 0.15f + VTS.y * VTS.y + VTS.z * VTS.z * 0.15f));
+                sunriseDensity = smoothstep(0,1,sunriseDensity);
 
-                //sunrise
+                //태양 위치와 시간에 따른 일몰 세기 sunrise Intensity
+                float sunRiseIntensityMulAtTime = _DayTime < 0.2f || _DayTime > 0.9f ? 0.3f : 1;
                 float sunHeight = sunPos.y;
                 float sunRiseIntensity = abs(0.2f - sunHeight);
-                sunRiseIntensity = 1 - saturate(sunRiseIntensity / 0.6f);
-
+                sunRiseIntensity = (1 - saturate(sunRiseIntensity / 0.6f)) * sunRiseIntensityMulAtTime;
+                
                 //sunshining
                 float sunShiningMul = 1 - sunRiseIntensity;
                 float sunShiningIntensity = saturate(_SunShiningRange + _SunSize - sunDis) * sunShiningMul;
@@ -122,7 +130,16 @@ Shader "Custom/SkyboxCubeMap"
 
                 //cloudAndSunShiningColor mix sunColor use sunDensity
                 half3 finalColor = sunColor * sunDensity + cloudAndSunShining * (1 - sunDensity);
-                finalColor.r = 2.0f * (1 - sunDis * 0.4f);
+                  finalColor.r += sunRiseIntensity * sunriseDensity;
+                finalColor.g -= sunRiseIntensity * sunriseDensity * 0.2f;
+                finalColor.b -= sunRiseIntensity * sunriseDensity * 0.8f;
+
+                half3 nightColor = finalColor * half3(0.17f, 0.05f, 0.5f);
+                float nightColorIntensity = 1 - saturate((sunHeight - (-0.2f)) / (0.4f - (-0.2f)));
+                finalColor = finalColor * (1 - nightColorIntensity) + nightColor * nightColorIntensity;
+
+              
+
                 return half4(finalColor, 1);
             }
             ENDHLSL
