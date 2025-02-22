@@ -11,6 +11,7 @@ public class DayM : MonoBehaviour
 
     [SerializeField] Material m_SkyboxMat;
     [SerializeField] Light m_SunLight;
+    [SerializeField] Light m_MoonLight;
     public float DayTime
     {
         get {  return m_DayTime; }
@@ -37,8 +38,28 @@ public class DayM : MonoBehaviour
         sunAxisXRotMat.m21 = sinAxisX;
         sunAxisXRotMat.m22 = cosAxisX;
         sunPos = sunAxisXRotMat * sunPos;
+
+        timeToRad += Mathf.PI;
+        float moonRotAxisX = 45 * Mathf.Deg2Rad;
+        Vector3 moonPos = new Vector3(Mathf.Cos(timeToRad), Mathf.Sin(timeToRad), 0) * 2;
+        float moonCosAxisX = Mathf.Cos(sunRotAxisX);
+        float moonSinAxisX = Mathf.Sin(sunRotAxisX);
+        Matrix4x4 moonAxisXRotMat = Matrix4x4.identity;
+        sunAxisXRotMat.m11 = moonCosAxisX;
+        sunAxisXRotMat.m12 = -moonSinAxisX;
+        sunAxisXRotMat.m21 = moonSinAxisX;
+        sunAxisXRotMat.m22 = moonCosAxisX;
+        moonPos = moonAxisXRotMat * moonPos;
+
+
         m_SunLight.transform.position = sunPos;
         m_SunLight.transform.LookAt(Vector3.zero);
+        m_SunLight.gameObject.SetActive(m_SunLight.transform.position.y > 0);
+        m_MoonLight.gameObject.SetActive(!m_SunLight.gameObject.activeSelf);
+        m_MoonLight.transform.position = moonPos;
+        m_MoonLight.transform.LookAt(Vector3.zero);
+
+
 
     }
     public void AddTime(float time)

@@ -109,7 +109,6 @@ Shader "Plane/Grass"
                 return col;*/
                 Light mainLight = GetMainLight(i.shadowCoord);
                 float3 normal = normalize(i.normal);
-              
                 float ndotl = saturate(dot(normal, mainLight.direction));
 
                 float noiseValue = tex2D(_NoiseTex, i.posWS.xz * _NoiseTex_ST.xy + _NoiseTex_ST.zw).r;

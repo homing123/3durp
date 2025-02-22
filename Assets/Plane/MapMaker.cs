@@ -128,7 +128,7 @@ public class MapMaker : MonoBehaviour
         chunk.heightTexture.enableRandomWrite = true;
         chunk.normalTexture.enableRandomWrite = true;
         chunk.heightTexture.filterMode = FilterMode.Point;
-        chunk.normalTexture.filterMode = FilterMode.Bilinear;
+        chunk.normalTexture.filterMode = FilterMode.Point;
         chunk.heightTexture.wrapMode = TextureWrapMode.Mirror;
         chunk.normalTexture.wrapMode = TextureWrapMode.Mirror;
         MergeHeightNormalTexture(key, ref chunk.heightTexture, ref chunk.normalTexture);
@@ -306,6 +306,22 @@ public class MapMaker : MonoBehaviour
         foreach (Vector2Int key in D_TerrainData[m_RenterTextureQuality].Keys)
         {
             L_Objs.Add(RenderTextureObject.Create(key, m_RenterTextureQuality * TerrainMaker.Ins.m_MeshSize, D_TerrainData[m_RenterTextureQuality][key].heightTexture));
+        }
+
+    }
+    [ContextMenu("TerrainNormal")]
+    public void CreateTerrainNormalTexture()
+    {
+        for (int i = 0; i < L_Objs.Count; i++)
+        {
+            Destroy(L_Objs[i].gameObject);
+            L_Objs.RemoveAt(i);
+            i--;
+        }
+
+        foreach (Vector2Int key in D_TerrainData[m_RenterTextureQuality].Keys)
+        {
+            L_Objs.Add(RenderTextureObject.Create(key, m_RenterTextureQuality * TerrainMaker.Ins.m_MeshSize, D_TerrainData[m_RenterTextureQuality][key].normalTexture));
         }
 
     }

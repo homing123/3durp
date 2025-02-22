@@ -33,12 +33,18 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _DayTime: 0.5313409
-    - _Rotation: 92
-    - _SunShiningIntensity: 1
-    - _SunShiningRange: 1
-    - _SunSize: 0.176
+    - _DayTime: 0.059778526
+    - _GradationHeight: -0.07
+    - _MoonShiningIntensity: 0
+    - _MoonShiningRange: 0
+    - _MoonSize: 0.152
+    - _Rotation: 242
+    - _SunShiningIntensity: 0
+    - _SunShiningRange: 0
+    - _SunSize: 0.212
     - _Temp: 0
     m_Colors:
-    - _SunColor: {r: 1, g: 0.9908942, b: 0.9858491, a: 1}
+    - _GradationColor: {r: 0.91132075, g: 0.99800146, b: 1, a: 0.16078432}
+    - _MoonColor: {r: 3.6137724, g: 4.2370954, b: 0.24782987, a: 1}
+    - _SunColor: {r: 21.112127, g: 17.467299, b: 13.822468, a: 1}
   m_BuildTextureStacks: []

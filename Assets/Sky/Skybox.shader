@@ -8,15 +8,12 @@ Shader "Custom/SkyboxCubeMap"
         _GradationColor("GradationColor", Color) = (0,0,0,0)
         _GradationHeight("GradationHeight", float) = 0
 
-        _SunColor("SunColor", Color) = (0,0,0,1)
+        [HDR]_SunColor("SunColor", Color) = (0,0,0,1)
         _SunSize("SunSize", Range(0,0.5)) = 0.3
-        _SunShiningRange("SunShiningRange", Range(0,2)) = 1
-        _SunShiningIntensity("SunShiningIntensity", Range(0,1)) = 1
 
-        _MoonColor("MoonColor", Color) = (0,0,0,1)
+        [HDR]_MoonColor("MoonColor", Color) = (0,0,0,1)
         _MoonSize("MoonSize", Range(0,0.5)) = 0.25
-        _MoonShiningRange("MoonShinigRange", Range(0,2)) = 0.5
-        _MoonShiningIntensity("MoonShiningIntensity", Range(0,1)) = 1
+
         _DayTime("DayTime", Range(0,1)) = 0
         _Temp("temp", Range(0,1))=0
     }
@@ -50,16 +47,17 @@ Shader "Custom/SkyboxCubeMap"
             };
 
             samplerCUBE _CubeMap;
+            CBUFFER_START(UnityPerMaterial)
             float _Rotation;
             half4 _GradationColor;
             float _GradationHeight;
             half4 _SunColor;
             float _SunSize;
-            float _SunShiningRange;
-            float _SunShiningIntensity;
+            half4 _MoonColor;
+            float _MoonSize;
             float _DayTime;
             float _Temp;
-
+            CBUFFER_END
             v2f vert (appdata v)
             {
                 v2f o;
@@ -105,11 +103,24 @@ Shader "Custom/SkyboxCubeMap"
                 float sunHeight = sunPos.y;
                 float sunRiseIntensity = abs(0.2f - sunHeight);
                 sunRiseIntensity = (1 - saturate(sunRiseIntensity / 0.6f)) * sunRiseIntensityMulAtTime;
-                
-                //sunshining
-                float sunShiningMul = 1 - sunRiseIntensity;
-                float sunShiningIntensity = saturate(_SunShiningRange + _SunSize - sunDis) * sunShiningMul;
-                sunShiningIntensity = saturate(smoothstep(0, 1, sunShiningIntensity) * _SunShiningIntensity) * sunShiningMul;
+
+                timeToRad += PI;
+                float moonRotAxisX = 45 * DegToRad;
+                float3 moonDir = float3(cos(timeToRad), sin(timeToRad),0);
+                float moonCosAxisX = cos(moonRotAxisX);
+                float moonSinAxisX = sin(moonRotAxisX);
+                float3x3 moonAxisXRotMat = float3x3(1, 0, 0,
+                    0, moonCosAxisX, -moonSinAxisX,
+                    0, moonSinAxisX, moonCosAxisX);
+                 moonDir = mul(moonAxisXRotMat, moonDir);
+                float3 moonPos = moonDir * 2;
+                float3 moonDistancePoint = max(0, dot(moonPos, viewDir)) * viewDir;
+                float moonDis = length(moonDistancePoint - moonPos); //달 중심으로 부터 거리
+                half3 moonColor = _MoonColor;
+                float moonFadeStartSize = _MoonSize * 1.0f;
+                float moonDensity = saturate(1 - (moonDis - moonFadeStartSize) / (_MoonSize - moonFadeStartSize));
+                moonDensity = moonDis < _MoonSize ? 1 : 0;
+                moonDensity = smoothstep(0,1,moonDensity);
                 
                 //cloud and background and gradation
                 float gradationDensity = saturate((cubeUVW.y - _GradationHeight) / (GRADATION_HEIGHT_MIN - _GradationHeight));
@@ -120,27 +131,38 @@ Shader "Custom/SkyboxCubeMap"
                 cubeUVW.xz = mul(xzRotMat, cubeUVW.xz);
                 half3 cloudColor = texCUBE(_CubeMap, cubeUVW);
                 float cloudDensity = saturate((cloudColor.r - CLOUD_RED_THRESHOLD_MIN) / (CLOUD_RED_THRESHOLD_MAX - CLOUD_RED_THRESHOLD_MIN));
-                cloudDensity = sunDis > _SunSize ? 1 : cloudDensity; //태양범위 밖이면 구름가중치 1
+                
+                cloudDensity = moonDis > _MoonSize && sunDis > _SunSize ? 1 : cloudDensity; //달, 태양 범위 밖이면 구름가중치 1
                 gradationDensity *= _GradationColor.a;
                 cloudColor = cloudColor * (1 - gradationDensity) + _GradationColor * gradationDensity;
-                half3 cloudAndSunShining = cloudColor * (1 - sunShiningIntensity) + sunColor * sunShiningIntensity;
 
-                //태양 범위 밖이면 태양 색깔 가중치 0
+                //구름이 태양을 가리면 태양가중치 0
                 sunDensity = cloudDensity == 1 ? 0 : sunDensity;
+                moonDensity = cloudDensity == 1 ? 0 : moonDensity;
 
-                //cloudAndSunShiningColor mix sunColor use sunDensity
-                half3 finalColor = sunColor * sunDensity + cloudAndSunShining * (1 - sunDensity);
-                  finalColor.r += sunRiseIntensity * sunriseDensity;
+                //cloudColor mix sunColor use sunDensity
+                half3 finalColor = sunColor * sunDensity + cloudColor * (1 - sunDensity);
+                finalColor = moonColor * moonDensity + finalColor * (1 - moonDensity);
+
+                finalColor.r += sunRiseIntensity * sunriseDensity;
                 finalColor.g -= sunRiseIntensity * sunriseDensity * 0.2f;
                 finalColor.b -= sunRiseIntensity * sunriseDensity * 0.8f;
 
-                half3 nightColor = finalColor * half3(0.17f, 0.05f, 0.5f);
+                half3 nightColor = finalColor * half3(0.15f, 0.05f, 0.3f);
                 float nightColorIntensity = 1 - saturate((sunHeight - (-0.2f)) / (0.4f - (-0.2f)));
+                nightColorIntensity *= 1 - moonDensity;
+
                 finalColor = finalColor * (1 - nightColorIntensity) + nightColor * nightColorIntensity;
+                //전체를 해구역, 달구역, 구름구역, 배경구역 나누고 노을구역도 필요함
+                //낮과밤은 시간으로 나누고
+                //구름,배경은 시간에따른 색깔변화를 가지고, 아침시간대에 약하게 저녁시간대에 강하게 
+                //태양위치 기반으로 노을구역 구하면됨
+                //밤에는 구름세기 투명하게 줄이고 별 보이도록 하면됨
+                //별은 uv를 그리드로 나누고 각그리드안에 별이 하나씩 존재하게 한 후 계산하면 된다. 
+                //이를 큐브맵에서 응용해보자
+                //그리고 computebuffer로 cpu에서 계산해서 넣어보자 그리드별 별 위치, 해, 달 위치, 노을세기
 
-              
-
-                return half4(finalColor, 1);
+                return half4(finalColor,1);
             }
             ENDHLSL
         }
