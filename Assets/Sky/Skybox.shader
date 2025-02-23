@@ -5,7 +5,9 @@ Shader "Custom/SkyboxCubeMap"
         _CubeMap ("CubeMap", Cube) = "white" {}
         _Rotation("Rotation", Range(0,360)) = 0
 
-        _GradationColor("GradationColor", Color) = (0,0,0,0)
+        _GradationDayColor("GradationDayColor", Color) = (0,0,0,0)
+        _GradationNightColor("GradationNightColor", Color) = (0,0,0,0)
+        _GradationIntensity("GradationIntensity", Range(0,1)) = 0
         _GradationHeight("GradationHeight", float) = 0
 
         [HDR]_SunColor("SunColor", Color) = (0,0,0,1)
@@ -14,10 +16,13 @@ Shader "Custom/SkyboxCubeMap"
         [HDR]_MoonColor("MoonColor", Color) = (0,0,0,1)
         _MoonSize("MoonSize", Range(0,0.5)) = 0.25
 
-        _DayTime("DayTime", Range(0,1)) = 0
+        _DayColor("DayColor", Color) = (1,1,1,1)
+        _NightColor("NightColor", Color) = (0.15, 0.05, 0.3, 1)
 
+        _DayTime("DayTime", Range(0,1)) = 0
         _SunPos("SunPos", Vector)=(2,2,2,0)
         _MoonPos("MoonPos", Vector) = (-2,-2,-2,0)
+
     }
     SubShader
     {
@@ -51,20 +56,22 @@ Shader "Custom/SkyboxCubeMap"
             samplerCUBE _CubeMap;
             CBUFFER_START(UnityPerMaterial)
             float _Rotation;
-            half4 _GradationColor;
+            half3 _GradationDayColor;
+            half3 _GradationNightColor;
+            float _GradationIntensity;
             float _GradationHeight;
             half4 _SunColor;
             float _SunSize;
             half4 _MoonColor;
             float _MoonSize;
+            half3 _DayColor;
+            half3 _NightColor;
             
             float3 _SunPos;
             float3 _MoonPos;
             float _DayTime;
             float _NightIntensity;
             float _SunriseIntensity;
-            half3 _DayColor;
-            half3 _NightColor;
             CBUFFER_END
             v2f vert (appdata v)
             {
@@ -88,10 +95,7 @@ Shader "Custom/SkyboxCubeMap"
 
                 float DegToRad = PI / 180.f;
 
-                _NightIntensity = 0;
                 _SunriseIntensity = 0;
-                _DayColor = half3(1,1,1);
-                _NightColor = half3(0.15f, 0.05f, 0.3f);
 
                 //sunDensity
                 float3 sunDistancePoint = max(0, dot(_SunPos, viewDir)) * viewDir;
@@ -114,7 +118,7 @@ Shader "Custom/SkyboxCubeMap"
                 moonDensity = smoothstep(0,1,moonDensity);
 
                 //gradationDensity
-                float gradationDensity = saturate((cubeUVW.y - _GradationHeight) / (GRADATION_HEIGHT_MIN - _GradationHeight));
+                float gradationDensity = smoothstep(0,1,saturate((cubeUVW.y - _GradationHeight) / (GRADATION_HEIGHT_MIN - _GradationHeight)));
 
                 //cloudDensity
                 float skyRotation = _Rotation + _Time.y * 0.5f;
@@ -129,6 +133,8 @@ Shader "Custom/SkyboxCubeMap"
                 half3 finalColor = cloudColor;
                 half3 dayNightColor = ColorLerp(_DayColor, _NightColor, _NightIntensity);
                 finalColor = finalColor * dayNightColor;
+                half3 gradationColor = ColorLerp(_GradationDayColor, _GradationNightColor, _NightIntensity);
+                finalColor = ColorLerp(finalColor, gradationColor, gradationDensity * _GradationIntensity);
                 sunDensity = (1 - cloudDensity) * sunDensity;
                 moonDensity = (1 - cloudDensity) * moonDensity;
                 finalColor = ColorLerp(finalColor, _SunColor, sunDensity);
