@@ -42,13 +42,13 @@ public class DayM : MonoBehaviour
         timeToRad += Mathf.PI;
         float moonRotAxisX = 45 * Mathf.Deg2Rad;
         Vector3 moonPos = new Vector3(Mathf.Cos(timeToRad), Mathf.Sin(timeToRad), 0) * 2;
-        float moonCosAxisX = Mathf.Cos(sunRotAxisX);
-        float moonSinAxisX = Mathf.Sin(sunRotAxisX);
+        float moonCosAxisX = Mathf.Cos(moonRotAxisX);
+        float moonSinAxisX = Mathf.Sin(moonRotAxisX);
         Matrix4x4 moonAxisXRotMat = Matrix4x4.identity;
-        sunAxisXRotMat.m11 = moonCosAxisX;
-        sunAxisXRotMat.m12 = -moonSinAxisX;
-        sunAxisXRotMat.m21 = moonSinAxisX;
-        sunAxisXRotMat.m22 = moonCosAxisX;
+        moonAxisXRotMat.m11 = moonCosAxisX;
+        moonAxisXRotMat.m12 = -moonSinAxisX;
+        moonAxisXRotMat.m21 = moonSinAxisX;
+        moonAxisXRotMat.m22 = moonCosAxisX;
         moonPos = moonAxisXRotMat * moonPos;
 
 
@@ -59,6 +59,8 @@ public class DayM : MonoBehaviour
         m_MoonLight.transform.position = moonPos;
         m_MoonLight.transform.LookAt(Vector3.zero);
 
+        m_SkyboxMat.SetVector("_SunPos", sunPos);
+        m_SkyboxMat.SetVector("_MoonPos", moonPos);
 
 
     }
