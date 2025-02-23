@@ -95,8 +95,6 @@ Shader "Custom/SkyboxCubeMap"
 
                 float DegToRad = PI / 180.f;
 
-                _SunriseIntensity = 0;
-
                 //sunDensity
                 float3 sunDistancePoint = max(0, dot(_SunPos, viewDir)) * viewDir;
                 float sunDis = length(sunDistancePoint - _SunPos); //태양 중심으로 부터 거리
@@ -139,6 +137,9 @@ Shader "Custom/SkyboxCubeMap"
                 moonDensity = (1 - cloudDensity) * moonDensity;
                 finalColor = ColorLerp(finalColor, _SunColor, sunDensity);
                 finalColor = ColorLerp(finalColor, _MoonColor, moonDensity);
+                finalColor.r += _SunriseIntensity * sunriseDensity;
+                finalColor.g -= _SunriseIntensity * sunriseDensity * 0.2f;
+                finalColor.b -= _SunriseIntensity * sunriseDensity * 0.8f;
 
                                 
                 // //태양 위치와 시간에 따른 일몰 세기 sunrise Intensity

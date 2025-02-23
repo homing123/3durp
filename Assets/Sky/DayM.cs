@@ -51,7 +51,7 @@ public class DayM : MonoBehaviour
         moonAxisXRotMat.m22 = moonCosAxisX;
         moonPos = moonAxisXRotMat * moonPos;
 
-        float sunriseIntensity = Mathf.Clamp01() // 0 ~ 0.2 ~ 0.4 => 0 ~ 1 ~ 0 
+        float sunriseIntensity = 1 - Mathf.Clamp01(Mathf.Abs(0.1f - sunPos.y) * 3); // 0 ~ 0.2 ~ 0.4 => 0 ~ 1 ~ 0 
         m_SunLight.transform.position = sunPos;
         m_SunLight.transform.LookAt(Vector3.zero);
         m_SunLight.gameObject.SetActive(m_SunLight.transform.position.y > 0);
@@ -63,7 +63,7 @@ public class DayM : MonoBehaviour
         m_SkyboxMat.SetVector("_SunPos", sunPos);
         m_SkyboxMat.SetVector("_MoonPos", moonPos);
         m_SkyboxMat.SetFloat("_NightIntensity", nightIntensity);
-
+        m_SkyboxMat.SetFloat("_SunriseIntensity", sunriseIntensity);
     }
     public void AddTime(float time)
     {
