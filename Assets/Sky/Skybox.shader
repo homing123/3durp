@@ -105,7 +105,7 @@ Shader "Custom/SkyboxCubeMap"
                 //sunriseDensity
                 float3 sunDir = normalize(_SunPos);
                 float3 VTS = sunDir - viewDir;
-                float sunriseDensity = 1 - saturate(sqrt(VTS.x * VTS.x * 0.15f + VTS.y * VTS.y + VTS.z * VTS.z * 0.15f));
+                float sunriseDensity = 1 - saturate(sqrt(VTS.x * VTS.x * 0.45f + VTS.y * VTS.y + VTS.z * VTS.z * 0.45f));
                 sunriseDensity = smoothstep(0,1,sunriseDensity);
 
                 //moonDensity
@@ -138,9 +138,11 @@ Shader "Custom/SkyboxCubeMap"
                 finalColor = ColorLerp(finalColor, _SunColor, sunDensity);
                 finalColor = ColorLerp(finalColor, _MoonColor, moonDensity);
                 finalColor.r += _SunriseIntensity * sunriseDensity;
-                finalColor.g -= _SunriseIntensity * sunriseDensity * 0.2f;
+                finalColor.g += (_SunriseIntensity * sunriseDensity - 0.7f) * 0.2f * _SunriseIntensity * sunriseDensity;
                 finalColor.b -= _SunriseIntensity * sunriseDensity * 0.8f;
-
+                // finalColor.r = _SunriseIntensity * sunriseDensity;
+                // finalColor.g = 0;
+                // finalColor.b = sunDensity;
                                 
                 // //태양 위치와 시간에 따른 일몰 세기 sunrise Intensity
                 // float sunRiseIntensityMulAtTime = _DayTime < 0.2f || _DayTime > 0.9f ? 0.3f : 1;
