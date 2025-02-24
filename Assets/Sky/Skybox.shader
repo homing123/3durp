@@ -37,9 +37,9 @@ Shader "Custom/SkyboxCubeMap"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #define CLOUD_RED_THRESHOLD_MAX 0.06f
-            #define CLOUD_RED_THRESHOLD_MIN 0.05f
-            #define GRADATION_HEIGHT_MIN -0.1f
+            #define CLOUD_RED_THRESHOLD_MAX 0.1f
+            #define CLOUD_RED_THRESHOLD_MIN 0.04f
+            #define GRADATION_HEIGHT_MIN 0.0f
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             struct appdata
@@ -103,9 +103,11 @@ Shader "Custom/SkyboxCubeMap"
                 sunDensity = smoothstep(0,1,sunDensity);
 
                 //sunriseDensity
-                float3 sunDir = normalize(_SunPos);
-                float3 VTS = sunDir - viewDir;
-                float sunriseDensity = 1 - saturate(sqrt(VTS.x * VTS.x * 0.45f + VTS.y * VTS.y + VTS.z * VTS.z * 0.45f));
+                float3 sunDisVec = sunDistancePoint - _SunPos;
+                sunDisVec.y *= 1.6f;
+                sunDisVec *= 0.4f;
+                float sunriseDensity = 1 - saturate(sqrt(dot(sunDisVec, sunDisVec)));
+                //return half4(sunriseDensity, sunriseDensity, sunriseDensity, 1);
                 sunriseDensity = smoothstep(0,1,sunriseDensity);
 
                 //moonDensity
@@ -116,8 +118,10 @@ Shader "Custom/SkyboxCubeMap"
                 moonDensity = smoothstep(0,1,moonDensity);
 
                 //gradationDensity
-                float gradationDensity = smoothstep(0,1,saturate((cubeUVW.y - _GradationHeight) / (GRADATION_HEIGHT_MIN - _GradationHeight)));
-
+                float gradationDensity = smoothstep(0,1,saturate((cubeUVW.y - _GradationHeight) / (GRADATION_HEIGHT_MIN  - _GradationHeight)));
+                gradationDensity = smoothstep(0, 1, gradationDensity);
+                float gradationValue = smoothstep(0, 1, gradationDensity * _GradationIntensity);
+                
                 //cloudDensity
                 float skyRotation = _Rotation + _Time.y * 0.5f;
                 float cosf = cos(skyRotation * DegToRad);
@@ -126,23 +130,26 @@ Shader "Custom/SkyboxCubeMap"
                 cubeUVW.xz = mul(xzRotMat, cubeUVW.xz);
                 half3 cloudColor = texCUBE(_CubeMap, cubeUVW);
                 float cloudDensity = saturate((cloudColor.r - CLOUD_RED_THRESHOLD_MIN) / (CLOUD_RED_THRESHOLD_MAX - CLOUD_RED_THRESHOLD_MIN));
-                
                 //colorMix
                 half3 finalColor = cloudColor;
                 half3 dayNightColor = ColorLerp(_DayColor, _NightColor, _NightIntensity);
                 finalColor = finalColor * dayNightColor;
                 half3 gradationColor = ColorLerp(_GradationDayColor, _GradationNightColor, _NightIntensity);
-                finalColor = ColorLerp(finalColor, gradationColor, gradationDensity * _GradationIntensity);
-                sunDensity = (1 - cloudDensity) * sunDensity;
-                moonDensity = (1 - cloudDensity) * moonDensity;
+                finalColor = ColorLerp(finalColor, gradationColor, gradationValue);
+                
+
+                sunDensity = pow((1 - saturate((cloudDensity - gradationValue * 1.2f) * 0.3)),50) * sunDensity; //cloudDensity 0~0.3 까진 섞이고 0.3이상은 구름만보이게
+                moonDensity = (1 - saturate(cloudDensity - gradationValue * 1.2f)) * moonDensity;
+                float sunriseValue = smoothstep(0,1,saturate(_SunriseIntensity * sunriseDensity + gradationDensity * 0.3f * _SunriseIntensity * sunriseDensity));
+
+                _SunColor -= _SunColor * 0.85f * saturate((0.5f - abs(_SunPos.y)) / 0.2f); //sunriseHeight = 0.3
+                //return half4(saturate((0.3f - abs(_SunPos.y)) / 0.2f), 0, 0, 1);
+                //0~0.3~0.5 = 2.5~1~0 형태로 abs값으로처리 후 1 - saturate 해주면됨
                 finalColor = ColorLerp(finalColor, _SunColor, sunDensity);
                 finalColor = ColorLerp(finalColor, _MoonColor, moonDensity);
-                finalColor.r += _SunriseIntensity * sunriseDensity;
-                finalColor.g += (_SunriseIntensity * sunriseDensity - 0.7f) * 0.2f * _SunriseIntensity * sunriseDensity;
-                finalColor.b -= _SunriseIntensity * sunriseDensity * 0.8f;
-                // finalColor.r = _SunriseIntensity * sunriseDensity;
-                // finalColor.g = 0;
-                // finalColor.b = sunDensity;
+                finalColor.r += sunriseValue * 0.8f;
+                finalColor.g += sunriseValue * (sunriseValue - 0.5f) * 0.05f;
+                finalColor.b -= sunriseValue * 0.5f;
                                 
                 // //태양 위치와 시간에 따른 일몰 세기 sunrise Intensity
                 // float sunRiseIntensityMulAtTime = _DayTime < 0.2f || _DayTime > 0.9f ? 0.3f : 1;

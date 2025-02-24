@@ -60,7 +60,7 @@ Shader "Plane/Grass"
             sampler2D _HighQualityHeightMap;
             sampler2D _NormalMap;
             CBUFFER_START(UnityPerMaterial)
-            float4 _Color;
+            half4 _Color;
             float _Ambient;
 
             float4 _NoiseTex_ST;
@@ -99,23 +99,41 @@ Shader "Plane/Grass"
                 return o;
             }
 
+            half3 MainLightCalc(Light light, float3 normal, half3 albedo, half3 ambient)
+            {
+                float ndotl = saturate(dot(normal, light.direction));
+                half3 diffuse = albedo * light.color * ndotl * light.shadowAttenuation;
+                half3 ambientInShadow = albedo * light.color * ndotl * (1 - light.shadowAttenuation) * ambient;
+
+                return diffuse + ambientInShadow;
+            }
+            half3 AdditionalLightCalc(Light light, float3 normal, half3 albedo)
+            {                
+                float ndotl = saturate(dot(normal, light.direction));
+                half3 diffuse = albedo * light.color * ndotl * light.shadowAttenuation * light.distanceAttenuation;
+                return diffuse;
+            }
             half4 frag(v2f i) : SV_Target
             {
-
-                half4 col;
-                col.a = 1;
-              /*  col.r = tex2Dlod(_HeightMap, float4(i.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
-                col.gb = 0;
-                return col;*/
-                Light mainLight = GetMainLight(i.shadowCoord);
-                float3 normal = normalize(i.normal);
-                float ndotl = saturate(dot(normal, mainLight.direction));
-
+                float4 shadowCoord = TransformWorldToShadowCoord(i.posWS);
+                half4 col = half4(0,0,0,1);
                 float noiseValue = tex2D(_NoiseTex, i.posWS.xz * _NoiseTex_ST.xy + _NoiseTex_ST.zw).r;
                 half3 albedo = noiseValue > _NoiseBias ? _NoiseColor : _Color.rgb;
-                half3 diffuse = albedo * mainLight.color * ndotl * mainLight.shadowAttenuation;
-                half3 ambientInShadow = albedo * mainLight.color * ndotl * (1 - mainLight.shadowAttenuation) * _Ambient;
-                col.rgb = diffuse + ambientInShadow;
+                float3 normal = normalize(i.normal);
+
+                Light mainLight = GetMainLight(shadowCoord);
+                col.rgb += MainLightCalc(GetMainLight(i.shadowCoord), normal, albedo, _Ambient);
+
+                int additionalLightCount = GetAdditionalLightsCount();
+                for (int idx = 0; idx < additionalLightCount; idx++)
+                {
+                    Light light = GetAdditionalLight(idx, i.posWS, shadowCoord);
+                    col.rgb += AdditionalLightCalc(light, normal, albedo);
+                }
+                col.rgb += _Ambient * albedo;
+               
+
+               
 
 
                 ////col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 

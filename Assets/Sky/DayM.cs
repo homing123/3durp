@@ -12,14 +12,22 @@ public class DayM : MonoBehaviour
     [SerializeField] Material m_SkyboxMat;
     [SerializeField] Light m_SunLight;
     [SerializeField] Light m_MoonLight;
+
+    [SerializeField] float m_SunriseHeight;
+    [SerializeField] float m_SunriseMulValue;
     public float DayTime
     {
         get {  return m_DayTime; }
     }
     // Start is called before the first frame update
+    Color m_SunLightOriginColor;
+    float m_SunLightOriginIntensity;
+    float m_MoonLightOriginIntensity;
     void Start()
     {
-        
+        m_SunLightOriginColor = m_SunLight.color;
+        m_SunLightOriginIntensity = m_SunLight.intensity;
+        m_MoonLightOriginIntensity = m_MoonLight.intensity;
     }
 
     // Update is called once per frame
@@ -50,14 +58,43 @@ public class DayM : MonoBehaviour
         moonAxisXRotMat.m21 = moonSinAxisX;
         moonAxisXRotMat.m22 = moonCosAxisX;
         moonPos = moonAxisXRotMat * moonPos;
+        //float sunriseIntensity = 1 - Mathf.Clamp01(Mathf.Abs(m_SunriseHeight - sunPos.y) * m_SunriseMulValue); 
+        float sunriseIntensity = Mathf.Clamp01((0.5f - Mathf.Abs(sunPos.y)) / 0.2f); 
+        if(m_DayTime > 0.9f || m_DayTime < 0.4f)
+        {
+            sunriseIntensity *= 0.5f;
+        }
+        if (sunPos.y < 0.05f)
+        {
+            m_SunLight.transform.position = new Vector3(sunPos.x, 0.05f, sunPos.z);
+            m_SunLight.transform.LookAt(Vector3.zero);
+            //0.05 부터 -0.3까지 줄어든다.
+            //Color curColor = (sunPos.y - (-0.3f)) / (0.05f - (-0.3f)) * m_SunLightOriginColor;
+            float intensity = (sunPos.y - (-0.3f)) / (0.05f - (-0.3f)) * m_SunLightOriginIntensity;
+            m_SunLight.intensity = intensity;
+        }
+        else
+        {
+            m_SunLight.transform.position = sunPos;
+            m_SunLight.transform.LookAt(Vector3.zero);
+            m_SunLight.intensity = m_SunLightOriginIntensity;
+        }
+        if(moonPos.y < 0.05f)
+        {
+            m_MoonLight.transform.position = new Vector3(moonPos.x, 0.05f, moonPos.z);
+            m_MoonLight.transform.LookAt(Vector3.zero);
+            //0.05 부터 -0.3까지 줄어든다.
+            //Color curColor = (moonPos.y - (-0.3f)) / (0.05f - (-0.3f)) * m_SunLightOriginColor;
+            float intensity = (moonPos.y - (-0.3f)) / (0.05f - (-0.3f)) * m_MoonLightOriginIntensity;
+            m_MoonLight.intensity = intensity;
+        }
+        else
+        {
+            m_MoonLight.transform.position = moonPos;
+            m_MoonLight.transform.LookAt(Vector3.zero);
+            m_MoonLight.intensity = m_MoonLightOriginIntensity;
+        }
 
-        float sunriseIntensity = 1 - Mathf.Clamp01(Mathf.Abs(0.1f - sunPos.y) * 3); // 0 ~ 0.2 ~ 0.4 => 0 ~ 1 ~ 0 
-        m_SunLight.transform.position = sunPos;
-        m_SunLight.transform.LookAt(Vector3.zero);
-        m_SunLight.gameObject.SetActive(m_SunLight.transform.position.y > 0);
-        m_MoonLight.gameObject.SetActive(!m_SunLight.gameObject.activeSelf);
-        m_MoonLight.transform.position = moonPos;
-        m_MoonLight.transform.LookAt(Vector3.zero);
 
         float nightIntensity = Mathf.Clamp01(-sunPos.y * 1.25f + 0.5f); // -0.4~0.4 => 1~0
         m_SkyboxMat.SetVector("_SunPos", sunPos);
