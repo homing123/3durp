@@ -44,7 +44,7 @@ Shader "Unlit/Normal"
             {
                 v2g o;
                 o.posWorld = float4(TransformObjectToWorld(v.posModel),1);
-                o.normalWorld = TransformObjectToWorldNormal(v.normal);
+                o.normalWorld = TransformObjectToWorldNormal(v.normal.xzy);
                 return o;
             }
             
