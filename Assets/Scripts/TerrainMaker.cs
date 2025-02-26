@@ -17,10 +17,12 @@ public class TerrainMaker : MonoBehaviour
     [SerializeField] ComputeShader m_CSTerrainMaker;
 
     [Range(10, 100)] public int m_MeshSize;
-    [SerializeField][Range(11, 101)] int m_VertexWidth;
-    [SerializeField] [Min(0f)] float m_GradientRadianMul;
-    [SerializeField] [Range(1, 8)] int m_TexWidthMul;
+    [SerializeField][Range(3, 101)] public int m_VertexWidth;
     public int m_TexWidth { get; private set; }
+
+    [Space(10)]
+    [Header("Map")]
+    [SerializeField][Min(0f)] float m_GradientRadianMul;
     [SerializeField] [Range(1, 10)] float m_Amplitude;
     [SerializeField] [Range(0.01f, 1)] float m_Freaquency;
     [SerializeField] [Range(0.01f, 1)] float m_Persistence;
@@ -47,20 +49,8 @@ public class TerrainMaker : MonoBehaviour
     private void Awake()
     {
         Ins = this;
-        m_TexWidth = (m_VertexWidth - 1) * m_TexWidthMul;
+        m_TexWidth = m_VertexWidth - 1;
         MeshInit();
-    }
-
-    void Start()
-    {
-        
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
    
     public Vector2Int GetTerrainMeshGridKey(Vector2 vt2xz)
@@ -116,15 +106,14 @@ public class TerrainMaker : MonoBehaviour
         //ground크기를 width만큼으로 쓰기위해 scale값을 자동으로 조절하자
         float d = m_MeshSize / (float)m_TexWidth * quality;
         TerrainData data = new TerrainData();
-        Vector2 offset = key * quality * m_MeshSize;// - d * key * (int)quality;
+        Vector2 offset = key * m_MeshSize * quality;// - d * key * (int)quality;
         float scale = m_MeshSize / (float)m_TexWidth * 100 * quality;
-
         data.heightTexture = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.RFloat);
         data.heightTexture.enableRandomWrite = true;
-        data.heightTexture.filterMode = FilterMode.Point;
+        data.heightTexture.filterMode = MapMaker.HeightFilter;
         data.heightTexture.wrapMode = TextureWrapMode.Clamp;
         data.normalTexture = new RenderTexture(m_TexWidth, m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
-        data.normalTexture.filterMode = FilterMode.Point;
+        data.normalTexture.filterMode = MapMaker.NormalFilter;
         data.normalTexture.enableRandomWrite = true;
 
         int curHeightMapForNormalWidth = m_TexWidth + 2;

@@ -71,6 +71,7 @@ Shader "Plane/Grass"
             float4 _HighQualityHeightMap_ST;
             float4 _NormalMap_ST;
 
+            int _VertexCount;
             int _Quality;
             int _MeshSize;
             CBUFFER_END
@@ -78,13 +79,16 @@ Shader "Plane/Grass"
             v2f vert(appdata i)
             {
                 v2f o;
-                o.uv = i.posModel.xz / _MeshSize + 0.5f;
+                float2 meshUV = saturate(i.posModel.xz / _MeshSize + 0.5f);
+                float dTexUV = 1 / _VertexCount;
+                float2 texUV = meshUV * (1 - dTexUV) + (dTexUV * 0.5f);
+                o.uv = texUV;
                 o.posWS = TransformObjectToWorld(i.posModel.xyz);
-                o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
+                //o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
                 float2 temp = abs(o.uv - 0.5f); //0.5로 부터 uv거리
                 float2 weight = saturate(temp * -4 + 1) * 10; //0.5 ~ 0 => -1 ~ 1, 0.25 ~ 0 => 0 ~ 1
                 //weight = 0;
-                o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
+                //o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
                 o.posCS = TransformWorldToHClip(o.posWS);
 
                 VertexPositionInputs vInputs = GetVertexPositionInputs(i.posModel.xyz);
@@ -122,7 +126,10 @@ Shader "Plane/Grass"
                 float3 normal = normalize(i.normal);
 
                 Light mainLight = GetMainLight(shadowCoord);
-                col.rgb += MainLightCalc(GetMainLight(i.shadowCoord), normal, albedo, _Ambient);
+                col.rgb += MainLightCalc(GetMainLight(shadowCoord), normal, albedo, _Ambient);
+
+                float ndotl = saturate(dot(normal, mainLight.direction));
+                return half4((normal.zzz * 0.5f + 0.5f) * 2 - 0.5f, 1);
 
                 int additionalLightCount = GetAdditionalLightsCount();
                 for (int idx = 0; idx < additionalLightCount; idx++)

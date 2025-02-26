@@ -446,13 +446,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 161042531}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.9914449, y: 0, z: 0, w: 0.13052626}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 165, y: 0, z: 0}
 --- !u!114 &161042534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1558,7 +1558,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 119baf201cc951b4a9ca32d09119726c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Speed: 1.3
+  m_Speed: 3
   m_RotSpeed: 720
   m_BendingRadius: 0.25
   m_Anim: {fileID: 717213124}
@@ -3910,7 +3910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c27b6affacfdc8147b2906351d90be7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ChunkTextureWIdth: 16
+  m_ChunkTextureWidth: 16
   m_RenterTextureQuality: 1
   m_RenderTextureObj: {fileID: 0}
   m_RenderChunkDis: 1
@@ -3931,7 +3931,6 @@ MonoBehaviour:
   m_MeshSize: 40
   m_VertexWidth: 33
   m_GradientRadianMul: 1
-  m_TexWidthMul: 2
   m_Amplitude: 2.85
   m_Freaquency: 0.052
   m_Persistence: 0.569
@@ -4032,7 +4031,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1984573373}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0f26fb36c461c44e94b68fdfc67a00f, type: 3}
   m_Name: 

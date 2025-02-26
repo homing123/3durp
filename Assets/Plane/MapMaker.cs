@@ -4,7 +4,6 @@ using UnityEngine;
 using static GrassMaker;
 using static TerrainMaker;
 using System;
-using System.Net;
 
 public struct ChunkData
 {
@@ -46,10 +45,12 @@ public struct TerrainData
 }
 public class MapMaker : MonoBehaviour
 {
+    public const FilterMode HeightFilter = FilterMode.Point;
+    public const FilterMode NormalFilter = FilterMode.Point;
     public static MapMaker Ins;
 
     public const int ChunkSize = 16;
-    [SerializeField] [Range(16, 512)] int m_ChunkTextureWIdth;
+    [SerializeField] [Range(16, 512)] int m_ChunkTextureWidth;
     [SerializeField] int m_RenterTextureQuality;
     [SerializeField] RenderTextureObject m_RenderTextureObj;
     [SerializeField][Range(1, 7)] int m_RenderChunkDis;
@@ -123,12 +124,12 @@ public class MapMaker : MonoBehaviour
         ChunkData chunk = new ChunkData();
         chunk.key = key;
         GrassMakerOption grassOption = new GrassMakerOption();
-        chunk.heightTexture = new RenderTexture(m_ChunkTextureWIdth, m_ChunkTextureWIdth, 0, RenderTextureFormat.RFloat);
-        chunk.normalTexture = new RenderTexture(m_ChunkTextureWIdth, m_ChunkTextureWIdth, 0, RenderTextureFormat.ARGBFloat);
+        chunk.heightTexture = new RenderTexture(m_ChunkTextureWidth, m_ChunkTextureWidth, 0, RenderTextureFormat.RFloat);
+        chunk.normalTexture = new RenderTexture(m_ChunkTextureWidth, m_ChunkTextureWidth, 0, RenderTextureFormat.ARGBFloat);
         chunk.heightTexture.enableRandomWrite = true;
         chunk.normalTexture.enableRandomWrite = true;
-        chunk.heightTexture.filterMode = FilterMode.Point;
-        chunk.normalTexture.filterMode = FilterMode.Point;
+        chunk.heightTexture.filterMode = MapMaker.HeightFilter;
+        chunk.normalTexture.filterMode = MapMaker.NormalFilter;
         chunk.heightTexture.wrapMode = TextureWrapMode.Mirror;
         chunk.normalTexture.wrapMode = TextureWrapMode.Mirror;
         MergeHeightNormalTexture(key, ref chunk.heightTexture, ref chunk.normalTexture);
@@ -140,7 +141,7 @@ public class MapMaker : MonoBehaviour
     }
     void MergeHeightNormalTexture(Vector2Int chunkKey,ref RenderTexture heightMergeTexture, ref RenderTexture normalMergeTexture)
     {
-        int texWidth = m_ChunkTextureWIdth;
+        int texWidth = m_ChunkTextureWidth;
         Vector2 curSize = new Vector2(ChunkSize, ChunkSize);
         Vector2 curCenterPosXZ = chunkKey * ChunkSize + curSize * 0.5f;
 
@@ -190,17 +191,18 @@ public class MapMaker : MonoBehaviour
         int groupx = texWidth / Thread_Width + (texWidth % Thread_Width == 0 ? 0 : 1);
         m_CSTextureMerge.Dispatch(0, groupx, groupx, 1);
     }
+    List<Ground> l_Ground = new List<Ground>();
     void MapInit()
     {
         Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
         Vector2Int curTerrainMeshGridKey = TerrainMaker.Ins.GetTerrainMeshGridKey(CamMove.Ins.transform.position.Vt2XZ());
 
-        Vector3 groundPos = new Vector3(curTerrainMeshGridKey.x, 0, curTerrainMeshGridKey.y) * TerrainMaker.Ins.TerrainMeshGridSize;
         //create terrain
         for (int i = 1; i <= TerrainCount; i++)
         {
             D_TerrainData[i] = new Dictionary<Vector2Int, TerrainData>();
-            Ground.Create(groundPos, i);
+            Ground ground = Ground.Create(curTerrainMeshGridKey, i);
+            l_Ground.Add(ground);
         }
 
         //create chunk data
@@ -303,9 +305,15 @@ public class MapMaker : MonoBehaviour
             i--;
         }
 
+        int qualitySize = 1 << (m_RenterTextureQuality - 1);
+        float size = (float)TerrainMaker.Ins.m_MeshSize * qualitySize;
+        float dVertex = (float)TerrainMaker.Ins.m_MeshSize / TerrainMaker.Ins.m_TexWidth * qualitySize;
+
         foreach (Vector2Int key in D_TerrainData[m_RenterTextureQuality].Keys)
         {
-            L_Objs.Add(RenderTextureObject.Create(key, m_RenterTextureQuality * TerrainMaker.Ins.m_MeshSize, D_TerrainData[m_RenterTextureQuality][key].heightTexture));
+            Vector2 pos = new Vector2(key.x + 0.5f, key.y + 0.5f) * size - new Vector2(dVertex, dVertex) * 0.5f;
+
+            L_Objs.Add(RenderTextureObject.Create(pos, size, D_TerrainData[m_RenterTextureQuality][key].heightTexture));
         }
 
     }
@@ -319,9 +327,15 @@ public class MapMaker : MonoBehaviour
             i--;
         }
 
+        int qualitySize = 1 << (m_RenterTextureQuality - 1);
+        float size = (float)TerrainMaker.Ins.m_MeshSize * qualitySize;
+        float dVertex = (float)TerrainMaker.Ins.m_MeshSize / TerrainMaker.Ins.m_TexWidth * qualitySize;
+
         foreach (Vector2Int key in D_TerrainData[m_RenterTextureQuality].Keys)
         {
-            L_Objs.Add(RenderTextureObject.Create(key, m_RenterTextureQuality * TerrainMaker.Ins.m_MeshSize, D_TerrainData[m_RenterTextureQuality][key].normalTexture));
+            Vector2 pos = new Vector2(key.x + 0.5f, key.y + 0.5f) * size - new Vector2(dVertex, dVertex) * 0.5f; ;
+
+            L_Objs.Add(RenderTextureObject.Create(pos, size, D_TerrainData[m_RenterTextureQuality][key].normalTexture));
         }
 
     }
