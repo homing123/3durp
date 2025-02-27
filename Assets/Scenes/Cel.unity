@@ -3929,7 +3929,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CSTerrainMaker: {fileID: 7200000, guid: 60afc950ce852b146b3c5752ed4e4a7a, type: 3}
   m_MeshSize: 40
-  m_VertexWidth: 33
+  m_VertexWidth: 129
   m_GradientRadianMul: 1
   m_Amplitude: 2.85
   m_Freaquency: 0.052
@@ -4031,12 +4031,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1984573373}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0f26fb36c461c44e94b68fdfc67a00f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_TimeSpeed: 0
+  m_TimeSpeed: 0.015
   m_DayTime: 0.41
   m_SkyboxMat: {fileID: 2100000, guid: e5fccaa573bf142419143403e47aeed2, type: 2}
   m_SunLight: {fileID: 161042532}

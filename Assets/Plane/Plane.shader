@@ -1,4 +1,4 @@
-Shader "Plane/Grass"
+Shader "Terrain/Plane"
 {
     Properties
     {
@@ -39,6 +39,7 @@ Shader "Plane/Grass"
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile_fog
+            #pragma enable_d3d11_debug_symbols
 
             struct appdata
             {
@@ -84,16 +85,16 @@ Shader "Plane/Grass"
                 float2 texUV = meshUV * (1 - dTexUV) + (dTexUV * 0.5f);
                 o.uv = texUV;
                 o.posWS = TransformObjectToWorld(i.posModel.xyz);
-                //o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
+                o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
                 float2 temp = abs(o.uv - 0.5f); //0.5로 부터 uv거리
                 float2 weight = saturate(temp * -4 + 1) * 10; //0.5 ~ 0 => -1 ~ 1, 0.25 ~ 0 => 0 ~ 1
-                //weight = 0;
-                //o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
+                o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
                 o.posCS = TransformWorldToHClip(o.posWS);
 
                 VertexPositionInputs vInputs = GetVertexPositionInputs(i.posModel.xyz);
                 o.shadowCoord = GetShadowCoord(vInputs);
                 o.normal = tex2Dlod(_NormalMap, float4(o.uv * _NormalMap_ST.xy + _NormalMap_ST.zw, 0, 0)).rbg;
+
                 o.fogFactor = ComputeFogFactor(o.posCS.z);
                 
 
@@ -119,17 +120,16 @@ Shader "Plane/Grass"
             }
             half4 frag(v2f i) : SV_Target
             {
+
                 float4 shadowCoord = TransformWorldToShadowCoord(i.posWS);
                 half4 col = half4(0,0,0,1);
                 float noiseValue = tex2D(_NoiseTex, i.posWS.xz * _NoiseTex_ST.xy + _NoiseTex_ST.zw).r;
                 half3 albedo = noiseValue > _NoiseBias ? _NoiseColor : _Color.rgb;
                 float3 normal = normalize(i.normal);
-
                 Light mainLight = GetMainLight(shadowCoord);
                 col.rgb += MainLightCalc(GetMainLight(shadowCoord), normal, albedo, _Ambient);
 
                 float ndotl = saturate(dot(normal, mainLight.direction));
-                return half4((normal.zzz * 0.5f + 0.5f) * 2 - 0.5f, 1);
 
                 int additionalLightCount = GetAdditionalLightsCount();
                 for (int idx = 0; idx < additionalLightCount; idx++)
@@ -139,11 +139,11 @@ Shader "Plane/Grass"
                 }
                 col.rgb += _Ambient * albedo;
                
-
+                //col.rgb = pow(col.rgb, 2.22f);
                
 
 
-                ////col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 
+                col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 
 
                 //float3 camPosWS = GetCameraPositionWS();
                 //float3 viewDir = normalize(i.posWS - camPosWS);

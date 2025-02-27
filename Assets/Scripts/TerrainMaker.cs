@@ -17,7 +17,7 @@ public class TerrainMaker : MonoBehaviour
     [SerializeField] ComputeShader m_CSTerrainMaker;
 
     [Range(10, 100)] public int m_MeshSize;
-    [SerializeField][Range(3, 101)] public int m_VertexWidth;
+    [SerializeField][Range(5, 257)] public int m_VertexWidth;
     public int m_TexWidth { get; private set; }
 
     [Space(10)]

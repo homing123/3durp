@@ -87,7 +87,6 @@ public class Ground : MonoBehaviour
         Vector2Int dataSize = new Vector2Int(maxKey.x - minKey.x + 1, maxKey.y - minKey.y + 1);
         TerrainData[] arr_Data = new TerrainData[dataSize.x * dataSize.y];
         //Debug.Log($"데이터 사이즈 : {dataSize}");
-        Debug.Log($"{minWorld} {maxWorld} {minGrid} {maxGrid} {minKey} {maxKey}");
 
         int idx = 0;
         for (int y=minKey.y; y<=maxKey.y; y++)
@@ -106,7 +105,7 @@ public class Ground : MonoBehaviour
         float duv = 1 / (float)dataTexWidth;
         Vector2 uvMin = (minWorld - heightMapMinWorld) / (groundSize / (float)dataTexWidth) * duv + duv * new Vector2(0.5f, 0.5f);
         Vector2 uvMax = (maxWorld - heightMapMinWorld) / (groundSize / (float)dataTexWidth) * duv + duv * new Vector2(0.5f, 0.5f);
-        Debug.Log($"{heightMapMinWorld} {heightMapMaxWorld} {minWorld} {maxWorld} {uvMin} {uvMax} {duv}");
+        //Debug.Log($"{heightMapMinWorld} {heightMapMaxWorld} {minWorld} {maxWorld} {uvMin} {uvMax} {duv}");
 
         m_CSTextureMerge.SetInts("_MergeTexSize", new int[2] { mergeTexWidth, mergeTexWidth });
         m_CSTextureMerge.SetInts("_DataTexSize", new int[2] { dataTexWidth , dataTexWidth });
@@ -139,5 +138,6 @@ public class Ground : MonoBehaviour
         m_RTO = RenderTextureObject.Create(transform.position.Vt2XZ(), size, m_HeightBuffer);
 
     }
+    
 
 }

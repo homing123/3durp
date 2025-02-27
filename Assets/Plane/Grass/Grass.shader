@@ -1,4 +1,4 @@
-Shader "Grass/Grass"
+Shader "Terrain/Grass"
 {
     Properties
     {
