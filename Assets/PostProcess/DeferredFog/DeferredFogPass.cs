@@ -51,8 +51,12 @@ public class DeferredFogPass : ScriptableRenderPass
         }
         m_SourceColor = renderer.cameraColorTargetHandle;
         m_SourceDepth = renderer.cameraDepthTargetHandle;
-        m_Active = m_Setting.active;
 
+#if UNITY_EDITOR
+        m_Active = m_Setting.IsActive() && Application.isPlaying;
+#else
+        m_Active = m_Setting.IsActive();
+#endif
         return m_Init && m_Active;
     }
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)

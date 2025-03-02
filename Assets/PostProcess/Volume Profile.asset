@@ -74,7 +74,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b802fb64da47574d9f9098c8ae97052, type: 3}
   m_Name: BlurSettings
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   strength:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0

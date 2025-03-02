@@ -47,7 +47,11 @@ public class BlurRenderPass : ScriptableRenderPass
         {
             Init();
         }
+#if UNITY_EDITOR
+        m_isActive = m_BlurSettings.IsActive() && Application.isPlaying;
+#else
         m_isActive = m_BlurSettings.IsActive();
+#endif
         return m_isInit && m_isActive;
     }
 
@@ -87,9 +91,13 @@ public class BlurRenderPass : ScriptableRenderPass
             //m_Material.SetFloatArray("_Weight", arr_Weight);
             //Debug.Log(m_BlurSettings.strength.value + " " + gridSize);
         }
-       
+
 
         //Execute effect using effect material with two passes.
+        //pass -1이 기본값 -1 = 모든패스 실행 하지만 urp에서 멀티패스 지원하지 않음 즉 0번째패스만 실행이라고 한다.
+        //cmd.SetGlobalTexture 로 텍스쳐 넘겨줄 수 있음 
+        //SetGlobalTexture 안부르면 _MainTex 로 자동으로 넘어감
+        //아마 _MainTex_TexelSize 도 비슷한 구조일듯
         cmd.Blit(m_SourceHandle, m_BlurTexHandle, m_Material, 0);
         cmd.Blit(m_BlurTexHandle, m_SourceHandle, m_Material, 1);
         context.ExecuteCommandBuffer(cmd);

@@ -11,9 +11,6 @@ Shader "PostProcessing/DeferredFog"
             "RenderType"="Opaque"
             "RenderPipeline" = "UniversalPipeline"    
         }
-        Cull Off
-        ZWrite Off
-        ZTest Always
         Pass
         {
             HLSLPROGRAM

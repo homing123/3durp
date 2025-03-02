@@ -14,7 +14,9 @@ Shader "PostProcessing/Blur"
             "RenderType" = "Opaque"
             "RenderPipeline" = "UniversalPipeline" //다른 파이프라인에서 셰이더가 사용되는것을 방지
         }
-
+        Cull Off
+        ZWrite Off
+        ZTest Always
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #define E 2.71828f
@@ -23,7 +25,7 @@ Shader "PostProcessing/Blur"
         float4 _MainTex_TexelSize;
         uint _GridSize;
         float _Spread;
-        float _Weight[46];
+        //float _Weight[46];
         CBUFFER_END
 
         float gaussian(int x)
