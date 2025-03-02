@@ -23,6 +23,7 @@ Shader "PostProcessing/Blur"
         float4 _MainTex_TexelSize;
         uint _GridSize;
         float _Spread;
+        float _Weight[46];
         CBUFFER_END
 
         float gaussian(int x)
@@ -66,7 +67,9 @@ Shader "PostProcessing/Blur"
                 int lower = -upper;
                 for (int x = lower; x <= upper; x++)
                 {
+                    //int weightIdx =  abs(x);
                     float gaussianValue = gaussian(x);
+                    //float gaussianValue = _Weight[weightIdx];
                     gridSum += gaussianValue;
                     float2 uv = i.uv + float2(_MainTex_TexelSize.x * x, 0);
                     col += gaussianValue * tex2D(_MainTex, uv).xyz;
@@ -93,7 +96,9 @@ Shader "PostProcessing/Blur"
                 int lower = -upper;
                 for (int y = lower; y <= upper; y++)
                 {
+                    //int weightIdx =  abs(y);
                     float gaussianValue = gaussian(y);
+                    //float gaussianValue = _Weight[weightIdx];                    
                     gridSum += gaussianValue;
                     float2 uv = i.uv + float2(0, _MainTex_TexelSize.y * y);
                     col += gaussianValue * tex2D(_MainTex, uv).xyz;

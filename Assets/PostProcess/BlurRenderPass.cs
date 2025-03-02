@@ -10,11 +10,13 @@ public class BlurRenderPass : ScriptableRenderPass
     public const string RenderTargetName = "BlurRT";
     public const string ShaderFileName = "Blur";
     public const string ShaderFindName = "PostProcessing/Blur";
+    const float E = 2.17828f;
 
     private Material m_Material;
     private BlurSettings m_BlurSettings;
     RTHandle m_BlurTexHandle;
     private RTHandle m_SourceHandle; //셰이더 적용하기전 화면 텍스쳐
+    float m_LastStrength;
 
 
     public void Init(RTHandle sourceHandle)
@@ -55,16 +57,32 @@ public class BlurRenderPass : ScriptableRenderPass
 
         CommandBuffer cmd = CommandBufferPool.Get("Blur Post Process");
 
-        //Set Blur effect propertties.
-        int gridSize = Mathf.CeilToInt(m_BlurSettings.strength.value * 6.0f);
-        
-        if(gridSize % 2 == 0)
+        if (m_LastStrength != m_BlurSettings.strength.value)
         {
-            gridSize++;
-        }
+            m_LastStrength = m_BlurSettings.strength.value;
 
-        m_Material.SetInteger("_GridSize", gridSize);
-        m_Material.SetFloat("_Spread", m_BlurSettings.strength.value);
+            //Set Blur effect propertties.
+            int gridSize = Mathf.CeilToInt(m_BlurSettings.strength.value * 6.0f);
+            gridSize = gridSize < 3 ? 3 : gridSize;
+            if (gridSize % 2 == 0)
+            {
+                gridSize++;
+            }
+
+            //max = 91 cbuffer max = 46
+            int weightCount = gridSize / 2 + 1;
+            float[] arr_Weight = new float[weightCount];
+            for(int i=0;i< weightCount; i++)
+            {
+                arr_Weight[i] = gaussian(i, m_BlurSettings.strength.value);
+                //Debug.Log(i + " " + arr_Weight[i]);
+            }
+            m_Material.SetInteger("_GridSize", gridSize);
+            m_Material.SetFloat("_Spread", m_BlurSettings.strength.value);
+            //m_Material.SetFloatArray("_Weight", arr_Weight);
+            //Debug.Log(m_BlurSettings.strength.value + " " + gridSize);
+        }
+       
 
         //Execute effect using effect material with two passes.
         cmd.Blit(m_SourceHandle, m_BlurTexHandle, m_Material, 0);
@@ -86,8 +104,9 @@ public class BlurRenderPass : ScriptableRenderPass
     {
         Dispose();
     }
-    public override void FrameCleanup(CommandBuffer cmd)
+    float gaussian(int x, float _Spread)
     {
-
+        float sigmaSqu = _Spread * _Spread;
+        return (1 / Mathf.Sqrt(Mathf.PI * 2 * sigmaSqu)) * Mathf.Pow(E, -(x * x) / (2 * sigmaSqu));
     }
 }
