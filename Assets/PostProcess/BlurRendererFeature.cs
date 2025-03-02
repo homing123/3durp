@@ -1,4 +1,4 @@
-
+using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 public class BlurRendererFeature : ScriptableRendererFeature
@@ -7,14 +7,17 @@ public class BlurRendererFeature : ScriptableRendererFeature
     public override void Create()
     {
         m_BlurRenderPass = new BlurRenderPass();
-        name = "Blur";
+        name = BlurRenderPass.ShaderFindName;
     }
+
+    public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
+    {
+        m_BlurRenderPass.Setup(renderer);
+    }
+
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        if(m_BlurRenderPass.Setup(renderer))
-        {
-            renderer.EnqueuePass(m_BlurRenderPass);
-        }
+        renderer.EnqueuePass(m_BlurRenderPass);
     }
 
     

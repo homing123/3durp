@@ -143,7 +143,7 @@ Shader "Terrain/Plane"
                
 
 
-                col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 
+                //col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 
 
                 //float3 camPosWS = GetCameraPositionWS();
                 //float3 viewDir = normalize(i.posWS - camPosWS);
