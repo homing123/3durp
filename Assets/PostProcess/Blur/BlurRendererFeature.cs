@@ -7,7 +7,7 @@ public class BlurRendererFeature : ScriptableRendererFeature
     public override void Create()
     {
         m_BlurRenderPass = new BlurRenderPass();
-        name = BlurRenderPass.ShaderFindName;
+        name = BlurRenderPass.ShaderFileName;
     }
 
     public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)

@@ -35,6 +35,8 @@ Shader "PostProcessing/DeferredFog"
             };
 
             sampler2D _MainTex;
+            sampler2D _CameraDepthTexture;
+
             CBUFFER_START(UnityPerMaterial)
             float4 _MainTex_ST;
             CBUFFER_END
@@ -51,7 +53,11 @@ Shader "PostProcessing/DeferredFog"
             {
                 // sample the texture
                 half4 col = half4(0,0,0,1);
-                col.rgb = tex2D(_MainTex, i.uv).rgb;
+                half3 color = tex2D(_MainTex, i.uv).rgb;
+                half depth = tex2D(_CameraDepthTexture, i.uv).r;
+
+                col.rgb = color * depth;
+                col.rgb = depth;
                 // apply fog
                 return col;
             }

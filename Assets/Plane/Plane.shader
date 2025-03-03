@@ -10,27 +10,88 @@ Shader "Terrain/Plane"
         _NoiseTex("NoiseTex", 2D) = "white"{}
         _NoiseBias("NoiseBias" , Range(0,1)) = 1
     
-        _Skybox("Skybox", cube) = "white" {}
         _HeightMap("heightMap", 2D) = "white"{}
-        _HighQualityHeightMap("highQualityHeightMap", 2D) = "white"{}
         _NormalMap("normalMap", 2D) = "white"{}
 
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags 
+        { 
+            "RenderPipeline" = "UniversalPipeline"
+            "RenderType"="Opaque" 
+            "Queue" = "Geometry"
+        }
+        HLSLINCLUDE
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        #pragma enable_d3d11_debug_symbols
+
+        struct appdata
+        {
+            float4 posModel : POSITION;
+        };
+
+        struct v2f
+        {
+            float4 posCS : SV_POSITION;
+            float3 posWS : TEXCOORD1;
+            float2 uv : TEXCOORD0;
+            float3 normal : NORMAL;
+        };
+
+        sampler2D _NoiseTex;
+        sampler2D _HeightMap;
+        sampler2D _NormalMap;
+
+        CBUFFER_START(UnityPerMaterial)
+        half4 _Color;
+        float _Ambient;
+
+        float4 _NoiseTex_ST;
+        float4 _NoiseColor;
+        float _NoiseBias;
+
+        float4 _HeightMap_ST;
+        float4 _NormalMap_ST;
+
+        int _VertexCount;
+        int _Quality;
+        int _MeshSize;
+        CBUFFER_END
+
+        v2f vert(appdata i)
+        {
+            v2f o;
+            float2 meshUV = saturate(i.posModel.xz / _MeshSize + 0.5f);
+            float dTexUV = 1 / _VertexCount;
+            float2 texUV = meshUV * (1 - dTexUV) + (dTexUV * 0.5f);
+            o.uv = texUV;
+            o.posWS = TransformObjectToWorld(i.posModel.xyz);
+            o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
+            float2 temp = abs(o.uv - 0.5f); //0.5로 부터 uv거리
+            float2 weight = saturate(temp * -4 + 1) * 10; //0.5 ~ 0 => -1 ~ 1, 0.25 ~ 0 => 0 ~ 1
+            o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
+            o.posCS = TransformWorldToHClip(o.posWS);
+            o.normal = tex2Dlod(_NormalMap, float4(o.uv * _NormalMap_ST.xy + _NormalMap_ST.zw, 0, 0)).rbg;                
+
+            return o;
+        }
+        ENDHLSL
 
         Pass
         {   
-            Name "Plane"
-            Tags{
-            "LightMode" = "UniversalForwardOnly"
-                }
+            Name "Plane_ForwardLit"
+            Tags
+            {
+                "LightMode" = "UniversalForwardOnly"
+            }
+            ZWrite On
+            ZTest LEqual
+            Cull Off
 
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
@@ -39,70 +100,6 @@ Shader "Terrain/Plane"
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile_fog
-            #pragma enable_d3d11_debug_symbols
-
-            struct appdata
-            {
-                float4 posModel : POSITION;
-            };
-            struct v2f
-            {
-                float4 posCS : SV_POSITION;
-                float3 posWS : TEXCOORD3;
-                float2 uv : TEXCOORD0;
-                float4 shadowCoord : TEXCOORD2;
-                float fogFactor : TEXCOORD1;
-                float3 normal : NORMAL;
-            };
-            sampler2D _NoiseTex;
-            samplerCUBE _Skybox;
-
-            sampler2D _HeightMap;
-            sampler2D _HighQualityHeightMap;
-            sampler2D _NormalMap;
-            CBUFFER_START(UnityPerMaterial)
-            half4 _Color;
-            float _Ambient;
-
-            float4 _NoiseTex_ST;
-            float4 _NoiseColor;
-            float _NoiseBias;
-
-            float4 _HeightMap_ST;
-            float4 _HighQualityHeightMap_ST;
-            float4 _NormalMap_ST;
-
-            int _VertexCount;
-            int _Quality;
-            int _MeshSize;
-            CBUFFER_END
-
-            v2f vert(appdata i)
-            {
-                v2f o;
-                float2 meshUV = saturate(i.posModel.xz / _MeshSize + 0.5f);
-                float dTexUV = 1 / _VertexCount;
-                float2 texUV = meshUV * (1 - dTexUV) + (dTexUV * 0.5f);
-                o.uv = texUV;
-                o.posWS = TransformObjectToWorld(i.posModel.xyz);
-                o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
-                float2 temp = abs(o.uv - 0.5f); //0.5로 부터 uv거리
-                float2 weight = saturate(temp * -4 + 1) * 10; //0.5 ~ 0 => -1 ~ 1, 0.25 ~ 0 => 0 ~ 1
-                o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
-                o.posCS = TransformWorldToHClip(o.posWS);
-
-                VertexPositionInputs vInputs = GetVertexPositionInputs(i.posModel.xyz);
-                o.shadowCoord = GetShadowCoord(vInputs);
-                o.normal = tex2Dlod(_NormalMap, float4(o.uv * _NormalMap_ST.xy + _NormalMap_ST.zw, 0, 0)).rbg;
-
-                o.fogFactor = ComputeFogFactor(o.posCS.z);
-                
-
-                //only built in
-                //UNITY_TRANSFER_FOG(o,o.posCS); //o안의 fog값에 필요한 변수들을 알아서 채워줌 설정에 따라 달라지기 때문에 매크로로 묶어둔거라고함
-
-                return o;
-            }
 
             half3 MainLightCalc(Light light, float3 normal, half3 albedo, half3 ambient)
             {
@@ -138,29 +135,35 @@ Shader "Terrain/Plane"
                     col.rgb += AdditionalLightCalc(light, normal, albedo);
                 }
                 col.rgb += _Ambient * albedo;
-               
-                //col.rgb = pow(col.rgb, 2.22f);
-               
-
-
-                //col.rgb = half3(i.fogFactor,0,0); //near = 1 far = 0 not linear 
-
-                //float3 camPosWS = GetCameraPositionWS();
-                //float3 viewDir = normalize(i.posWS - camPosWS);
-                //float3 reflectVector = reflect(viewDir, normal);
-
-                //float4 skyColor = texCUBE(_Skybox, reflectVector);
-                ////col.rgb = skyColor.rgb;
-                //col.rgb = col.rgb * i.fogFactor + (1 - i.fogFactor)* skyColor.rgb;
-                //col.rgb = normal;
-
                 return col;
             }
 
             ENDHLSL
         }
 
-     
+        Pass
+        {
+
+            Name "Plane_DepthOnly"
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
+            ZWrite On
+            ZTest LEqual
+            Cull Off
+            HLSLPROGRAM
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
+
+            #pragma vertex vert
+            #pragma fragment DepthonlyFrag
+
+            half DepthonlyFrag(v2f i) : SV_Target
+            {
+                return 0.5F;
+            }
+            ENDHLSL
+        }
       
         
     }

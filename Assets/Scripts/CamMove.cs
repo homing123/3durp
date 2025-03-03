@@ -29,6 +29,8 @@ public class CamMove : MonoBehaviour
         Ins = this;
         CharacterMoveMode();
         transform.rotation = Quaternion.Euler(m_RotX, m_Character.transform.eulerAngles.y, 0);
+        Camera.main.depthTextureMode = DepthTextureMode.Depth;
+
     }
     void Start()
     {

@@ -57,6 +57,15 @@ public class DeferredFogPass : ScriptableRenderPass
 #else
         m_Active = m_Setting.IsActive();
 #endif
+        if(m_Active && m_Init)
+        {
+            if (Camera.main.depthTextureMode != DepthTextureMode.Depth && Camera.main.depthTextureMode != DepthTextureMode.DepthNormals)
+            {
+                Debug.Log("DeferredFog must has depth");
+                return false;
+            }
+        }
+
         return m_Init && m_Active;
     }
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -72,7 +81,12 @@ public class DeferredFogPass : ScriptableRenderPass
         {
 
         }
-        throw new System.NotImplementedException();
+
+        cmd.Blit(m_SourceColor, m_DestiColor, m_Mat, 0);
+        cmd.Blit(m_DestiColor, m_SourceColor, m_Mat, 0);
+        context.ExecuteCommandBuffer(cmd);
+        cmd.Clear();
+        CommandBufferPool.Release(cmd);
     }
 
     public void Dispose()

@@ -1,18 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class DeferredFogFeature : MonoBehaviour
+using UnityEngine.Rendering.Universal;
+public class DeferredFogFeature : ScriptableRendererFeature
 {
-    // Start is called before the first frame update
-    void Start()
+    DeferredFogPass m_Pass;
+
+    public override void Create()
     {
-        
+        m_Pass = new DeferredFogPass();
+        name = DeferredFogPass.ShaderFileName;
     }
 
-    // Update is called once per frame
-    void Update()
+
+    public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
     {
-        
+        m_Pass.Setup(renderer);
     }
+
+    public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+    {
+        renderer.EnqueuePass(m_Pass);
+    }
+    
+    // Start is called before the first frame update
+
 }
