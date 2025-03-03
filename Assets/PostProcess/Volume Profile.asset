@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6487331788746824cb497a5032286fa8, type: 3}
   m_Name: DeferredFogSetting
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   m_Strength:
     m_OverrideState: 1
     m_Value: 0.14

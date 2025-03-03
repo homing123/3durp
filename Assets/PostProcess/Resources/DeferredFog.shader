@@ -54,7 +54,9 @@ Shader "PostProcessing/DeferredFog"
                 // sample the texture
                 half4 col = half4(0,0,0,1);
                 half3 color = tex2D(_MainTex, i.uv).rgb;
-                half depth = tex2D(_CameraDepthTexture, i.uv).r;
+                float depth = tex2D(_CameraDepthTexture, i.uv).r;
+                float linearDepth = Linear01Depth(depth);
+                float viewDepth = LinearEyeDepth(depth); 
 
                 col.rgb = color * depth;
                 col.rgb = depth;

@@ -160,7 +160,34 @@ Shader "Terrain/Plane"
 
             half DepthonlyFrag(v2f i) : SV_Target
             {
-                return 0.5F;
+                return i.posCS.z;
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+
+            Name "Plane_DepthNormalOnly"
+            Tags
+            {
+                "LightMode" = "DepthNormalsOnly"
+            }
+            ZWrite On
+            ZTest LEqual
+            Cull Off
+            HLSLPROGRAM
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
+
+            #pragma vertex vert
+            #pragma fragment DepthNormalsonlyFrag
+
+            half4 DepthNormalsonlyFrag(v2f i) : SV_Target
+            {
+                half depth = i.posCS.z;
+                float3 normal = normalize(i.normal);
+                normal = normal * 0.5f + 0.5f; // -1~1 => 0~1
+                return half4(normal, depth);
             }
             ENDHLSL
         }
