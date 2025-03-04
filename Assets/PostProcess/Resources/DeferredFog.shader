@@ -41,6 +41,16 @@ Shader "PostProcessing/DeferredFog"
             float4 _MainTex_ST;
             CBUFFER_END
 
+
+            //only builtin
+            float GetFar()
+            {
+                return unity_CameraProjection[2][3] / (unity_CameraProjection[2][2] - 1);
+            }
+            float GetNear()
+            {
+                return unity_CameraProjection[2][3] / (unity_CameraProjection[2][2] + 1);
+            }
             v2f vert (appdata v)
             {
                 v2f o;
@@ -48,6 +58,7 @@ Shader "PostProcessing/DeferredFog"
                 o.uv = v.uv;
                 return o;
             }
+           
 
             half4 frag (v2f i) : SV_Target
             {
@@ -55,11 +66,16 @@ Shader "PostProcessing/DeferredFog"
                 half4 col = half4(0,0,0,1);
                 half3 color = tex2D(_MainTex, i.uv).rgb;
                 float depth = tex2D(_CameraDepthTexture, i.uv).r;
-                float linearDepth = Linear01Depth(depth);
-                float viewDepth = LinearEyeDepth(depth); 
+                float3 posCS = float3(i.uv * 2 - 1, depth);
 
+                float4 posVS = mul(UNITY_MATRIX_I_P, float4(posCS,1));
+                posVS = posVS / posVS.w;
+                
+                float near = GetNear();
+                float far = GetFar();
+                float linearDepth = (posVS.z - near) / (far - near);
                 col.rgb = color * depth;
-                col.rgb = depth;
+                col.rgb = linearDepth;
                 // apply fog
                 return col;
             }
