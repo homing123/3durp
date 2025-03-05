@@ -19,6 +19,7 @@ Shader "PostProcessing/DeferredFog"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma enable_d3d11_debug_symbols
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
@@ -39,17 +40,21 @@ Shader "PostProcessing/DeferredFog"
 
             CBUFFER_START(UnityPerMaterial)
             float4 _MainTex_ST;
+            float _NearDis;
+            float _FarDis;
+            float _Intensity;
+            half3 _FogColor;
             CBUFFER_END
 
 
             //only builtin
             float GetFar()
             {
-                return unity_CameraProjection[2][3] / (unity_CameraProjection[2][2] - 1);
+                return unity_CameraProjection[2][3] / (unity_CameraProjection[2][2] + 1);
             }
             float GetNear()
             {
-                return unity_CameraProjection[2][3] / (unity_CameraProjection[2][2] + 1);
+                return unity_CameraProjection[2][3] / (unity_CameraProjection[2][2] - 1);
             }
             v2f vert (appdata v)
             {
@@ -73,9 +78,10 @@ Shader "PostProcessing/DeferredFog"
                 
                 float near = GetNear();
                 float far = GetFar();
-                float linearDepth = (posVS.z - near) / (far - near);
-                col.rgb = color * depth;
-                col.rgb = linearDepth;
+                float depthVS = -posVS.z;
+                float linearDepth = 1 - (depthVS - near) / (far - near);
+                float fog = saturate((depthVS - _NearDis) / (_FarDis - _NearDis)) * _Intensity;
+                col.rgb = _FogColor * fog + color * (1 - fog);
                 // apply fog
                 return col;
             }

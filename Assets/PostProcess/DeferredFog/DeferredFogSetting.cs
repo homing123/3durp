@@ -6,26 +6,29 @@ using UnityEngine.Rendering.Universal;
 public class DeferredFogSetting : VolumeComponent, IPostProcessComponent
 {
     //serializefield ¾ÈµÊ
-    public ClampedFloatParameter m_Strength = new ClampedFloatParameter(0, 0, 1);
+    public ClampedFloatParameter m_Intensity = new ClampedFloatParameter(0, 0, 1);
     public FloatParameter m_NearDis = new FloatParameter(1);
     public FloatParameter m_FarDis = new FloatParameter(10);
+    public ColorParameter m_FogColor = new ColorParameter(Color.white);
 
-    float m_LastStrength;
+    float m_LastIntensity;
     float m_LastNearDis;
     float m_LastFarDis;
+    Color m_LastFogColor;
     public bool IsUpdate()
     {
-        return m_LastFarDis != m_FarDis.value || m_LastNearDis != m_NearDis.value || m_LastStrength != m_Strength.value;
+        return m_LastFarDis != m_FarDis.value || m_LastNearDis != m_NearDis.value || m_LastIntensity != m_Intensity.value || m_LastFogColor!= m_FogColor.value;
     }
     public void Update()
     {
         m_LastFarDis = m_FarDis.value;
         m_LastNearDis = m_NearDis.value;
-        m_LastStrength = m_Strength.value;
+        m_LastIntensity = m_Intensity.value;
+        m_LastFogColor = m_FogColor.value;
     }
     public bool IsActive()
     {
-        return (m_Strength.value > 0.0f) && active;
+        return (m_Intensity.value > 0.0f) && active;
     }
 
     public bool IsTileCompatible()

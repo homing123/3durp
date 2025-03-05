@@ -13,15 +13,18 @@ MonoBehaviour:
   m_Name: DeferredFogSetting
   m_EditorClassIdentifier: 
   active: 1
-  m_Strength:
+  m_Intensity:
     m_OverrideState: 1
-    m_Value: 0.14
+    m_Value: 0.289
   m_NearDis:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 7.67
   m_FarDis:
     m_OverrideState: 1
-    m_Value: 10
+    m_Value: 28.76
+  m_FogColor:
+    m_OverrideState: 1
+    m_Value: {r: 0.66215736, g: 0.9031191, b: 0.9056604, a: 1}
 --- !u!114 &-1658399676921007249
 MonoBehaviour:
   m_ObjectHideFlags: 3

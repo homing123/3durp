@@ -14,10 +14,11 @@ public class DeferredFogPass : ScriptableRenderPass
     bool m_Active = false;
     bool m_Init = false;
     RTHandle m_SourceColor;
-    RTHandle m_SourceDepth;
-    RTHandle m_DestiColor;
+    RTHandle m_DestColor;
     Material m_Mat;
     DeferredFogSetting m_Setting;
+    RenderTextureDescriptor m_RTDesc;
+    int m_RTDestiNameID;
 
 
     public void Init()
@@ -28,17 +29,17 @@ public class DeferredFogPass : ScriptableRenderPass
 
         m_Init = m_Mat != null && m_Setting != null;
 
-        if (m_Init)
-        {
-            m_DestiColor = RTHandles.Alloc(
-                Vector2.one,
-                dimension: TextureDimension.Tex2D,
-                colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat,
-                useDynamicScale: true,
-                name: RenderTargetName,
-                wrapMode: TextureWrapMode.Clamp
-                );
-        }
+        //if (m_Init)
+        //{
+        //    m_DestiColor = RTHandles.Alloc(
+        //        Vector2.one,
+        //        dimension: TextureDimension.Tex2D,
+        //        colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat,
+        //        useDynamicScale: true,
+        //        name: RenderTargetName,
+        //        wrapMode: TextureWrapMode.Clamp
+        //        );
+        //}
     }
 
 
@@ -50,7 +51,6 @@ public class DeferredFogPass : ScriptableRenderPass
             Init();
         }
         m_SourceColor = renderer.cameraColorTargetHandle;
-        m_SourceDepth = renderer.cameraDepthTargetHandle;
 
 #if UNITY_EDITOR
         m_Active = m_Setting.IsActive() && Application.isPlaying;
@@ -68,6 +68,16 @@ public class DeferredFogPass : ScriptableRenderPass
 
         return m_Init && m_Active;
     }
+    public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+    {
+        if (m_Init == false || m_Active == false)
+        {
+            return;
+        }
+
+        cmd.GetTemporaryRT(m_RTDestiNameID, cameraTextureDescriptor);
+        base.Configure(cmd, cameraTextureDescriptor);
+    }
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
     {
         if (m_Init == false || m_Active == false)
@@ -79,21 +89,30 @@ public class DeferredFogPass : ScriptableRenderPass
 
         if(m_Setting.IsUpdate())
         {
-
+            m_Setting.Update();
+            m_Mat.SetFloat("_NearDis", m_Setting.m_NearDis.value);
+            m_Mat.SetFloat("_FarDis", m_Setting.m_FarDis.value);
+            m_Mat.SetFloat("_Intensity", m_Setting.m_Intensity.value);
+            m_Mat.SetColor("_FogColor", m_Setting.m_FogColor.value);
         }
 
-        cmd.Blit(m_SourceColor, m_DestiColor, m_Mat, 0);
-        cmd.Blit(m_DestiColor, m_SourceColor, m_Mat, 0);
+        cmd.Blit(m_SourceColor, m_RTDestiNameID, m_Mat, 0);
+        cmd.Blit(m_RTDestiNameID, m_SourceColor);
         context.ExecuteCommandBuffer(cmd);
         cmd.Clear();
         CommandBufferPool.Release(cmd);
     }
 
+    public override void FrameCleanup(CommandBuffer cmd)
+    {
+        cmd.ReleaseTemporaryRT(m_RTDestiNameID);
+        base.FrameCleanup(cmd);
+    }
     public void Dispose()
     {
         if (m_Init == true)
         {
-            m_DestiColor.Release();
+            //m_DestiColor.Release();
         }
     }
     ~DeferredFogPass()
