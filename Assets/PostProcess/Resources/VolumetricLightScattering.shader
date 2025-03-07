@@ -149,7 +149,7 @@ Shader "PostProcessing/VLS"
 
                 float2 toLight = lightPosUV - i.uv;
                 float2 toLightDir = normalize(toLight);
-                float deltaDis = 1 / (float)_Samples * _Density;
+                float deltaDis = 1 / (float)_Samples * length(toLight);
 
                
                 half illuminationDecay = 1.0f;
