@@ -47,7 +47,6 @@ Shader "PostProcessing/DeferredFog"
             CBUFFER_END
 
 
-            //only builtin
             float GetFar()
             {
                 return unity_CameraProjection[2][3] / (unity_CameraProjection[2][2] + 1);

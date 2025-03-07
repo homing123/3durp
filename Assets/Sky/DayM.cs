@@ -23,6 +23,10 @@ public class DayM : MonoBehaviour
     Color m_SunLightOriginColor;
     float m_SunLightOriginIntensity;
     float m_MoonLightOriginIntensity;
+    private void Awake()
+    {
+        Ins = this;
+    }
     void Start()
     {
         m_SunLightOriginColor = m_SunLight.color;
@@ -107,5 +111,10 @@ public class DayM : MonoBehaviour
         m_DayTime += time;
         m_DayTime -= Mathf.FloorToInt(m_DayTime);
         m_SkyboxMat.SetFloat("_DayTime", m_DayTime);
+    }
+
+    public Vector3 GetSunPos()
+    {
+        return m_SunLight.transform.position * 100;
     }
 }
