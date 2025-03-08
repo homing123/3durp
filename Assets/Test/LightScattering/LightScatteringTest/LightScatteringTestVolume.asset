@@ -30,19 +30,19 @@ MonoBehaviour:
   active: 1
   m_Decay:
     m_OverrideState: 1
-    m_Value: 0.864
+    m_Value: 0.765
   m_Exposure:
     m_OverrideState: 1
     m_Value: 1
   m_Weight:
     m_OverrideState: 1
-    m_Value: 0.047
+    m_Value: 0.112
   m_Density:
     m_OverrideState: 1
-    m_Value: 0.72
+    m_Value: 1.03
   m_Samples:
     m_OverrideState: 1
-    m_Value: 84
+    m_Value: 32
 --- !u!114 &3622694822112295545
 MonoBehaviour:
   m_ObjectHideFlags: 3

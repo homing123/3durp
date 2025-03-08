@@ -46,7 +46,7 @@ Shader "PostProcessing/VLS"
             float3 _LightPos;
             float _Density;
             float _Decay;
-            float _Exposure;
+            float _Scattering;
             float _Weight;
             int _Samples;
             CBUFFER_END
@@ -136,31 +136,75 @@ Shader "PostProcessing/VLS"
             //            }
 
 
+            //uv 뒤집히는 플랫폼이면 뒤집힌 그대로 써야함 즉 1 - uv.y 안한값 넣어야함
+            float GetLinearDepthUseUV(float2 uv)
+            {
+                float2 ndc = uv * 2 - 1;
+                float depth = tex2D(_CameraDepthTexture, uv).r; //depth pass 에서 (근)0 ~ 1(원) 으로 그려둠
+                float4 posDepthVS = mul(UNITY_MATRIX_I_P, float4(ndc, depth, 1));
+                posDepthVS = posDepthVS / posDepthVS.w;
+                float depthVS = -posDepthVS.z;
+                float linearDepth = (depthVS - near) / (far - near); //near = 0, far = 1
+                return linearDepth;
+            }
+
+            float GetLinearDepthUseWSPos(float3 posWS)
+            {
+                float4 posVS = mul(unity_WorldToCamera, float4(posWS, 1));
+                float linearDepth = (-posVS.z - near) / (far - near); //near = 0, far = 1
+                return linearDepth;
+            }
+
             half4 frag(v2f i) : SV_Target
             {
                 half3 color = tex2D(_MainTex, i.uv).rgb;
 
                 float3 camPosWS = GetCameraPositionWS();
+                float near = GetNear();
+                float far = GetFar();
                 float3 lightPosWS = camPosWS + _LightPos; // 라이트 위치는 스카이박스에서의 위치이므로 카메라위치 더해줘야함
-                float4 lightPosClip = mul(UNITY_MATRIX_VP, float4(lightPosWS, 1));
-                float3 lightPosNDC = lightPosClip.xyz / lightPosClip.w;
-                float2 lightPosUV = (lightPosNDC.xy + 1) * 0.5f;
-                lightPosUV = float2(0.5f, 0.5f);
-
-                float2 toLight = lightPosUV - i.uv;
-                float2 toLightDir = normalize(toLight);
-                float deltaDis = 1 / (float)_Samples * length(toLight);
-
+                float2 uv = i.uv;
+#ifdef UNITY_UV_STARTS_AT_TOP
+                uv.y = 1 - i.uv.y;
+#endif
+                float2 ndc = uv * 2 - 1;
+          
+                float4 posNearVS = mul(UNITY_MATRIX_I_P, float4(ndc, UNITY_NEAR_CLIP_VALUE, 1));
+                posNearVS = posNearVS / posNearVS.w;
+                posNearVS.z = near;
+                float4 posNearWS = mul(unity_CameraToWorld, posNearVS);
+                
+                float3 rayEntry = posNearWS;
+                float3 rayDir = normalize(rayEntry - camPosWS); //캠 -> near 인가 아니면 near to light인가...
+                float rayStepDis = length(_Scale) / _Samples * _Density;
                
                 half illuminationDecay = 1.0f;
 
-                float2 curPos = i.uv;
+                float3 rayPosWS = rayEntry;
+
+                float curDepth = GetLinearDepthUseUV(i.uv);
                 [loop]
                 for (int idx = 0; idx < _Samples; idx++)
                 {
-                    curPos += deltaDis * toLightDir;
-                    if (curPos.x > 1 || curPos.x < 0 || curPos.y > 1 || curPos.y < 0) { break; }
-                    half3 curColor = tex2D(_MainTex, curPos);
+                    rayPosWS += rayStepDis * rayDir;
+
+                    float4 rayPosNDC = mul(UNITY_MATRIX_VP, float4(rayPosWS, 1));
+                    rayPosNDC = rayPosNDC / rayPosNDC.w;
+                    if (rayPosNDC.x > 1 || rayPosNDC.x < -1 || rayPosNDC.y > 1 || rayPosNDC.y < -1 || rayPosNDC.z < 0 || rayPosNDC.z > 1) { break; } //플랫폼별 근접, 원거리 값이 필요한데 모르니 일단 d3d11방법으로하자
+                    float curPosWSDepth = GetLinearDepthUseWSPos(rayPosWS);
+                    if (curPosWSDepth >= curDepth) { break; }
+
+                    Light mainLight = GetMainLight(shadowCoord);
+                    float shadow = mainLight.shadowAttenuation; // shadowattenuation = 0 그림자 진거, 1 = 그림자 안진거
+                    float3 toLight = rayPosWS - _LightPos;
+                    float toLightDis = length(toLight);
+                    float3 toLightDir = toLight / toLightDis;
+
+
+                    
+
+                    //현재 맵에서
+                    half3 curScatteringIntensity = 
                     curColor *= illuminationDecay * _Weight;
                     color += curColor;
                     illuminationDecay *= _Decay;
