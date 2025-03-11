@@ -30,19 +30,22 @@ MonoBehaviour:
   active: 1
   m_Decay:
     m_OverrideState: 1
-    m_Value: 0.765
-  m_Exposure:
+    m_Value: 0.96
+  m_Scattering:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.972
   m_Weight:
     m_OverrideState: 1
-    m_Value: 0.112
+    m_Value: 0.024
   m_Density:
     m_OverrideState: 1
-    m_Value: 1.03
+    m_Value: 32
   m_Samples:
     m_OverrideState: 1
-    m_Value: 32
+    m_Value: 128
+  m_TempValue:
+    m_OverrideState: 1
+    m_Value: 10
 --- !u!114 &3622694822112295545
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -55,7 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b2db86121404754db890f4c8dfe81b2, type: 3}
   m_Name: Bloom
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   skipIterations:
     m_OverrideState: 0
     m_Value: 1

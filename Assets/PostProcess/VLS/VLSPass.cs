@@ -25,6 +25,7 @@ public class VLSPass : ScriptableRenderPass
         renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
 
         m_Init = m_Mat != null && m_Setting != null;
+        Debug.Log(m_Setting + " " + m_Mat);
     }
 
 
@@ -76,10 +77,11 @@ public class VLSPass : ScriptableRenderPass
         {
             m_Setting.Update();
             m_Mat.SetFloat("_Decay", m_Setting.m_Decay.value);
-            m_Mat.SetFloat("_Exposure", m_Setting.m_Exposure.value);
+            m_Mat.SetFloat("_Scattering", m_Setting.m_Scattering.value);
             m_Mat.SetFloat("_Weight", m_Setting.m_Weight.value);
             m_Mat.SetFloat("_Density", m_Setting.m_Density.value);
             m_Mat.SetInteger("_Samples", m_Setting.m_Samples.value);
+            m_Mat.SetFloat("_TempValue", m_Setting.m_TempValue.value);
         }
         m_Mat.SetVector("_LightPos", DayM.Ins.GetSunPos());
 
