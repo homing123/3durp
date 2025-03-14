@@ -13,6 +13,7 @@ public class VLSSetting : VolumeComponent, IPostProcessComponent
     public FloatParameter m_Density = new FloatParameter(30);
     public IntParameter m_Samples = new IntParameter(32);
     public FloatParameter m_TempValue = new FloatParameter(10);
+    public MaterialParameter m_Mat = new MaterialParameter(null);
 
     float m_LastDecay;
     float m_LastScattering;

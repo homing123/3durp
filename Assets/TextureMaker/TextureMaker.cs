@@ -9,6 +9,7 @@ public class TextureMaker : MonoBehaviour
     {
         PerlinNoise,
         WorleyNoise,
+        Grid
     }
     [SerializeField] Image m_Image;
     [SerializeField] bool m_AutoUpdate;
@@ -149,16 +150,16 @@ public class TextureMaker : MonoBehaviour
     {
         //TexInfo info = new TexInfo();
         //info.fileName = m_FileName;
-        //info.width = m_Width;
-        //info.height = m_Height;
+        //info.width = 512;
+        //info.height = 512;
         //info.format = TextureFormat.RGBA32;
         //info.type = E_TextureType.PNG;
         //info.buffer = new Color[info.width * info.height];
-        //for (int y = 0; y < m_Height; y++)
+        //for (int y = 0; y < 512; y++)
         //{
-        //    for (int x = 0; x < m_Width; x++)
+        //    for (int x = 0; x < 512; x++)
         //    {
-        //        int idx = x + y * m_Width;
+        //        int idx = x + y * 512;
         //        float value = PerlinNoise.PerlinNoise2D(x * 0.07f, y * 0.07f);
         //        info.buffer[idx] = new Color(value, value, value, 1);
         //    }

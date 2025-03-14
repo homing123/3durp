@@ -20,12 +20,11 @@ public class VLSPass : ScriptableRenderPass
     int m_RTDestiNameID;
     public void Init()
     {
-        m_Mat = new Material(Shader.Find(ShaderFindName));
         m_Setting = VolumeManager.instance.stack.GetComponent<VLSSetting>();
+        m_Mat = m_Setting.m_Mat.value;
         renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
 
         m_Init = m_Mat != null && m_Setting != null;
-        Debug.Log(m_Setting + " " + m_Mat);
     }
 
 

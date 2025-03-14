@@ -83,7 +83,8 @@ MonoBehaviour:
   - {fileID: -5306372216077305935}
   - {fileID: -8433200334040684637}
   - {fileID: 5953427327165433082}
-  m_RendererFeatureMap: adc0de57c6d2eee52e66abee8f1a675cb1b7b57695fa5bb6a3a7cc29fa40f78afa84cc879cd29e52
+  - {fileID: 8601162496262469935}
+  m_RendererFeatureMap: adc0de57c6d2eee52e66abee8f1a675cb1b7b57695fa5bb6a3a7cc29fa40f78afa84cc879cd29e522ff9222db8775d77
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -181,3 +182,16 @@ MonoBehaviour:
       restoreCamera: 1
       offset: {x: 0, y: 0, z: 0, w: 0}
       cameraFieldOfView: 60
+--- !u!114 &8601162496262469935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29bcfc7a2c238e949b1a4dd8ad084e6d, type: 3}
+  m_Name: VL_First
+  m_EditorClassIdentifier: 
+  m_Active: 1
