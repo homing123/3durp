@@ -9,19 +9,24 @@ public class VL_First : VolumeComponent, IPostProcessComponent
     public ClampedIntParameter m_Samples = new ClampedIntParameter(32,1, 256);
     public FloatParameter m_TAU = new FloatParameter(1);
     public FloatParameter m_PHI = new FloatParameter(1000000);
-
+    public FloatParameter m_Add = new FloatParameter(0);
+    public FloatParameter m_Out = new FloatParameter(0);
     public int m_LastSamples;
     public float m_LastTAU;
     public float m_LastPHI;
+    public float m_LastAdd;
+    public float m_LastOut;
     public bool IsUpdate()
     {
-        return m_LastSamples != m_TAU.value || m_LastSamples != m_Samples.value || m_LastPHI != m_PHI.value;
+        return m_LastSamples != m_TAU.value || m_LastSamples != m_Samples.value || m_LastPHI != m_PHI.value || m_LastAdd != m_Add.value || m_LastOut != m_Out.value;
     }
     public void Update()
     {
         m_LastTAU = m_TAU.value;
         m_LastSamples = m_Samples.value;
         m_LastPHI = m_PHI.value;
+        m_LastAdd = m_Add.value;
+        m_LastOut = m_Out.value;
     }
     public bool IsActive()
     {
@@ -107,6 +112,8 @@ public class VL_Pass : ScriptableRenderPass
             m_Mat.SetFloat("_Samples", (float)m_Setting.m_Samples.value);
             m_Mat.SetFloat("_TAU", m_Setting.m_TAU.value);
             m_Mat.SetFloat("_PHI", m_Setting.m_PHI.value);
+            m_Mat.SetFloat("_Add", m_Setting.m_Add.value);
+            m_Mat.SetFloat("_Out", m_Setting.m_Out.value);
 
         }
         m_Mat.SetVector("_LightPos", VL_FirstScene.Ins.m_Light.transform.position);

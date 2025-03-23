@@ -35,10 +35,18 @@ MonoBehaviour:
     m_Value: 32
   m_TAU:
     m_OverrideState: 1
-    m_Value: 0.00001
+    m_Value: 9.2
   m_PHI:
     m_OverrideState: 1
-    m_Value: 2.56
+    m_Value: 9.01
+  m_Add:
+    m_OverrideState: 1
+    m_Value: 0.18
+  m_Out:
+    m_OverrideState: 1
+    m_Value: 0.02
   m_LastSamples: 0
   m_LastTAU: 0
   m_LastPHI: 0
+  m_LastAdd: 0
+  m_LastOut: 0
