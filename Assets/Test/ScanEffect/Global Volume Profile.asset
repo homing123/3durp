@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: Global Volume Profile
+  m_EditorClassIdentifier: 
+  components:
+  - {fileID: 2948762536318961330}
+--- !u!114 &2948762536318961330
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe769f3936ea44f44bb92af8aeb35a6c, type: 3}
+  m_Name: ScanEffect
+  m_EditorClassIdentifier: 
+  active: 1
+  m_Mat:
+    m_OverrideState: 1
+    m_Value: {fileID: 2100000, guid: 8a12f6b3b8b9b004ea84bd063abd1eef, type: 2}
+  m_Color:
+    m_OverrideState: 1
+    m_Value: {r: 0.5730687, g: 0.8867924, b: 0.8081637, a: 0.5803922}
+  m_Range:
+    m_OverrideState: 1
+    m_Value: 50
+  m_TotalTime:
+    m_OverrideState: 1
+    m_Value: 1.5
+  m_LineWidth:
+    m_OverrideState: 1
+    m_Value: 2
+  m_GridColor:
+    m_OverrideState: 1
+    m_Value: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  m_CurTime: 0

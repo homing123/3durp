@@ -57,7 +57,6 @@ public class VL_Pass : ScriptableRenderPass
         m_Setting = VolumeManager.instance.stack.GetComponent<VL_First>();
         m_Mat = m_Setting.m_Mat.value;
         renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
-
         m_Init = m_Mat != null && m_Setting != null;
     }
 
@@ -117,7 +116,6 @@ public class VL_Pass : ScriptableRenderPass
 
         }
         m_Mat.SetVector("_LightPos", VL_FirstScene.Ins.m_Light.transform.position);
-
         cmd.Blit(m_SourceColor, m_RTDestiNameID, m_Mat, 0);
         cmd.Blit(m_RTDestiNameID, m_SourceColor);
         context.ExecuteCommandBuffer(cmd);
