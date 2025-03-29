@@ -32,21 +32,17 @@ MonoBehaviour:
     m_Value: {fileID: 2100000, guid: 79bb7255bec7ef6409c8780e3be6745b, type: 2}
   m_Samples:
     m_OverrideState: 1
-    m_Value: 32
-  m_TAU:
+    m_Value: 64
+  m_ShadowScatteringDistance:
     m_OverrideState: 1
-    m_Value: 9.2
-  m_PHI:
-    m_OverrideState: 1
-    m_Value: 9.01
+    m_Value: 8
   m_Add:
     m_OverrideState: 1
-    m_Value: 0.18
+    m_Value: 0.15
   m_Out:
     m_OverrideState: 1
     m_Value: 0.02
   m_LastSamples: 0
-  m_LastTAU: 0
-  m_LastPHI: 0
+  m_LastShadowScatteringDistance: 0
   m_LastAdd: 0
   m_LastOut: 0

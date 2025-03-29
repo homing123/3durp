@@ -185,8 +185,10 @@ public class TerrainMaker : MonoBehaviour
                 {
                     int index = y * rt.width + x;
                     Color pixel = pixels[index];
-                    
-                    Debug.Log($"Pixel [{x}, {y}]: R={pixel.r:F3}, G={pixel.g:F3}, B={pixel.b:F3}, A={pixel.a:F3}");
+                    if (x < 10 && y < 10)
+                    {
+                        //Debug.Log($"Pixel [{x}, {y}]: R={pixel.r:F3}, G={pixel.g:F3}, B={pixel.b:F3}, A={pixel.a:F3}");
+                    }
                     
                 }
             }

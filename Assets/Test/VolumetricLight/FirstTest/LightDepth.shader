@@ -1,4 +1,4 @@
-Shader "Shadow/ShadowDepth"
+Shader "Custom/LightDepth"
 {
     Properties
     {
@@ -39,8 +39,7 @@ Shader "Shadow/ShadowDepth"
 
             half4 frag(v2f i) : SV_Target
             {
-                float dis = length(_WorldSpaceCameraPos - i.posWS);
-                return half4(dis, dis, dis, 1);
+                return half4(2,1,0.5f,0.3f);
             }
             ENDHLSL
         }
