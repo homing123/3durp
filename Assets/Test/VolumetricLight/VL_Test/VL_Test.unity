@@ -1924,6 +1924,8 @@ GameObject:
   - component: {fileID: 1914987897}
   - component: {fileID: 1914987896}
   - component: {fileID: 1914987898}
+  - component: {fileID: 1914987900}
+  - component: {fileID: 1914987899}
   m_Layer: 0
   m_Name: Global Volume
   m_TagString: Untagged
@@ -1975,7 +1977,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0aecb4f9b7c86a4a9f932caf1b3bdf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Kind: 1
   m_Light: {fileID: 135499928}
+  m_Preset:
+  - pos: {x: -7.2, y: -22.5, z: 8.1}
+    rot: {x: -0.024486221, y: 0.94614637, z: 0.07371566, w: 0.31428263}
+  - pos: {x: -18.13, y: -19, z: 8.1}
+    rot: {x: 0.043992963, y: 0.8540346, z: -0.07321658, w: 0.5131558}
+  - pos: {x: 6.38, y: -21.7, z: -10}
+    rot: {x: -0.022374593, y: -0.16543524, z: -0.0037542572, w: 0.98595965}
+  m_PresetIdx: 0
+--- !u!114 &1914987899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914987895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ce283524fc1a464380e4ff22fe0af70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Mat: {fileID: 2100000, guid: 8c150a4fbceea2f4f97379416b307e8f, type: 2}
+  m_Samples: 32
+  m_Attenuation: 0.01
+  m_PhaseG: 0.2
+--- !u!114 &1914987900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914987895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 922cf3f3564d001489d4b4ef02c7bd4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Mat: {fileID: 2100000, guid: 79bb7255bec7ef6409c8780e3be6745b, type: 2}
+  m_Samples: 32
+  m_Attenuation: 0.1
+  m_ShadowScatteringDistance: 8
+  m_Add: 0.15
+  m_Out: 0.02
 --- !u!1 &1981338830
 GameObject:
   m_ObjectHideFlags: 0
@@ -2152,8 +2197,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 1
-  far clip plane: 101
+  near clip plane: 0.1
+  far clip plane: 150
   field of view: 90
   orthographic: 0
   orthographic size: 5
@@ -2186,7 +2231,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -8.91, y: 143.25, z: 0}
+  m_LocalEulerAnglesHint: {x: -2.6, y: -19.05, z: 0}
 --- !u!114 &2004463238
 MonoBehaviour:
   m_ObjectHideFlags: 0

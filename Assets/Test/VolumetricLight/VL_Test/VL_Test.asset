@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7054632753993062922
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 922cf3f3564d001489d4b4ef02c7bd4e, type: 3}
+  m_Name: VL_First
+  m_EditorClassIdentifier: 
+  active: 1
+  m_Mat:
+    m_OverrideState: 1
+    m_Value: {fileID: 0}
+  m_Samples:
+    m_OverrideState: 1
+    m_Value: 32
+  m_ShadowScatteringDistance:
+    m_OverrideState: 1
+    m_Value: 8
+  m_Add:
+    m_OverrideState: 1
+    m_Value: 0.15
+  m_Out:
+    m_OverrideState: 1
+    m_Value: 0.02
+  m_LastSamples: 0
+  m_LastShadowScatteringDistance: 0
+  m_LastAdd: 0
+  m_LastOut: 0
+--- !u!114 &-3615614760530848356
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ce283524fc1a464380e4ff22fe0af70, type: 3}
+  m_Name: VL_second
+  m_EditorClassIdentifier: 
+  m_Mat: {fileID: 0}
+  m_Samples: 32
+  m_Attenuation: 0.1
+--- !u!114 &-77377683660015636
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: VL_First
+  m_EditorClassIdentifier: Assembly-CSharp::VL_First
+  active: 1
+  m_Mat:
+    m_OverrideState: 0
+    m_Value: {fileID: 0}
+  m_Samples:
+    m_OverrideState: 0
+    m_Value: 32
+  m_ShadowScatteringDistance:
+    m_OverrideState: 0
+    m_Value: 1
+  m_Add:
+    m_OverrideState: 0
+    m_Value: 0
+  m_Out:
+    m_OverrideState: 0
+    m_Value: 0
+  m_LastSamples: 0
+  m_LastShadowScatteringDistance: 0
+  m_LastAdd: 0
+  m_LastOut: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: VL_Test
+  m_EditorClassIdentifier: 
+  components:
+  - {fileID: -7054632753993062922}
+--- !u!114 &3158218269669628790
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: VL_Setting
+  m_EditorClassIdentifier: Assembly-CSharp::VL_Setting
+  active: 1
+  <displayName>k__BackingField: 
+--- !u!114 &5455069543581526362
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55cd7a18247a1bb4ab9c4738530648d0, type: 3}
+  m_Name: VL_First
+  m_EditorClassIdentifier: 
+  active: 1
+  <displayName>k__BackingField: 
+  m_Mat:
+    m_OverrideState: 1
+    m_Value: {fileID: 2100000, guid: 79bb7255bec7ef6409c8780e3be6745b, type: 2}
+  m_Samples:
+    m_OverrideState: 1
+    m_Value: 64
+  m_ShadowScatteringDistance:
+    m_OverrideState: 1
+    m_Value: 8
+  m_Add:
+    m_OverrideState: 1
+    m_Value: 0.15
+  m_Out:
+    m_OverrideState: 1
+    m_Value: 0.02
+  m_LastSamples: 0
+  m_LastShadowScatteringDistance: 0
+  m_LastAdd: 0
+  m_LastOut: 0
