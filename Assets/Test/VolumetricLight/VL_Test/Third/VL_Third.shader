@@ -1,4 +1,4 @@
-Shader "VLTest/Second"
+Shader "VLTest/Third"
 {
     Properties
     {
@@ -185,21 +185,24 @@ Shader "VLTest/Second"
 
                 float Tr = exp(-_Attenuation * raymarchDistance);
                 color = color * Tr;
-                for (int idx = 0; idx < _Samples; idx++)
+                for(int idx = 0; idx < _Samples; idx++)
                 {
-                    Light light = GetAdditionalLight(0, raymarchPos, half4(1, 1, 1, 1));
-                    float shadow = light.shadowAttenuation;
-                    float shadowTr = exp(-_Attenuation * length(_AdditionalLightsPosition[0] - raymarchPos));
-                    shadow = shadow == 0 ? saturate(pow(length(_AdditionalLightsPosition[0] - raymarchPos) / 40, 2)) : shadow * shadowTr;
-                    float lightAttenuation = light.distanceAttenuation;
-                    float3 p2lDir = light.direction;
-                    float p2vDis = raymarchDistance - stepsize * idx;
+                    for (int lightIdx = 0; lightIdx < additionalLightCount; lightIdx++)
+                    {
+                        Light light = GetAdditionalLight(lightIdx, raymarchPos, half4(1, 1, 1, 1));
+                        float shadow = light.shadowAttenuation;
+                        float shadowTr = exp(-_Attenuation * length(_AdditionalLightsPosition[lightIdx] - raymarchPos));
+                        shadow = shadow == 0 ? saturate(pow(length(_AdditionalLightsPosition[lightIdx] - raymarchPos) / 40, 2)) : shadow * shadowTr;
+                        float lightAttenuation = light.distanceAttenuation;
+                        float3 p2lDir = light.direction;
+                        float p2vDis = raymarchDistance - stepsize * idx;
 
-                    float tr = exp(-_Attenuation * p2vDis);
+                        float tr = exp(-_Attenuation * p2vDis);
 
-                    float f = PhaseFunction(stepDir, -p2lDir);
-                    color += lightAttenuation * shadow * tr * f * stepsize * light.color;
-                    raymarchPos += stepsize * stepDir;
+                        float f = PhaseFunction(stepDir, -p2lDir);
+                        color += lightAttenuation * shadow * tr * f * stepsize * light.color;
+                        raymarchPos += stepsize * stepDir;
+                    }
                 }
                 return half4(color, 1);
             }

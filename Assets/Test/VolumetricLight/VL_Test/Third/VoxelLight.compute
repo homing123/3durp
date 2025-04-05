@@ -1,0 +1,50 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel VoxelAllLight
+#define VOXELCOUNT_PER_AXIS 32
+#define VOXEL_HORIZONTAL_COUNT 5
+#define VOXEL_VERTICAL_COUNT 3
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+struct LightData
+{
+    float range;
+    float3 pos;
+};
+
+RWStructuredBuffer<LightDat> _LightData;
+RWStructuredBuffer<uint> _CheckListCPUVoxelLight;
+RWStructuredBuffer<int> _CPUVoxelLight;
+RWStructuredBuffer<uint> _GPUVoxelLight;
+
+uint _CheckListCount;
+int3 _CurCPUVoxelGridIdx;
+
+int GetValue(int axisCount, int centerValue, int idx)
+{
+    int remainder = centerValue % axisCount;
+    remainder = remainder < 0 ? remainder + axisCount : remainder;
+
+
+}
+
+int3 GetCPUVoxelGridIdx(int cpuVoxelLightIdx)
+{
+    int3 voxelLightIdx3;
+    voxelLightIdx3.x = cpuVoxelLightIdx % VOXEL_HORIZONTAL_COUNT;
+    voxelLightIdx3.y = (cpuVoxelLightIdx % (VOXEL_HORIZONTAL_COUNT * VOXEL_VERTICAL_COUNT)) / VOXEL_HORIZONTAL_COUNT;
+    voxelLightIdx3.z = cpuVoxelLightIdx / (VOXEL_HORIZONTAL_COUNT * VOXEL_VERTICAL_COUNT);
+
+    int remainder =  voxelLightIdx3.x %
+
+}
+
+[numthreads(VOXELCOUNT_PER_AXIS, VOXELCOUNT_PER_AXIS, VOXELCOUNT_PER_AXIS)]
+void VoxelAllLight(uint3 t_id : SV_GroupThreadID ,uint3 g_id : SV_GroupID)
+{
+    uint t_idx = t_id.z * VOXELCOUNT_PER_AXIS * VOXELCOUNT_PER_AXIS + t_id.y * VOXELCOUNT_PER_AXIS + t_id.x;
+    uint CPUVoxelLightIdx = _CheckListCPUVoxelLight[g_id.x];
+
+    
+
+    
+}
