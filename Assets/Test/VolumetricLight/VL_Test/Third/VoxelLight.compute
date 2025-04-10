@@ -1,50 +1,119 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel VoxelAllLight
-#define VOXELCOUNT_PER_AXIS 32
-#define VOXEL_HORIZONTAL_COUNT 5
-#define VOXEL_VERTICAL_COUNT 3
+#define GPUVOXELCOUNT_AXIS_X 2 //GPUVOXELCOUNT_AXIS_YZ / 4
+#define GPUVOXELCOUNT_AXIS_YZ 8
+#define CPUVOXEL_HORIZONTAL_COUNT 7
+#define CPUVOXEL_VERTICAL_COUNT 3
+#define CPUVOXEL_LIGHT_MAX 8
+#define CPUVOXEL_SIZE 8
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 struct LightData
 {
+    int type; //spot = 0, 2 = point
     float range;
     float3 pos;
 };
 
-RWStructuredBuffer<LightDat> _LightData;
+RWStructuredBuffer<LightData> _LightData;
 RWStructuredBuffer<uint> _CheckListCPUVoxelLight;
 RWStructuredBuffer<int> _CPUVoxelLight;
 RWStructuredBuffer<uint> _GPUVoxelLight;
 
 uint _CheckListCount;
-int3 _CurCPUVoxelGridIdx;
+int3 _CurCPUVoxelGridPos;
 
 int GetValue(int axisCount, int centerValue, int idx)
 {
+    //axisCount = 5, centerValue = 8, idx = 0, halfaxisCount = 2
+    //remainder = 3
+    //remainder2idx = -3
+    //signValue = -1, absValue = 3
+    //center2idxvalue = 3 > 2 => -3 - (-1 * 5) = 2
+    //result = 8  + 2 = 10;
+    //(10, 6, 7, 8, 9)
     int remainder = centerValue % axisCount;
     remainder = remainder < 0 ? remainder + axisCount : remainder;
 
-
+    int remainder2idx = idx - remainder;
+    int halfaxisCount = axisCount / 2;
+    int signValue = sign(remainder2idx);
+    int absValue = abs(remainder2idx);
+    int center2idxvalue = absValue > halfaxisCount ? remainder2idx - signValue * axisCount : remainder2idx;
+    return centerValue + center2idxvalue;
 }
 
-int3 GetCPUVoxelGridIdx(int cpuVoxelLightIdx)
+int3 GetCPUVoxelGridPos(int cpuVoxelIdx)
 {
     int3 voxelLightIdx3;
-    voxelLightIdx3.x = cpuVoxelLightIdx % VOXEL_HORIZONTAL_COUNT;
-    voxelLightIdx3.y = (cpuVoxelLightIdx % (VOXEL_HORIZONTAL_COUNT * VOXEL_VERTICAL_COUNT)) / VOXEL_HORIZONTAL_COUNT;
-    voxelLightIdx3.z = cpuVoxelLightIdx / (VOXEL_HORIZONTAL_COUNT * VOXEL_VERTICAL_COUNT);
+    voxelLightIdx3.x = cpuVoxelIdx % CPUVOXEL_HORIZONTAL_COUNT;
+    voxelLightIdx3.y = (cpuVoxelIdx % (CPUVOXEL_HORIZONTAL_COUNT * CPUVOXEL_VERTICAL_COUNT)) / CPUVOXEL_HORIZONTAL_COUNT;
+    voxelLightIdx3.z = cpuVoxelIdx / (CPUVOXEL_HORIZONTAL_COUNT * CPUVOXEL_VERTICAL_COUNT);
 
-    int remainder =  voxelLightIdx3.x %
-
+    return int3(GetValue(CPUVOXEL_HORIZONTAL_COUNT, _CurCPUVoxelGridPos.x, voxelLightIdx3.x), GetValue(CPUVOXEL_VERTICAL_COUNT, _CurCPUVoxelGridPos.y, voxelLightIdx3.y), GetValue(CPUVOXEL_HORIZONTAL_COUNT, _CurCPUVoxelGridPos.z, voxelLightIdx3.z));
 }
 
-[numthreads(VOXELCOUNT_PER_AXIS, VOXELCOUNT_PER_AXIS, VOXELCOUNT_PER_AXIS)]
-void VoxelAllLight(uint3 t_id : SV_GroupThreadID ,uint3 g_id : SV_GroupID)
+bool CheckLight(float3 boxCenter,  LightData light)
 {
-    uint t_idx = t_id.z * VOXELCOUNT_PER_AXIS * VOXELCOUNT_PER_AXIS + t_id.y * VOXELCOUNT_PER_AXIS + t_id.x;
-    uint CPUVoxelLightIdx = _CheckListCPUVoxelLight[g_id.x];
+    float boxhalfSize = 0.5f;
+    bool isIn = false;
+   
+    float extensionBoxhalfSize = boxhalfSize + light.range;
+    float3 lightPos = light.pos;
+    float3 b2l = lightPos - boxCenter; //box to light
+    float3 abs_b2l = abs(b2l);
+    isIn = abs_b2l.x <= extensionBoxhalfSize && abs_b2l.y <= extensionBoxhalfSize && abs_b2l.z <= extensionBoxhalfSize;
 
-    
+    int3 temp = int3(abs_b2l.x > boxhalfSize ? 1 : 0, abs_b2l.y > boxhalfSize ? 1 : 0, abs_b2l.z > boxhalfSize ? 1 : 0);
+    int total = temp.x + temp.y + temp.z;
+
+    float3 tempSign = float3(temp.x * sign(b2l.x), temp.y * sign(b2l.y), temp.z * sign(b2l.z));
+    float3 nearBoxPoint = tempSign * boxhalfSize + boxCenter;
+    nearBoxPoint.x = tempSign.x == 0 ? lightPos.x : nearBoxPoint.x;
+    nearBoxPoint.y = tempSign.y == 0 ? lightPos.y : nearBoxPoint.y;
+    nearBoxPoint.z = tempSign.z == 0 ? lightPos.z : nearBoxPoint.z;
+
+    float3 p2l = lightPos - nearBoxPoint; //nearBoxPoint to light
+    float disSquare = dot(p2l, p2l);
+    isIn = isIn == true ? disSquare < light.range * light.range : false;
+
+    return isIn;
+}
+
+
+
+//4 byte = 4 Voxel
+[numthreads(GPUVOXELCOUNT_AXIS_X, GPUVOXELCOUNT_AXIS_YZ, GPUVOXELCOUNT_AXIS_YZ)]
+void VoxelAllLight(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+    uint CPUVoxelIdx = _CheckListCPUVoxelLight[g_id.x];
+    uint GPUVoxelIdx = t_id.z * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ + t_id.y * GPUVOXELCOUNT_AXIS_X + t_id.x + CPUVoxelIdx * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ * GPUVOXELCOUNT_AXIS_YZ;
+
+
+    uint CPUVoxelIdx_X_LightMax = CPUVoxelIdx * CPUVOXEL_LIGHT_MAX;
+
+    uint gpuVoxelValue = 0;
+    int3 CPUVoxelGridPos = GetCPUVoxelGridPos(CPUVoxelIdx);
+    for (int voxelIdx = 0; voxelIdx < 4; voxelIdx++)
+    {
+        float3 curVoxelPos = CPUVoxelGridPos * CPUVOXEL_SIZE + float3(t_id.x * 4 + voxelIdx, t_id.yz);
+        float3 curVoxelCenter = curVoxelPos + float3(0.5f, 0.5f, 0.5);
+        for (int i = 0; i < CPUVOXEL_LIGHT_MAX; i++)
+        {
+            if (_CPUVoxelLight[CPUVoxelIdx_X_LightMax + i] != -1)
+            {
+                bool isIn = CheckLight(curVoxelCenter, _LightData[_CPUVoxelLight[CPUVoxelIdx_X_LightMax + i]]);
+                if (isIn) 
+                {
+                    uint temp = 1 << (i + voxelIdx * CPUVOXEL_LIGHT_MAX);
+                    gpuVoxelValue = gpuVoxelValue | temp;
+                }
+            }
+        }
+    }
+    _GPUVoxelLight[GPUVoxelIdx] = gpuVoxelValue;
+
+
 
     
 }
