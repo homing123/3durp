@@ -223,4 +223,9 @@ public static class HMUtilEx
         //Debug.Log(boxMin + " " + boxMax + " " + isIn);
         return isOut;
     }
+
+    public static Vector3Int Mod(this Vector3Int v1, Vector3Int v2)
+    {
+        return new Vector3Int(v1.x % v2.x, v1.y % v2.y, v1.z % v2.z);
+    }
 }

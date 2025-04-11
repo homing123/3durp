@@ -51,6 +51,7 @@ public class VoxelLight : MonoBehaviour
 
     public const int CPUVoxelLightMax = 8; //복셀1칸에 최대 라이트 갯수
     public const int CPUVoxelSize = 8; //cpu 복셀 월드기준 크기
+    public const int CPUVoxelHalfSize = CPUVoxelSize / 2;
     public const int CPUVoxelHorizontalCount = 7; //cpu 복셀 xz축 갯수
     public const int CPUVoxelVerticalCount = 3; //cpu 복셀 y축 갯수
     public const int GPUVoxelSize = 1; //gpu 복셀 월드기준 크기
@@ -118,7 +119,176 @@ public class VoxelLight : MonoBehaviour
         CPUVoxelInfoInit();
         GPUVoxelInfoInit();
     }
+    List<int> m_MoveVoxel = new List<int>(); //움직임에 의한 복셀 보여주기위해 임시로담아둘 공간
+    float m_MoveVoxelGizmoTime;
+    private void Update()
+    {
+        m_CurCPUVoxelGridPos = GetCPUVoexlGridPos(Camera.main.transform.position);
+        if (m_PreCPUVoexlGridPos != m_CurCPUVoxelGridPos)
+        {
+            Vector3Int moveGridPos = m_CurCPUVoxelGridPos - m_PreCPUVoexlGridPos;
+            Debug.Log($"무브 {moveGridPos}");
+            int[] AxisXChangeIdx = GetCheckAxisIdx(CPUVoxelHorizontalCount, m_CurCPUVoxelGridPos.x, moveGridPos.x);
+            int[] AxisYChangeIdx = GetCheckAxisIdx(CPUVoxelVerticalCount, m_CurCPUVoxelGridPos.y, moveGridPos.y);
+            int[] AxisZChangeIdx = GetCheckAxisIdx(CPUVoxelHorizontalCount, m_CurCPUVoxelGridPos.z, moveGridPos.z);
+            
+            string temp = "";
+            for(int i=0;i<AxisXChangeIdx.Length;i++)
+            {
+                temp += AxisXChangeIdx[i] + ", ";
+            }
+            //Debug.Log($"갱신 axis X : {temp}");
+            temp = "";
+            for (int i = 0; i < AxisYChangeIdx.Length; i++)
+            {
+                temp += AxisYChangeIdx[i] + ", ";
+            }
+            //Debug.Log($"갱신 axis Y : {temp}");
+            temp = "";
+            for (int i = 0; i < AxisZChangeIdx.Length; i++)
+            {
+                temp += AxisZChangeIdx[i] + ", ";
+            }
+            //Debug.Log($"갱신 axis Z : {temp}");
+            m_PreCPUVoexlGridPos = m_CurCPUVoxelGridPos;
 
+            int[] arr_CheckList = GetCheckListUseAxisIdx(AxisXChangeIdx, AxisYChangeIdx, AxisZChangeIdx);
+            m_CheckListCPUVoxelLight.SetData(arr_CheckList);
+            int ChecklistCount = arr_CheckList.Length;
+            if (ChecklistCount == 0)
+            {
+                Debug.Log("CheckListCount is zero");
+                return;
+            }
+            m_CSVoxelLight.SetBuffer((int)E_VoxelLightKernel.VoxelAllLight, "_CheckListCPUVoxelLight", m_CheckListCPUVoxelLight);
+            m_CSVoxelLight.SetInt("_CheckListCount", ChecklistCount);
+            m_CSVoxelLight.SetInts("_CurCPUVoxelGridPos", new int[3] { m_CurCPUVoxelGridPos.x, m_CurCPUVoxelGridPos.y, m_CurCPUVoxelGridPos.z });
+            m_CSVoxelLight.Dispatch((int)E_VoxelLightKernel.VoxelAllLight, ChecklistCount, 1, 1);
+        }
+    }
+
+    
+    int[] GetCheckAxisIdx(int axisCount, int centerValue, int moveDis)
+    {
+        //ex axisCount = 5
+        //center 9 -> 11 => centerValue = 11, moveDis = 2, (10, 11, 7, 8, 9) => (10, 11, 12, 13, 9), result = {2, 3}
+        //center 9 -> 13 => centerValue = 11, moveDis = 2, (10, 11, 7, 8, 9) => (15, 11, 12, 13, 14), result = {0, 2, 3, 4}
+        //center 9 -> 8 => centerValue = 11, moveDis = 2, (10, 11, 7, 8, 9) => (10, 6, 7, 8, 9), result = {1}
+
+        int moveDisAbs = Mathf.Abs(moveDis);
+        int moveDisSign = (int)Mathf.Sign(moveDis);
+
+        int arrayLength = moveDisAbs > axisCount ? axisCount : moveDisAbs;
+        int[] result = new int[arrayLength];
+
+        int centerRemainder = centerValue % axisCount; //remainder = idx
+        centerRemainder = centerRemainder < 0 ? centerRemainder + axisCount : centerRemainder;
+
+        int halfRange = axisCount / 2;
+        for (int i = 0; i < arrayLength; i++)
+        {
+            //n칸 증가일 경우 변경 후 최대값순서대로 n개가 변함.
+            //최소값or최대값 idx = centerRemainder + moveDisSign * halfRange
+            //후처리로 나머지연산으로 인덱스범위 안으로 넣어야함
+
+            int curChangedIdx = centerRemainder + moveDisSign * halfRange - moveDisSign * i;
+            curChangedIdx = curChangedIdx % axisCount;
+            curChangedIdx = curChangedIdx < 0 ? curChangedIdx + axisCount : curChangedIdx;
+            result[i] = curChangedIdx;
+        }
+        return result;
+    }
+    int[] GetCheckListUseAxisIdx(int[] axisx, int[] axisy, int[] axisz)
+    {
+        //cpuvoxel 큐브는 x, y, z 순서로 인덱싱됨
+        bool[] isUseVoxel = new bool[CPUVoxelCount];
+
+        //x
+        for (int i = 0; i < axisx.Length; i++)
+        {
+            int xFlatCount = CPUVoxelHorizontalCount * CPUVoxelVerticalCount;
+            int startIdx = axisx[i];
+            for (int j = 0; j < xFlatCount;j++)
+            {
+                isUseVoxel[startIdx + CPUVoxelHorizontalCount * j] = true;
+            }
+        }
+
+        //y
+        for (int i = 0; i < axisy.Length; i++)
+        {
+            int curIdx = axisy[i] * CPUVoxelHorizontalCount;
+            for (int z = 0; z < CPUVoxelHorizontalCount; z++)
+            {
+                for (int x = 0; x < CPUVoxelHorizontalCount; x++)
+                {
+                    isUseVoxel[curIdx + x + z * CPUVoxelHorizontalCount * CPUVoxelVerticalCount] = true;
+                }
+            }
+        }
+
+        //z
+        for (int i = 0; i < axisz.Length; i++)
+        {
+            int curIdx = axisz[i] * CPUVoxelHorizontalCount * CPUVoxelVerticalCount;
+            int zFlatCount = CPUVoxelHorizontalCount * CPUVoxelVerticalCount;
+            for (int j = 0; j < zFlatCount; j++)
+            {
+                isUseVoxel[curIdx + j] = true;
+            }
+        }
+
+        List<int> l_ChecklistIdx = new List<int>();
+
+        m_MoveVoxel.Clear();
+        m_MoveVoxelGizmoTime = 1.0f;
+        //복셀이동에 의해 데이터갱신이 필요한 복셀리스트
+        for (int i = 0; i < isUseVoxel.Length; i++)
+        {
+            if(isUseVoxel[i] == true)
+            {
+                m_MoveVoxel.Add(i);
+                l_ChecklistIdx.Add(i);
+            }
+        }
+
+        //복셀이동에 의한 갱신리스트의 복셀라이트 데이터 갱신
+        //체크리스트에 빛이 없는 복셀 모두 제거
+        for (int i = 0; i < l_ChecklistIdx.Count; i++)
+        {
+            Vector3Int curVoxelGridPos = GetVoxelGridPos(l_ChecklistIdx[i]);
+            Vector3 curVoxelCenter = curVoxelGridPos * CPUVoxelSize + Vector3.one * 0.5f * CPUVoxelSize;
+
+            for(int j=0;j<CPUVoxelLightMax;j++)
+            {
+                m_CPUVoxelLightCPU[l_ChecklistIdx[i], j] = -1;
+            }
+
+            int voxelLightIdx = 0;
+            bool hasLight = false;
+            for (int lightIdx = 0; lightIdx < m_Lights.Count; lightIdx++)
+            {
+                bool isLight = CheckLight(curVoxelCenter, CPUVoxelHalfSize, m_LightDataCPU[lightIdx]);
+                if(isLight)
+                {
+                    hasLight = true;
+                    if (voxelLightIdx >= CPUVoxelLightMax)
+                    {
+                        Debug.Log($"lights so many {l_ChecklistIdx[i]} : {curVoxelGridPos}");
+                        break;
+                    }
+                    m_CPUVoxelLightCPU[l_ChecklistIdx[i], voxelLightIdx++] = lightIdx;        
+                }
+            }
+            if(hasLight== false)
+            {
+                l_ChecklistIdx.RemoveAt(i);
+                i--;
+            }
+        }
+        return l_ChecklistIdx.ToArray();
+    }
+    
     void LightDataInit()
     {
         for (int i = 0; i < m_Lights.Count; i++)
@@ -132,7 +302,6 @@ public class VoxelLight : MonoBehaviour
     {
         int minusHor = CPUVoxelHorizontalCount / 2;
         int minusVer = CPUVoxelVerticalCount / 2;
-        float halfvoxelSize = CPUVoxelSize * 0.5f;
 
         for (int z = 0; z < CPUVoxelHorizontalCount; z++)
         {
@@ -146,15 +315,15 @@ public class VoxelLight : MonoBehaviour
                     int voxellightIdx = 0;
                     for (int i = 0; i < m_Lights.Count; i++)
                     {
-                        bool islight = CheckLight(boxCenter, halfvoxelSize, m_LightDataCPU[i]);
+                        bool islight = CheckLight(boxCenter, CPUVoxelHalfSize, m_LightDataCPU[i]);
                         if(islight)
                         {
-                            m_CPUVoxelLightCPU[voxelIdx, voxellightIdx++] = i;
                             if (voxellightIdx >= CPUVoxelLightMax)
                             {
                                 Debug.Log($"lights so many {x}, {y}, {z} : {curVoxelGridPos}");
                                 break;
                             }
+                            m_CPUVoxelLightCPU[voxelIdx, voxellightIdx++] = i;                            
                         }
                     }
                 }
@@ -257,6 +426,36 @@ public class VoxelLight : MonoBehaviour
         _z = _z < 0 ? _z + CPUVoxelHorizontalCount : _z;
         return _x + _y * CPUVoxelHorizontalCount + _z * CPUVoxelHorizontalCount * CPUVoxelVerticalCount;
     }
+    Vector3Int VoxelIdxToIdx3(int voxelIdx)
+    {
+        int voxelIdx3_x = voxelIdx % CPUVoxelHorizontalCount;
+        int voxelIdx3_y = (voxelIdx % (CPUVoxelVerticalCount * CPUVoxelHorizontalCount)) / CPUVoxelHorizontalCount;
+        int voxelIdx3_z = voxelIdx / (CPUVoxelVerticalCount * CPUVoxelHorizontalCount);
+        return new Vector3Int(voxelIdx3_x, voxelIdx3_y, voxelIdx3_z);
+    }
+
+    Vector3Int GetVoxelGridPos(int voxelIdx)
+    {
+        Vector3Int voxelIdx3 = VoxelIdxToIdx3(voxelIdx);
+        Vector3Int remainder = m_CurCPUVoxelGridPos.Mod(new Vector3Int(CPUVoxelHorizontalCount, CPUVoxelVerticalCount, CPUVoxelHorizontalCount));
+        remainder.x = remainder.x < 0 ? remainder.x + CPUVoxelHorizontalCount : remainder.x;
+        remainder.y = remainder.y < 0 ? remainder.y + CPUVoxelVerticalCount : remainder.y;
+        remainder.z = remainder.z < 0 ? remainder.z + CPUVoxelHorizontalCount : remainder.z;
+
+        Vector3Int remainder2idx = voxelIdx3 - remainder;
+        Vector3Int halfAxis = new Vector3Int(CPUVoxelHorizontalCount, CPUVoxelVerticalCount, CPUVoxelHorizontalCount) / 2;
+        Vector3Int signValue = new Vector3Int((int)Mathf.Sign(remainder2idx.x), (int)Mathf.Sign(remainder2idx.y), (int)Mathf.Sign(remainder2idx.z));
+        Vector3Int absValue = new Vector3Int(Mathf.Abs(remainder2idx.x), Mathf.Abs(remainder2idx.y), Mathf.Abs(remainder2idx.z));
+        Vector3Int center2IdxValue = default;
+        center2IdxValue.x = absValue.x > halfAxis.x ? remainder2idx.x - signValue.x * CPUVoxelHorizontalCount : remainder2idx.x;
+        center2IdxValue.y = absValue.y > halfAxis.y ? remainder2idx.y - signValue.y * CPUVoxelVerticalCount : remainder2idx.y;
+        center2IdxValue.z = absValue.z > halfAxis.z ? remainder2idx.z - signValue.z * CPUVoxelHorizontalCount : remainder2idx.z;
+
+        Vector3Int result = m_CurCPUVoxelGridPos + center2IdxValue;
+        //Debug.Log(Mathf.Sign(0));   
+        //Debug.Log($"center : {m_CurCPUVoxelGridPos}, voxelIdx3 : {voxelIdx3}, remainder : {remainder}, r2idx : {remainder2idx}, half : {halfAxis}, sign : {signValue}, abs : {absValue}, center2idx : {center2IdxValue}, result : {result}");
+        return m_CurCPUVoxelGridPos + center2IdxValue;
+    }
     private void OnDestroy()
     {
         m_LightDataGPU.Release();
@@ -310,7 +509,6 @@ public class VoxelLight : MonoBehaviour
 
         int minusHor = CPUVoxelHorizontalCount / 2;
         int minusVer = CPUVoxelVerticalCount / 2;
-        float halfvoxelSize = CPUVoxelSize * 0.5f;
         int[] GPUVoxelLight = new int[GPUVoxelDataCount];
         m_GPUVoxelLight.GetData(GPUVoxelLight);
         //for(int i=0;i<GPUVoxelDataCount;i++)
@@ -486,7 +684,27 @@ public class VoxelLight : MonoBehaviour
         {
             return;
         }
-     
+
+        if (m_MoveVoxelGizmoTime > 0)
+        {
+            m_MoveVoxelGizmoTime -= Time.deltaTime;
+            for (int i = 0; i < CPUVoxelCount; i++)
+            {
+                Vector3Int voxelGridPos = GetVoxelGridPos(i);
+                Vector3 voxelCenter = voxelGridPos * CPUVoxelSize + Vector3.one * 0.5f * CPUVoxelSize;
+
+                if(m_MoveVoxel.Contains(i))
+                {
+                    Gizmos.color = Color.white;
+                }
+                else
+                {
+                    Gizmos.color = Color.black;
+                }
+                Gizmos.DrawWireCube(voxelCenter, Vector3.one * CPUVoxelSize);
+            }
+            return;
+        }
 
         switch (m_DrawGizmoVoxelKind)
         {
