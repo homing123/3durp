@@ -246,7 +246,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1273070243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,7 +364,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1296654759
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -690,6 +690,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CSVoxelLight: {fileID: 7200000, guid: d67fcb63adeb9e044ac355811135bb75, type: 3}
+  m_DrawGizmoVoxelKind: 0
+  m_DrawGizmoYGridPos: 0
+  m_DrawGizmoOnlyLightVoxel: 0
+  m_DrawMoveVoxel: 0
 --- !u!114 &1591103210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -751,7 +755,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1654596313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -869,7 +873,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1663536794
 MonoBehaviour:
   m_ObjectHideFlags: 0

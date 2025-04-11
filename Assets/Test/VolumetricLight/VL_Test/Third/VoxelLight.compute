@@ -1,5 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel VoxelAllLight
+#pragma kernel VoxelInit
 #define GPUVOXELCOUNT_AXIS_X 2 //GPUVOXELCOUNT_AXIS_YZ / 4
 #define GPUVOXELCOUNT_AXIS_YZ 8
 #define CPUVOXEL_HORIZONTAL_COUNT 7
@@ -16,11 +17,12 @@ struct LightData
 };
 
 RWStructuredBuffer<LightData> _LightData;
-RWStructuredBuffer<uint> _CheckListCPUVoxelLight;
+RWStructuredBuffer<uint> _CheckCPUVoxels;
 RWStructuredBuffer<int> _CPUVoxelLight;
 RWStructuredBuffer<uint> _GPUVoxelLight;
 
-uint _CheckListCount;
+RWStructuredBuffer<uint> _InitCPUVoxels;
+
 int3 _CurCPUVoxelGridPos;
 
 int GetValue(int axisCount, int centerValue, int idx)
@@ -86,7 +88,7 @@ bool CheckLight(float3 boxCenter,  LightData light)
 [numthreads(GPUVOXELCOUNT_AXIS_X, GPUVOXELCOUNT_AXIS_YZ, GPUVOXELCOUNT_AXIS_YZ)]
 void VoxelAllLight(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
 {
-    uint CPUVoxelIdx = _CheckListCPUVoxelLight[g_id.x];
+    uint CPUVoxelIdx = _CheckCPUVoxels[g_id.x];
     uint GPUVoxelIdx = t_id.z * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ + t_id.y * GPUVOXELCOUNT_AXIS_X + t_id.x + CPUVoxelIdx * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ * GPUVOXELCOUNT_AXIS_YZ;
 
 
@@ -112,8 +114,16 @@ void VoxelAllLight(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
         }
     }
     _GPUVoxelLight[GPUVoxelIdx] = gpuVoxelValue;
+}
 
 
+//_InitListCPUVoxelLight
+//_GPUVoxelLight
 
-    
+[numthreads(GPUVOXELCOUNT_AXIS_X, GPUVOXELCOUNT_AXIS_YZ, GPUVOXELCOUNT_AXIS_YZ)]
+void VoxelInit(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+    uint CPUVoxelIdx = _InitCPUVoxels[g_id.x];
+    uint GPUVoxelIdx = t_id.z * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ + t_id.y * GPUVOXELCOUNT_AXIS_X + t_id.x + CPUVoxelIdx * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ * GPUVOXELCOUNT_AXIS_YZ;
+    _GPUVoxelLight[GPUVoxelIdx] = 0;
 }
