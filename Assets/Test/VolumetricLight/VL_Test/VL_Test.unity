@@ -1926,7 +1926,6 @@ GameObject:
   - component: {fileID: 1914987898}
   - component: {fileID: 1914987900}
   - component: {fileID: 1914987899}
-  - component: {fileID: 1914987901}
   m_Layer: 0
   m_Name: Global Volume
   m_TagString: Untagged
@@ -2022,18 +2021,6 @@ MonoBehaviour:
   m_ShadowScatteringDistance: 8
   m_Add: 0.15
   m_Out: 0.02
---- !u!114 &1914987901
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1914987895}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0fcfb23fa817ec84980cea0f15605352, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1981338830
 GameObject:
   m_ObjectHideFlags: 0

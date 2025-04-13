@@ -1,6 +1,7 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel VoxelAllLight
 #pragma kernel VoxelInit
+#pragma kernel VoxelUpdate
 #define GPUVOXELCOUNT_AXIS_X 2 //GPUVOXELCOUNT_AXIS_YZ / 4
 #define GPUVOXELCOUNT_AXIS_YZ 8
 #define CPUVOXEL_HORIZONTAL_COUNT 7
@@ -22,6 +23,8 @@ RWStructuredBuffer<int> _CPUVoxelLight;
 RWStructuredBuffer<uint> _GPUVoxelLight;
 
 RWStructuredBuffer<uint> _InitCPUVoxels;
+
+RWStructuredBuffer<uint> _CPUVoxelUpdateBitmask;
 
 int3 _CurCPUVoxelGridPos;
 
@@ -126,4 +129,67 @@ void VoxelInit(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
     uint CPUVoxelIdx = _InitCPUVoxels[g_id.x];
     uint GPUVoxelIdx = t_id.z * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ + t_id.y * GPUVOXELCOUNT_AXIS_X + t_id.x + CPUVoxelIdx * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ * GPUVOXELCOUNT_AXIS_YZ;
     _GPUVoxelLight[GPUVoxelIdx] = 0;
+}
+
+
+[numthreads(GPUVOXELCOUNT_AXIS_X, GPUVOXELCOUNT_AXIS_YZ, GPUVOXELCOUNT_AXIS_YZ)]
+void VoxelUpdate(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+    uint CPUVoxelIdx = _CheckCPUVoxels[g_id.x];
+    uint CPUVoxelUpdateBitmask = _CPUVoxelUpdateBitmask[CPUVoxelIdx];
+    uint GPUVoxelIdx = t_id.z * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ + t_id.y * GPUVOXELCOUNT_AXIS_X + t_id.x + CPUVoxelIdx * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ * GPUVOXELCOUNT_AXIS_YZ;
+    uint CPUVoxelIdx_X_LightMax = CPUVoxelIdx * CPUVOXEL_LIGHT_MAX;
+    uint GPUVoxelValue = 0;
+    int3 CPUVoxelGridPos = GetCPUVoxelGridPos(CPUVoxelIdx);
+    float3 CPUVoxelPos = CPUVoxelGridPos * CPUVOXEL_SIZE;
+    
+    int arr_CheckCPUVoxelLightIdx[CPUVOXEL_LIGHT_MAX] = { -1, -1, -1, -1, -1, -1, -1, -1};
+    uint curBit = 1;
+    uint curArrayIdx = 0;
+    for (int i = 0; i < CPUVOXEL_LIGHT_MAX; i++)
+    {
+        uint temp = curBit & CPUVoxelUpdateBitmask;
+        if (temp > 0)
+        {
+            arr_CheckCPUVoxelLightIdx[curArrayIdx++] = i;
+        }           
+        curBit = curBit << 1;
+    }
+    
+    float3 arr_VoxelPos[4];
+    float3 arr_VoxelCenter[4];
+    for (int i = 0; i < 4; i++)
+    {
+        arr_VoxelPos[i] = CPUVoxelPos + float3(t_id.x * 4 + i, t_id.yz);;
+        arr_VoxelCenter[i] = arr_VoxelPos[i] + float3(0.5f, 0.5f, 0.5);
+    }
+    
+    
+    //for (int voxelIdx = 0; voxelIdx < 4; voxelIdx++)
+    //{
+    //    if (CheckLight(arr_VoxelCenter[voxelIdx], _LightData[0]))
+    //    {
+    //        GPUVoxelValue = GPUVoxelValue | (0x000000FF << (voxelIdx * 8));
+    //    }
+
+    //}
+    for (int i = 0; i < CPUVOXEL_LIGHT_MAX; i++)
+    {
+        int curCheckCPUVoxelLightIdx = arr_CheckCPUVoxelLightIdx[i] + CPUVoxelIdx_X_LightMax;
+        if (curCheckCPUVoxelLightIdx == -1)
+        {
+            break;
+        }
+        
+        uint curLightIdx = _CPUVoxelLight[curCheckCPUVoxelLightIdx];
+
+        for (int voxelIdx = 0; voxelIdx < 4; voxelIdx++)
+        {
+            uint isIn = 0;
+            isIn = curLightIdx == -1 ? 0 : CheckLight(arr_VoxelCenter[voxelIdx], _LightData[curLightIdx]);
+            isIn = isIn << (i + voxelIdx * CPUVOXEL_LIGHT_MAX);
+            GPUVoxelValue = GPUVoxelValue | isIn;
+        }
+    }
+    _GPUVoxelLight[GPUVoxelIdx] = GPUVoxelValue; 
 }
