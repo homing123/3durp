@@ -70,7 +70,7 @@ public class VoxelLight : MonoBehaviour
     [SerializeField] [Range(0, CPUVoxelVerticalCount * CPUVoxelSize - 1)] int m_DrawGizmoGPUYIdx;
     [SerializeField] bool m_DrawGizmoOnlyLightVoxel;
 
-    List<Light> m_Lights = new List<Light>(); //씬 안의 모든 라이트
+    Light[] m_Lights; //씬 안의 모든 라이트
     LightData[] m_LightDataCPU; //gpu로 넘길 라이트 정보 = to gpu > m_LightDataGPU
     ComputeBuffer m_LightDataGPU;
 
@@ -92,6 +92,7 @@ public class VoxelLight : MonoBehaviour
     [SerializeField] bool m_DrawMoveVoxel;
     private void Awake()
     {
+        m_Lights = new Light[MaxLightCount];
         m_LightDataCPU = new LightData[MaxLightCount];
         m_LightDataGPU = new ComputeBuffer(MaxLightCount, HMUtil.StructSize(typeof(LightData)));
 
@@ -138,11 +139,12 @@ public class VoxelLight : MonoBehaviour
     private void Start()
     {
         Light[] arr_Light = FindObjectsByType<Light>(FindObjectsSortMode.None);
+        int lightIdx = 0;
         for (int i = 0; i < arr_Light.Length; i++)
         {
             if (arr_Light[i].type != LightType.Directional)
             {
-                m_Lights.Add(arr_Light[i]);
+                m_Lights[lightIdx] = arr_Light[i];
             }
         }
         LightDataInit();
@@ -169,9 +171,12 @@ public class VoxelLight : MonoBehaviour
     #region InitData
     void LightDataInit()
     {
-        for (int i = 0; i < m_Lights.Count; i++)
+        for (int i = 0; i < MaxLightCount; i++)
         {
-            m_LightDataCPU[i] = new LightData(m_Lights[i]);      
+            if (m_Lights[i] != null)
+            {
+                m_LightDataCPU[i] = new LightData(m_Lights[i]);
+            }
         }
 
         m_LightDataGPU.SetData(m_LightDataCPU);
@@ -194,8 +199,12 @@ public class VoxelLight : MonoBehaviour
                     int voxelIdx = GetVoxelIdx(curVoxelGridPos);
                     int voxellightIdx = 0;
                     bool addCheckList = false;
-                    for (int i = 0; i < m_Lights.Count; i++)
+                    for (int i = 0; i < MaxLightCount; i++)
                     {
+                        if (m_Lights[i] == null)
+                        {
+                            continue;
+                        }
                         bool islight = CheckLight(boxCenter, CPUVoxelHalfSize, m_LightDataCPU[i]);
                         if (islight)
                         {
@@ -246,8 +255,12 @@ public class VoxelLight : MonoBehaviour
                     int voxelIdx = GetVoxelIdx(curVoxelGridPos);
                     int voxellightIdx = 0;
                     bool addCheckList = false;
-                    for (int i = 0; i < m_Lights.Count; i++)
+                    for (int i = 0; i < MaxLightCount; i++)
                     {
+                        if (m_Lights[i] == null)
+                        {
+                            continue;
+                        }
                         bool islight = CheckLight(boxCenter, CPUVoxelHalfSize, m_LightDataCPU[i]);
                         if (islight)
                         {
@@ -283,69 +296,6 @@ public class VoxelLight : MonoBehaviour
         m_CPUVoxelLightGPU.SetData(m_CPUVoxelLightCPU);
         m_CPUVoxelUpdateBitmaskGPU.SetData(m_CPUVoxelUpdateBitmaskCPU);
         m_CSVoxelLight.Dispatch((int)E_VoxelLightKernel.VoxelUpdate, ChecklistCount, 1, 1);
-    }
-    void CPUVoxelInfoInit()
-    {
-        int minusHor = CPUVoxelHorizontalCount / 2;
-        int minusVer = CPUVoxelVerticalCount / 2;
-
-        for (int z = 0; z < CPUVoxelHorizontalCount; z++)
-        {
-            for (int y = 0; y < CPUVoxelVerticalCount; y++)
-            {
-                for (int x = 0; x < CPUVoxelHorizontalCount; x++)
-                {
-                    Vector3Int curVoxelGridPos = m_CurCPUVoxelGridPos + new Vector3Int(x - minusHor, y - minusVer, z - minusHor);
-                    Vector3 boxCenter = curVoxelGridPos * CPUVoxelSize + Vector3.one * 0.5f * CPUVoxelSize;
-                    int voxelIdx = GetVoxelIdx(curVoxelGridPos);
-                    int voxellightIdx = 0;
-                    for (int i = 0; i < m_Lights.Count; i++)
-                    {
-                        bool islight = CheckLight(boxCenter, CPUVoxelHalfSize, m_LightDataCPU[i]);
-                        if(islight)
-                        {
-                            if (voxellightIdx >= CPUVoxelLightMax)
-                            {
-                                Debug.Log($"lights so many {x}, {y}, {z} : {curVoxelGridPos}");
-                                break;
-                            }
-                            m_CPUVoxelLightCPU[voxelIdx, voxellightIdx++] = i;                            
-                        }
-                    }
-                }
-            }
-        }
-
-        m_CPUVoxelLightGPU.SetData(m_CPUVoxelLightCPU);
-    }
-
-
-    void GPUVoxelInfoInit()
-    {
-        List<int> l_CheckList = new List<int>();
-        for (int i = 0; i < CPUVoxelCount; i++)
-        {
-            for (int j = 0; j < CPUVoxelLightMax; j++)
-            {
-                if (m_CPUVoxelLightCPU[i, j] != -1)
-                {
-                    l_CheckList.Add(i);
-                    //Debug.Log($"체크리스트 : {i}");
-                    break;
-                }
-            }
-        }
-
-        int[] arr_CheckList = l_CheckList.ToArray();
-        m_CheckCPUVoxels.SetData(arr_CheckList);
-        int ChecklistCount = arr_CheckList.Length;
-        if (ChecklistCount == 0)
-        {
-            Debug.Log("CheckListCount is zero");
-            return;
-        }
-        m_CSVoxelLight.Dispatch((int)E_VoxelLightKernel.VoxelAllLight, ChecklistCount, 1, 1);
-
     }
 
     #endregion
@@ -449,8 +399,12 @@ public class VoxelLight : MonoBehaviour
 
             int voxelLightIdx = 0;
             bool hasLight = false;
-            for (int lightIdx = 0; lightIdx < m_Lights.Count; lightIdx++)
+            for (int lightIdx = 0; lightIdx < MaxLightCount; lightIdx++)
             {
+                if (m_Lights[lightIdx] == null)
+                {
+                    continue;
+                }
                 bool isLight = CheckLight(curVoxelCenter, CPUVoxelHalfSize, m_LightDataCPU[lightIdx]);
                 if (isLight)
                 {
@@ -523,6 +477,105 @@ public class VoxelLight : MonoBehaviour
             m_CSVoxelLight.Dispatch((int)E_VoxelLightKernel.VoxelInit, InitVoxelCount, 1, 1);
         }
 
+    }
+    #endregion
+    #region LightUpdate
+    //라이트업데이트 만든 후, 무브그리드에도 비트마스크를 이용한 갱신으로 변경함과 동시에 둘다 업데이트로 실행되니 같이 실행되도록 즉
+    //cpu에서 업데이트 목록을 만들어서 보내면 gpu에서 한번에 처리되도록 해야함
+    public void AddLight(Light light)
+    {
+        for (int i = 0; i < MaxLightCount; i++)
+        {
+            if (m_Lights[i] == null)
+            {
+                m_Lights[i] = light;
+                break;
+            }
+        }
+    }
+    public void RemoveLight(Light light)
+    {
+        for (int i = 0; i < MaxLightCount; i++)
+        {
+            if (m_Lights[i] == light)
+            {
+                m_Lights[i] = null;
+                break;
+            }
+        }
+    }
+    void LightUpdate()
+    {
+        List<int> m_CheckLightIdx = new List<int>();
+
+        for(int i=0;i< MaxLightCount; i++)
+        {
+            if (m_Lights[i] == null && m_LightDataCPU[i].isOff() == false)
+            {
+                //이번 프레임에 제거된 경우
+                m_CheckLightIdx.Add(i);
+                m_LightDataCPU[i].Reset();
+            }
+            else
+            {
+                //변경, 추가된 경우
+                LightData curData = new LightData(m_Lights[i]);
+                if (m_LightDataCPU[i] != curData)
+                {
+                    m_CheckLightIdx.Add(i);
+                    m_LightDataCPU[i] = curData;
+                }
+            }
+        }
+
+        if(m_CheckLightIdx.Count == 0)
+        {
+            return;
+        }
+
+        //int minusHor = CPUVoxelHorizontalCount / 2;
+        //int minusVer = CPUVoxelVerticalCount / 2;
+        //List<int> l_CheckList = new List<int>();
+
+        //for (int z = 0; z < CPUVoxelHorizontalCount; z++)
+        //{
+        //    for (int y = 0; y < CPUVoxelVerticalCount; y++)
+        //    {
+        //        for (int x = 0; x < CPUVoxelHorizontalCount; x++)
+        //        {
+        //            uint lightBitmask = 0;
+        //            Vector3Int curVoxelGridPos = m_CurCPUVoxelGridPos + new Vector3Int(x - minusHor, y - minusVer, z - minusHor);
+        //            Vector3 boxCenter = curVoxelGridPos * CPUVoxelSize + Vector3.one * 0.5f * CPUVoxelSize;
+        //            int voxelIdx = GetVoxelIdx(curVoxelGridPos);
+        //            int voxellightIdx = 0;
+        //            bool addCheckList = false;
+        //            for (int i = 0; i < m_CheckLightIdx; i++)
+        //            {
+        //                bool islight = CheckLight(boxCenter, CPUVoxelHalfSize, m_LightDataCPU[i]);
+        //                if (islight)
+        //                {
+        //                    if (voxellightIdx >= CPUVoxelLightMax)
+        //                    {
+        //                        Debug.Log($"lights so many {x}, {y}, {z} : {curVoxelGridPos}");
+        //                        break;
+        //                    }
+        //                    lightBitmask = lightBitmask | (((uint)1) << voxellightIdx);
+        //                    addCheckList = true;
+        //                    m_CPUVoxelLightCPU[voxelIdx, voxellightIdx++] = i;
+        //                }
+        //            }
+        //            if (addCheckList)
+        //            {
+        //                l_CheckList.Add(voxelIdx);
+        //            }
+
+        //            m_CPUVoxelUpdateBitmaskCPU[voxelIdx] = lightBitmask;
+        //        }
+        //    }
+        //}
+
+        m_LightDataGPU.SetData(m_LightDataCPU);
+        
     }
     #endregion
     #region Common
@@ -624,9 +677,12 @@ public class VoxelLight : MonoBehaviour
     {
         Debug.Log($"LogLightData");
 
-        for (int i = 0; i < m_Lights.Count; i++)
+        for (int i = 0; i < MaxLightCount; i++)
         {
-            m_LightDataCPU[i].Log();
+            if (m_Lights[i] != null)
+            {
+                m_LightDataCPU[i].Log(i);
+            }
         }
     }
     [ContextMenu("LogCPUVoxel")]
@@ -940,6 +996,15 @@ public struct LightData
         Range = light.range;
     }
 
+    public bool isOff()
+    {
+        return Range == 0;
+    }
+    public void Reset()
+    {
+        Type = 0;
+        Range = 0;
+    }
     public bool isUpdate(Light light)
     {
         Vector3 pos = light.transform.position;
@@ -950,8 +1015,16 @@ public struct LightData
         }
         return false;
     }
-    public void Log()
+    public static bool operator ==(LightData d1, LightData d2)
     {
-        Debug.Log($"Type : {Type}, Range : {Range}, Pos : {Pos}");
+        return d1.Type == d2.Type && d1.Range == d2.Range && d1.Pos == d2.Pos;
+    }
+    public static bool operator !=(LightData d1, LightData d2)
+    {
+        return !(d1 == d2);
+    }
+    public void Log(int idx)
+    {
+        Debug.Log($"IDX : {idx}, Type: {Type}, Range : {Range}, Pos : {Pos}");
     }
 }
