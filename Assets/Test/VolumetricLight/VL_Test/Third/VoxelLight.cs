@@ -290,7 +290,7 @@ public class VoxelLight : MonoBehaviour
     }
 
     #endregion
-    #region MoveGrid
+    #region VoxelUpdate
     int[] GetCheckAxisIdx(int axisCount, int centerValue, int moveDis)
     {
         //ex axisCount = 5
@@ -605,7 +605,7 @@ public class VoxelLight : MonoBehaviour
     }
 
     #endregion
-    #region LightUpdate
+    #region Light
     //라이트업데이트 만든 후, 무브그리드에도 비트마스크를 이용한 갱신으로 변경함과 동시에 둘다 업데이트로 실행되니 같이 실행되도록 즉
     //cpu에서 업데이트 목록을 만들어서 보내면 gpu에서 한번에 처리되도록 해야함
     
@@ -879,10 +879,6 @@ public class VoxelLight : MonoBehaviour
 
     #endregion
     #region Gizmo
-    Color[] arr_Colors = new Color[9]
-    {
-        Color.black, Color.red, new Color(1,0.5f,0,1), Color.yellow, Color.green, Color.blue, new Color(0.5f, 0.5f, 1, 1), Color.magenta, new Color(0,1,1,1)
-    };
     void DrawCPUVoxelGizmo()
     {
         int minusHor = CPUVoxelHorizontalCount / 2;
@@ -906,14 +902,16 @@ public class VoxelLight : MonoBehaviour
                     Vector3 voxelCenter = curVoxelGridPos * CPUVoxelSize + Vector3.one * 0.5f * CPUVoxelSize;
                     int voxelIdx = GetVoxelIdx(curVoxelGridPos);
                     int lightCount = 0;
+                    Color color = Color.black;
                     for (int i = 0; i < CPUVoxelLightMax; i++)
                     {
                         if (m_CPUVoxelLightCPU[voxelIdx, i] != -1)
                         {
                             lightCount++;
+                            color += m_LightDataCPU[m_CPUVoxelLightCPU[voxelIdx, i]].Color;
                         }
                     }
-                    Gizmos.color = arr_Colors[lightCount];
+                    Gizmos.color = color;
                     if(m_DrawGizmoOnlyLightVoxel == false || (m_DrawGizmoOnlyLightVoxel && lightCount > 0))
                     {
                         Gizmos.DrawWireCube(voxelCenter, Vector3.one * CPUVoxelSize);
@@ -963,14 +961,7 @@ public class VoxelLight : MonoBehaviour
                                         bool isLight = (curGPUVoxelLight & po2) != 0;
                                         if (isLight)
                                         {
-                                            if (m_CPUVoxelLightCPU[voxelIdx, j] == -1)
-                                            {
-                                                color += Color.white;
-                                            }
-                                            else
-                                            {
-                                                color += m_LightDataCPU[m_CPUVoxelLightCPU[voxelIdx, j]].Color;
-                                            }
+                                            color += m_LightDataCPU[m_CPUVoxelLightCPU[voxelIdx, j]].Color;
                                             lightCount++;
                                         }
                                         po2 = po2 << 1;
