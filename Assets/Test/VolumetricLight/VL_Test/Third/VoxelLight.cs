@@ -53,8 +53,8 @@ public class VoxelLight : MonoBehaviour
     public const int CPUVoxelLightMax = 8; //복셀1칸에 최대 라이트 갯수
     public const int CPUVoxelSize = 8; //cpu 복셀 월드기준 크기
     public const int CPUVoxelHalfSize = CPUVoxelSize / 2;
-    public const int CPUVoxelHorizontalCount = 7; //cpu 복셀 xz축 갯수
-    public const int CPUVoxelVerticalCount = 3; //cpu 복셀 y축 갯수
+    public const int CPUVoxelHorizontalCount = 3; //cpu 복셀 xz축 갯수
+    public const int CPUVoxelVerticalCount = 1; //cpu 복셀 y축 갯수
     public const int GPUVoxelSize = 1; //gpu 복셀 월드기준 크기
     public const int GPUVoxelAxisCount = 8; //gpu 복셀 각 축의 갯수 ex 32 = 32 * 32 * 32 = 1 cpu 복셀
     public const int MaxLightCount = 128; //최대 라이트 갯수
@@ -138,15 +138,6 @@ public class VoxelLight : MonoBehaviour
     }
     private void Start()
     {
-        Light[] arr_Light = FindObjectsByType<Light>(FindObjectsSortMode.None);
-        int lightIdx = 0;
-        for (int i = 0; i < arr_Light.Length; i++)
-        {
-            if (arr_Light[i].type != LightType.Directional)
-            {
-                m_Lights[lightIdx] = arr_Light[i];
-            }
-        }
         LightDataInit();
         VoxelInit2();
     }
@@ -157,6 +148,7 @@ public class VoxelLight : MonoBehaviour
         {
             MoveGrid();
         }
+        LightUpdate();
     }
 
     private void OnDestroy()
@@ -171,11 +163,15 @@ public class VoxelLight : MonoBehaviour
     #region InitData
     void LightDataInit()
     {
-        for (int i = 0; i < MaxLightCount; i++)
+        Light[] arr_Light = FindObjectsByType<Light>(FindObjectsSortMode.None);
+        int lightIdx = 0;
+        for (int i = 0; i < arr_Light.Length; i++)
         {
-            if (m_Lights[i] != null)
+            if (arr_Light[i].type != LightType.Directional)
             {
-                m_LightDataCPU[i] = new LightData(m_Lights[i]);
+                m_Lights[lightIdx] = arr_Light[i];
+                m_LightDataCPU[lightIdx] = new LightData(m_Lights[lightIdx]);
+                lightIdx++;
             }
         }
 
@@ -427,6 +423,11 @@ public class VoxelLight : MonoBehaviour
         return (l_CheckVoxelIdx.ToArray(), l_InitVoxelIdx.ToArray());
     }
 
+    //복셀 움직이고 라이트 갱신정보 같이 체크해서 computeshader 로 보내야함
+    //움직인 복셀은 체크가 필요한 복셀과, 비우기만 하면 되는 복셀로 나뉨
+    //라이트 갱신은 추가, 변경, 제거 3가지유형이 있는데
+    //모든 유형을 checklightidx 에 넣어서 cpu복셀에서 체크함 이때 업데이트 비트마스크도 수정해줘야함
+    //
     void MoveGrid()
     {
         Vector3Int moveGridPos = m_CurCPUVoxelGridPos - m_PreCPUVoexlGridPos;
@@ -482,6 +483,7 @@ public class VoxelLight : MonoBehaviour
     #region LightUpdate
     //라이트업데이트 만든 후, 무브그리드에도 비트마스크를 이용한 갱신으로 변경함과 동시에 둘다 업데이트로 실행되니 같이 실행되도록 즉
     //cpu에서 업데이트 목록을 만들어서 보내면 gpu에서 한번에 처리되도록 해야함
+    
     public void AddLight(Light light)
     {
         for (int i = 0; i < MaxLightCount; i++)
@@ -506,75 +508,151 @@ public class VoxelLight : MonoBehaviour
     }
     void LightUpdate()
     {
-        List<int> m_CheckLightIdx = new List<int>();
+        List<int> m_RevmoeLightIdx = new List<int>();
+        List<int> m_AddorTransformationLightIdx = new List<int>();
 
         for(int i=0;i< MaxLightCount; i++)
         {
+
             if (m_Lights[i] == null && m_LightDataCPU[i].isOff() == false)
             {
                 //이번 프레임에 제거된 경우
-                m_CheckLightIdx.Add(i);
+                m_RevmoeLightIdx.Add(i);
                 m_LightDataCPU[i].Reset();
             }
             else
             {
+                if(m_Lights[i] == null)
+                {
+                    continue;
+                }
                 //변경, 추가된 경우
                 LightData curData = new LightData(m_Lights[i]);
                 if (m_LightDataCPU[i] != curData)
                 {
-                    m_CheckLightIdx.Add(i);
+                    m_AddorTransformationLightIdx.Add(i);
                     m_LightDataCPU[i] = curData;
                 }
             }
         }
 
-        if(m_CheckLightIdx.Count == 0)
+        if(m_RevmoeLightIdx.Count + m_AddorTransformationLightIdx.Count == 0)
         {
             return;
         }
 
-        //int minusHor = CPUVoxelHorizontalCount / 2;
-        //int minusVer = CPUVoxelVerticalCount / 2;
-        //List<int> l_CheckList = new List<int>();
-
-        //for (int z = 0; z < CPUVoxelHorizontalCount; z++)
-        //{
-        //    for (int y = 0; y < CPUVoxelVerticalCount; y++)
-        //    {
-        //        for (int x = 0; x < CPUVoxelHorizontalCount; x++)
-        //        {
-        //            uint lightBitmask = 0;
-        //            Vector3Int curVoxelGridPos = m_CurCPUVoxelGridPos + new Vector3Int(x - minusHor, y - minusVer, z - minusHor);
-        //            Vector3 boxCenter = curVoxelGridPos * CPUVoxelSize + Vector3.one * 0.5f * CPUVoxelSize;
-        //            int voxelIdx = GetVoxelIdx(curVoxelGridPos);
-        //            int voxellightIdx = 0;
-        //            bool addCheckList = false;
-        //            for (int i = 0; i < m_CheckLightIdx; i++)
-        //            {
-        //                bool islight = CheckLight(boxCenter, CPUVoxelHalfSize, m_LightDataCPU[i]);
-        //                if (islight)
-        //                {
-        //                    if (voxellightIdx >= CPUVoxelLightMax)
-        //                    {
-        //                        Debug.Log($"lights so many {x}, {y}, {z} : {curVoxelGridPos}");
-        //                        break;
-        //                    }
-        //                    lightBitmask = lightBitmask | (((uint)1) << voxellightIdx);
-        //                    addCheckList = true;
-        //                    m_CPUVoxelLightCPU[voxelIdx, voxellightIdx++] = i;
-        //                }
-        //            }
-        //            if (addCheckList)
-        //            {
-        //                l_CheckList.Add(voxelIdx);
-        //            }
-
-        //            m_CPUVoxelUpdateBitmaskCPU[voxelIdx] = lightBitmask;
-        //        }
-        //    }
-        //}
-
+        for (int i = 0; i < m_RevmoeLightIdx.Count; i++)
+        {
+            Debug.Log($"제거 : {m_RevmoeLightIdx[i]}");
+        }
+        for (int i = 0; i < m_AddorTransformationLightIdx.Count; i++)
+        {
+            Debug.Log($"추가 및 변경 : {m_AddorTransformationLightIdx[i]}");
+        }
         m_LightDataGPU.SetData(m_LightDataCPU);
+
+        int minusHor = CPUVoxelHorizontalCount / 2;
+        int minusVer = CPUVoxelVerticalCount / 2;
+        List<int> l_CheckList = new List<int>();
+
+        for (int z = 0; z < CPUVoxelHorizontalCount; z++)
+        {
+            for (int y = 0; y < CPUVoxelVerticalCount; y++)
+            {
+                for (int x = 0; x < CPUVoxelHorizontalCount; x++)
+                {
+                    uint lightBitmask = 0;
+                    Vector3Int curVoxelGridPos = m_CurCPUVoxelGridPos + new Vector3Int(x - minusHor, y - minusVer, z - minusHor);
+                    Vector3 boxCenter = curVoxelGridPos * CPUVoxelSize + Vector3.one * 0.5f * CPUVoxelSize;
+                    int voxelIdx = GetVoxelIdx(curVoxelGridPos);
+                    bool addCheckList = false;
+                    for (int i = 0; i < m_RevmoeLightIdx.Count; i++)
+                    {
+                        LightData curLightData = m_LightDataCPU[m_RevmoeLightIdx[i]];
+                        //제거된 경우 기존 cpu 복셀에 빛이 있을경우 제거해야함
+                        for (int cpuVoxelLightIdx = 0; cpuVoxelLightIdx < CPUVoxelLightMax; cpuVoxelLightIdx++)
+                        {
+                            if (m_CPUVoxelLightCPU[voxelIdx, cpuVoxelLightIdx] == m_RevmoeLightIdx[i])
+                            {
+                                m_CPUVoxelLightCPU[voxelIdx, cpuVoxelLightIdx] = -1;
+                                lightBitmask = lightBitmask | ((uint)1) << cpuVoxelLightIdx;
+                                addCheckList = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < m_AddorTransformationLightIdx.Count; i++)
+                    {
+                        LightData curLightData = m_LightDataCPU[m_AddorTransformationLightIdx[i]];
+                        //추가, 변경 된 경우 cpu복셀 체크라이트 다시해야함
+
+                        bool islight = CheckLight(boxCenter, CPUVoxelHalfSize, curLightData);
+
+                        if (islight)
+                        {
+                            //cpu복셀에 기존에 영향을 주고 있었다면 cpuvoxel정보는  수정안해도됨
+                            bool hasLightIdx = false;
+                            for (int cpuVoxelLightIdx = 0; cpuVoxelLightIdx < CPUVoxelLightMax; cpuVoxelLightIdx++)
+                            {
+                                if (m_CPUVoxelLightCPU[voxelIdx, cpuVoxelLightIdx] == m_AddorTransformationLightIdx[i])
+                                {
+                                    hasLightIdx = true;
+                                    lightBitmask = lightBitmask | ((uint)1) << cpuVoxelLightIdx;
+                                    addCheckList = true;
+                                    break;
+                                }
+                            }
+                            if(hasLightIdx == false)
+                            {
+                                //기존에 영향을 안주고 있었다면 빈칸 찾아서 수정필요
+                                for (int cpuVoxelLightIdx = 0; cpuVoxelLightIdx < CPUVoxelLightMax; cpuVoxelLightIdx++)
+                                {
+                                    if (m_CPUVoxelLightCPU[voxelIdx, cpuVoxelLightIdx] == -1)
+                                    {
+                                        m_CPUVoxelLightCPU[voxelIdx, cpuVoxelLightIdx] = m_AddorTransformationLightIdx[i];
+                                        lightBitmask = lightBitmask | ((uint)1) << cpuVoxelLightIdx;
+                                        addCheckList = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //기존에 복셀에 영향을 주다가 현재프레임에 안주게된 경우 제거해줘야함
+                            for (int cpuVoxelLightIdx = 0; cpuVoxelLightIdx < CPUVoxelLightMax; cpuVoxelLightIdx++)
+                            {
+                                if (m_CPUVoxelLightCPU[voxelIdx, cpuVoxelLightIdx] == m_AddorTransformationLightIdx[i])
+                                {
+                                    m_CPUVoxelLightCPU[voxelIdx, cpuVoxelLightIdx] = -1;
+                                    lightBitmask = lightBitmask | ((uint)1) << cpuVoxelLightIdx;
+                                    addCheckList = true;
+                                    break;
+                                }
+                            }
+                        }
+                       
+                    }
+                    
+                    if (addCheckList)
+                    {
+                        l_CheckList.Add(voxelIdx);
+                        m_CPUVoxelUpdateBitmaskCPU[voxelIdx] = lightBitmask;
+                    }
+                }
+            }
+        }
+
+        if(l_CheckList.Count == 0)
+        {
+            return;
+        }
+
+        m_CheckCPUVoxels.SetData(l_CheckList.ToArray());
+        m_CPUVoxelLightGPU.SetData(m_CPUVoxelLightCPU);
+        m_CPUVoxelUpdateBitmaskGPU.SetData(m_CPUVoxelUpdateBitmaskCPU);
+        m_CSVoxelLight.Dispatch((int)E_VoxelLightKernel.VoxelUpdate, l_CheckList.Count, 1, 1);
         
     }
     #endregion
