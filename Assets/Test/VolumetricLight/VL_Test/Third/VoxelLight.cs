@@ -37,6 +37,7 @@ public class VoxelLight : MonoBehaviour
         VoxelAllLight = 0,
         VoxelInit = 1,
         VoxelUpdate = 2,
+        VoxelDrawInfoSetting = 3,
     }
     public enum E_DrawGizmoVoxelKind
     {
@@ -87,14 +88,21 @@ public class VoxelLight : MonoBehaviour
     uint[] m_CPUVoxelUpdateBitmaskCPU;
     ComputeBuffer m_CPUVoxelUpdateBitmaskGPU; //업데이트가 필요한 라이트인덱스 비트마스크로 표현 cpu복셀당 4byte (1byte줘도 되지만 cpu복셀이니 처리보류)
 
+    ComputeBuffer m_GPUVoxelDrawInfo; //GPU복셀 그리기위해 필요한 정보
+    Mesh m_VoxelMesh;
+    [SerializeField] Material m_VoxelMat;
+    uint[] m_ArgsData = new uint[5];
+    ComputeBuffer m_ArgsBuffer;
     List<int> m_MoveVoxel = new List<int>(); //움직임에 의한 복셀 보여주기위해 임시로담아둘 공간
     float m_MoveVoxelGizmoTime;
+    
     [SerializeField] bool m_DrawMoveVoxel;
     private void Awake()
     {
         m_Lights = new Light[MaxLightCount];
         m_LightDataCPU = new LightData[MaxLightCount];
         m_LightDataGPU = new ComputeBuffer(MaxLightCount, HMUtil.StructSize(typeof(LightData)));
+        Debug.Log("라이트 데이터 크기 : " + HMUtil.StructSize(typeof(LightData)));
 
         m_CurCPUVoxelGridPos = GetCPUVoexlGridPos(Camera.main.transform.position);
         m_PreCPUVoexlGridPos = m_CurCPUVoxelGridPos;
@@ -114,6 +122,8 @@ public class VoxelLight : MonoBehaviour
         m_CheckCPUVoxels = new ComputeBuffer(CPUVoxelCount, sizeof(int));
         m_InitCPUVoxels = new ComputeBuffer(CPUVoxelCount, sizeof(int));
         m_GPUVoxelLight = new ComputeBuffer(GPUVoxelDataCount, sizeof(int)); //4byte = 4Voxel
+        m_GPUVoxelDrawInfo = new ComputeBuffer(GPUVoxelCount, HMUtil.StructSize(typeof(VoxelDrawInfo)));
+
         int[] arr_zero = new int[GPUVoxelDataCount];
         Array.Fill(arr_zero, 0);
         m_GPUVoxelLight.SetData(arr_zero);
@@ -134,16 +144,70 @@ public class VoxelLight : MonoBehaviour
         m_CSVoxelLight.SetBuffer((int)E_VoxelLightKernel.VoxelUpdate, "_CPUVoxelUpdateBitmask", m_CPUVoxelUpdateBitmaskGPU);
 
 
+        m_CSVoxelLight.SetBuffer((int)E_VoxelLightKernel.VoxelDrawInfoSetting, "_LightData", m_LightDataGPU);
+        m_CSVoxelLight.SetBuffer((int)E_VoxelLightKernel.VoxelDrawInfoSetting, "_CPUVoxelLight", m_CPUVoxelLightGPU);
+        m_CSVoxelLight.SetBuffer((int)E_VoxelLightKernel.VoxelDrawInfoSetting, "_GPUVoxelLight", m_GPUVoxelLight);
+        m_CSVoxelLight.SetBuffer((int)E_VoxelLightKernel.VoxelDrawInfoSetting, "_VoxelDrawInfo", m_GPUVoxelDrawInfo);
+
         m_CSVoxelLight.SetInts("_CurCPUVoxelGridPos", new int[3] { m_CurCPUVoxelGridPos.x, m_CurCPUVoxelGridPos.y, m_CurCPUVoxelGridPos.z });
+
+        m_VoxelMesh = new Mesh();
+        Vector3[] vertices = new Vector3[8]
+        {
+    new Vector3(-0.5f,-0.5f,-0.5f),
+    new Vector3( 0.5f,-0.5f,-0.5f),
+    new Vector3( 0.5f,-0.5f, 0.5f),
+    new Vector3(-0.5f,-0.5f, 0.5f),
+    new Vector3(-0.5f, 0.5f,-0.5f),
+    new Vector3( 0.5f, 0.5f,-0.5f),
+    new Vector3( 0.5f, 0.5f, 0.5f),
+    new Vector3(-0.5f, 0.5f, 0.5f),
+        };
+        int[] lines = {
+        0, 1, 1, 2, 2, 3, 3, 0, // bottom
+        4, 5, 5, 6, 6, 7, 7, 4, // top
+        0, 4, 1, 5, 2, 6, 3, 7  // sides
+    };
+
+        m_VoxelMesh.vertices = vertices;
+        m_VoxelMesh.SetIndices(lines, MeshTopology.Lines, 0);
+
+        m_ArgsData[0] = (uint)m_VoxelMesh.GetIndexCount(0);
+        m_ArgsData[1] = GPUVoxelCount; //갯수
+        m_ArgsData[2] = (uint)m_VoxelMesh.GetIndexStart(0);
+        m_ArgsData[3] = (uint)m_VoxelMesh.GetBaseVertex(0);
+        m_ArgsData[4] = 0;
+        m_ArgsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
+        m_ArgsBuffer.SetData(m_ArgsData);
+
+        m_VoxelMat.SetBuffer("_VoxelDrawInfo", m_GPUVoxelDrawInfo);
+        m_VoxelMat.SetInt("_GPUVoxelAxisInCPU", CPUVoxelSize);
+        m_VoxelMat.SetInt("_CPUVoxelHor", CPUVoxelHorizontalCount);
+        m_VoxelMat.SetInt("_CPUVoxelVer", CPUVoxelVerticalCount);
+        m_VoxelMat.SetInt("_FlatHeight", m_DrawGizmoVoxelKind == E_DrawGizmoVoxelKind.GPU_XZFlat ? m_DrawGizmoGPUYIdx : -1);
     }
     private void Start()
     {
         LightDataInit();
         VoxelInit2();
+        DrawInfoSetting();
     }
     private void Update()
     {
         VoxelUpdate();
+        if (m_DrawMoveVoxel && m_MoveVoxelGizmoTime > 0)
+        {
+            return;
+        }
+        m_VoxelMat.SetInt("_FlatHeight", m_DrawGizmoVoxelKind == E_DrawGizmoVoxelKind.GPU_XZFlat ? m_DrawGizmoGPUYIdx : -1);
+
+        switch (m_DrawGizmoVoxelKind)
+        {
+            case E_DrawGizmoVoxelKind.GPU:
+            case E_DrawGizmoVoxelKind.GPU_XZFlat:
+                DrawGPUVoxel();
+                break;
+        }
     }
 
     private void OnDestroy()
@@ -154,6 +218,8 @@ public class VoxelLight : MonoBehaviour
         m_CheckCPUVoxels.Release();
         m_InitCPUVoxels.Release();
         m_CPUVoxelUpdateBitmaskGPU.Release();
+        m_GPUVoxelDrawInfo.Release();
+        m_ArgsBuffer.Release();
     }
     #region InitData
     void LightDataInit()
@@ -586,7 +652,6 @@ public class VoxelLight : MonoBehaviour
         if(l_InitVoxelIdx.Count + l_CheckVoxelIdx.Count > 0)
         {
             m_CPUVoxelLightGPU.SetData(m_CPUVoxelLightCPU);
-
         }
         if (l_InitVoxelIdx.Count > 0)
         {
@@ -599,9 +664,12 @@ public class VoxelLight : MonoBehaviour
             m_CheckCPUVoxels.SetData(l_CheckVoxelIdx.ToArray());
             m_CPUVoxelUpdateBitmaskGPU.SetData(m_CPUVoxelUpdateBitmaskCPU);
             m_CSVoxelLight.Dispatch((int)E_VoxelLightKernel.VoxelUpdate, l_CheckVoxelIdx.Count, 1, 1);
-
         }
 
+        if (l_InitVoxelIdx.Count + l_CheckVoxelIdx.Count > 0)
+        {
+            DrawInfoSetting();
+        }
     }
 
     #endregion
@@ -920,8 +988,21 @@ public class VoxelLight : MonoBehaviour
             }
         }
     }
+    void DrawInfoSetting()
+    {
+        m_CSVoxelLight.Dispatch((int)E_VoxelLightKernel.VoxelDrawInfoSetting, GPUVoxelDataCount, 1, 1);
+    }
+    void DrawGPUVoxel()
+    {
+        Vector3 boundCenter = m_CurCPUVoxelGridPos * CPUVoxelSize + CPUVoxelSize * 0.5f * Vector3.one;
+        Vector3 boundSize = new Vector3(CPUVoxelHorizontalCount, CPUVoxelVerticalCount, CPUVoxelHorizontalCount) * CPUVoxelSize;
+        Bounds fieldBound = new Bounds(boundCenter, boundSize);
+        Debug.Log(GPUVoxelCount);
+        Graphics.DrawMeshInstancedIndirect(m_VoxelMesh, 0, m_VoxelMat, fieldBound, m_ArgsBuffer);
+    }
     void DrawGPUVoxelGizmo()
     {
+
         int minusHor = CPUVoxelHorizontalCount / 2;
         int minusVer = CPUVoxelVerticalCount / 2;
         int worldMinVoxelGridPos = m_CurCPUVoxelGridPos.y - minusVer;
@@ -1027,19 +1108,29 @@ public class VoxelLight : MonoBehaviour
                 break;
             case E_DrawGizmoVoxelKind.GPU:
             case E_DrawGizmoVoxelKind.GPU_XZFlat:
-                DrawGPUVoxelGizmo();
+                DrawGPUVoxel();
+                //DrawGPUVoxelGizmo();
                 break;
         }
-        
+
     }
     #endregion
 }
-                           
+
+
+public struct VoxelDrawInfo
+{
+    public Vector3 PosWS;
+    public float padding;
+    public Color color;
+}
+
 
 //일단 포인트만 해보자
 public struct LightData
 {
     public int Type;
+    public Vector3Int padding;
     public Color Color;
     public float Range;
     public Vector3 Pos;
@@ -1050,6 +1141,7 @@ public struct LightData
         Color = light.color;
         Pos = light.transform.position;
         Range = light.range;
+        padding = Vector3Int.zero;
     }
 
     public bool isOff()

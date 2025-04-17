@@ -2,6 +2,7 @@
 #pragma kernel VoxelAllLight
 #pragma kernel VoxelInit
 #pragma kernel VoxelUpdate
+#pragma kernel VoxeDrawInfoSetting
 #define GPUVOXELCOUNT_AXIS_X 2 //GPUVOXELCOUNT_AXIS_YZ / 4
 #define GPUVOXELCOUNT_AXIS_YZ 8
 #define CPUVOXEL_HORIZONTAL_COUNT 7
@@ -13,20 +14,28 @@
 struct LightData
 {
     int type; //spot = 0, 2 = point
+    int3 padding;
     float4 color;
     float range;
     float3 pos;
 };
+struct VoxelDrawInfo
+{
+    float3 posWS;
+    float padding;
+    float4 color;
+};
 
 RWStructuredBuffer<LightData> _LightData;
-RWStructuredBuffer<uint> _CheckCPUVoxels;
-RWStructuredBuffer<int> _CPUVoxelLight;
+StructuredBuffer<uint> _CheckCPUVoxels;
+StructuredBuffer<int> _CPUVoxelLight;
 RWStructuredBuffer<uint> _GPUVoxelLight;
 
-RWStructuredBuffer<uint> _InitCPUVoxels;
+StructuredBuffer<uint> _InitCPUVoxels;
 
-RWStructuredBuffer<uint> _CPUVoxelUpdateBitmask;
+StructuredBuffer<uint> _CPUVoxelUpdateBitmask;
 
+RWStructuredBuffer<VoxelDrawInfo> _VoxelDrawInfo;
 int3 _CurCPUVoxelGridPos;
 
 int GetValue(int axisCount, int centerValue, int idx)
@@ -187,4 +196,48 @@ void VoxelUpdate(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
         }
     }
     _GPUVoxelLight[GPUVoxelIdx] = (GPUOriginBit & (~GPUUpdateBit)) | (GPUChangeBit & GPUUpdateBit);
+}
+
+
+
+
+//_GPUVoxelLight
+//_CPUVoxelLight
+//_LightData
+//_VoxelDrawInfo
+
+[numthreads(GPUVOXELCOUNT_AXIS_X, GPUVOXELCOUNT_AXIS_YZ, GPUVOXELCOUNT_AXIS_YZ)]
+void VoxeDrawInfoSetting(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
+{
+    uint CPUVoxelIdx = g_id.x;
+    int3 CPUVoxelGridPos = GetCPUVoxelGridPos(CPUVoxelIdx);
+    uint GPUVoxelIdx = t_id.z * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ + t_id.y * GPUVOXELCOUNT_AXIS_X + t_id.x + CPUVoxelIdx * GPUVOXELCOUNT_AXIS_X * GPUVOXELCOUNT_AXIS_YZ * GPUVOXELCOUNT_AXIS_YZ;
+    float3 CPUVoxelPos = CPUVoxelGridPos * CPUVOXEL_SIZE;
+    uint GPUVoxelLightValue = _GPUVoxelLight[GPUVoxelIdx];
+    uint curBit = 1;
+    uint CPUVoxelIdx_X_LightMax = CPUVoxelIdx * CPUVOXEL_LIGHT_MAX;
+
+    for (int voxelIdx = 0; voxelIdx < 4; voxelIdx++)
+    {
+        float3 GPUVoxelPos = CPUVoxelPos + int3(t_id.x * 4 + voxelIdx, t_id.yz);
+        float3 GPUVoxelCenter = GPUVoxelPos + float3(0.5f, 0.5f, 0.5f);
+        uint VoxelDrawInfoIdx = t_id.z * GPUVOXELCOUNT_AXIS_YZ * GPUVOXELCOUNT_AXIS_YZ + t_id.y * GPUVOXELCOUNT_AXIS_YZ + t_id.x * 4 + CPUVoxelIdx * GPUVOXELCOUNT_AXIS_YZ * GPUVOXELCOUNT_AXIS_YZ * GPUVOXELCOUNT_AXIS_YZ  + voxelIdx;
+    
+        float3 curColor = float3(0, 0, 0);
+
+        for (int i = 0; i < CPUVOXEL_LIGHT_MAX; i++)
+        {
+            if (GPUVoxelLightValue & curBit > 0)
+            {
+                int lightIdx = _CPUVoxelLight[CPUVoxelIdx_X_LightMax + i];
+                curColor += _LightData[lightIdx].color.rgb;
+            }
+            curBit = curBit << 1;
+        }
+        VoxelDrawInfo info;
+        info.posWS = GPUVoxelCenter;
+        info.color = float4(curColor, 1);
+        info.padding = 0;
+        _VoxelDrawInfo[VoxelDrawInfoIdx] = info;
+    }
 }
