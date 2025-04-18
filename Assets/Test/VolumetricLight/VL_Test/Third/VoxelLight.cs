@@ -102,7 +102,6 @@ public class VoxelLight : MonoBehaviour
         m_Lights = new Light[MaxLightCount];
         m_LightDataCPU = new LightData[MaxLightCount];
         m_LightDataGPU = new ComputeBuffer(MaxLightCount, HMUtil.StructSize(typeof(LightData)));
-        Debug.Log("라이트 데이터 크기 : " + HMUtil.StructSize(typeof(LightData)));
 
         m_CurCPUVoxelGridPos = GetCPUVoexlGridPos(Camera.main.transform.position);
         m_PreCPUVoexlGridPos = m_CurCPUVoxelGridPos;
@@ -997,7 +996,17 @@ public class VoxelLight : MonoBehaviour
         Vector3 boundCenter = m_CurCPUVoxelGridPos * CPUVoxelSize + CPUVoxelSize * 0.5f * Vector3.one;
         Vector3 boundSize = new Vector3(CPUVoxelHorizontalCount, CPUVoxelVerticalCount, CPUVoxelHorizontalCount) * CPUVoxelSize;
         Bounds fieldBound = new Bounds(boundCenter, boundSize);
-        Debug.Log(GPUVoxelCount);
+
+        if(m_DrawGizmoVoxelKind==E_DrawGizmoVoxelKind.GPU_XZFlat)
+        {
+            m_ArgsData[1] = GPUVoxelAxisCount * GPUVoxelAxisCount* CPUVoxelHorizontalCount * CPUVoxelHorizontalCount; //갯수
+            m_ArgsBuffer.SetData(m_ArgsData);
+        }
+        else
+        {
+            m_ArgsData[1] = GPUVoxelCount; //갯수
+            m_ArgsBuffer.SetData(m_ArgsData);
+        }
         Graphics.DrawMeshInstancedIndirect(m_VoxelMesh, 0, m_VoxelMat, fieldBound, m_ArgsBuffer);
     }
     void DrawGPUVoxelGizmo()
