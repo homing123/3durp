@@ -80,7 +80,7 @@ public class MapMaker : MonoBehaviour
         {
             ChunkMove(chunkMoveDisIdxCoord);
         }
-        //GrassMaker.Ins.DrawGrass(GetDrawGrassChunks());
+        GrassMaker.Ins.DrawGrass(GetDrawGrassChunks());
 
     }
     private void OnDestroy()
@@ -206,19 +206,19 @@ public class MapMaker : MonoBehaviour
         }
 
         //create chunk data
-        //m_CurChunkKey = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / ChunkSize), Mathf.FloorToInt(camPosXZ.y / ChunkSize)); //현재 카메라위치가 속한 청크의 키
-        //int chunkWidth = m_RenderChunkDis * 2 + 1;
-        //Vector2Int chunkKeyMin = m_CurChunkKey - new Vector2Int(m_RenderChunkDis, m_RenderChunkDis);
-        //for (int y = 0; y < chunkWidth; y++)
-        //{
-        //    for (int x = 0; x < chunkWidth; x++)
-        //    {
-        //        Vector2Int curChunkKey = new Vector2Int(x, y) + chunkKeyMin;
-        //        CreateChunkData(curChunkKey);
-        //    }
-        //}
+        m_CurChunkKey = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / ChunkSize), Mathf.FloorToInt(camPosXZ.y / ChunkSize)); //현재 카메라위치가 속한 청크의 키
+        int chunkWidth = m_RenderChunkDis * 2 + 1;
+        Vector2Int chunkKeyMin = m_CurChunkKey - new Vector2Int(m_RenderChunkDis, m_RenderChunkDis);
+        for (int y = 0; y < chunkWidth; y++)
+        {
+            for (int x = 0; x < chunkWidth; x++)
+            {
+                Vector2Int curChunkKey = new Vector2Int(x, y) + chunkKeyMin;
+                CreateChunkData(curChunkKey);
+            }
+        }
 
-        //CreateChunkData(m_CurChunkKey);
+        CreateChunkData(m_CurChunkKey);
 
     }
 
