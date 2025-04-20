@@ -20,6 +20,7 @@ Shader "VLTest/Third"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+            #include "Assets/Test/VolumetricLight/VL_Test/Third/VoxelLight.hlsl"
 
             #pragma enable_d3d11_debug_symbols
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS

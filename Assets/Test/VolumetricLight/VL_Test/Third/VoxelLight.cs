@@ -184,6 +184,10 @@ public class VoxelLight : MonoBehaviour
         m_VoxelMat.SetInt("_CPUVoxelHor", CPUVoxelHorizontalCount);
         m_VoxelMat.SetInt("_CPUVoxelVer", CPUVoxelVerticalCount);
         m_VoxelMat.SetInt("_FlatHeight", m_DrawGizmoVoxelKind == E_DrawGizmoVoxelKind.GPU_XZFlat ? m_DrawGizmoGPUYIdx : -1);
+
+        Shader.SetGlobalBuffer("_LightData", m_LightDataGPU);
+        Shader.SetGlobalBuffer("_CPUVoxelLight", m_CPUVoxelLightGPU);
+        Shader.SetGlobalBuffer("_GPUVoxelLight", m_GPUVoxelLight);
     }
     private void Start()
     {
