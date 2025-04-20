@@ -24,7 +24,7 @@ VoxelLightData GetLight(float3 worldPos, int idx)
     //gpu복셀정보와 cpu복셀 정보로 라이트 정보 얻고
     //해당 값 리턴
     
-    VoxelLightData vLightData = (0);
+    VoxelLightData vLightData = (VoxelLightData)0;
     
     int3 voxelGridPos = floor(worldPos / _CPUVoxelSize);
     int halfHor = _CPUVoxelAxisSize.z;

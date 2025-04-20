@@ -2277,6 +2277,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1914987897}
   - component: {fileID: 1914987896}
+  - component: {fileID: 1914987899}
+  - component: {fileID: 1914987898}
   m_Layer: 0
   m_Name: Global Volume
   m_TagString: Untagged
@@ -2316,6 +2318,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1914987898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914987895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf16e87dd0ee56d45bd2b78d5cbda0c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Mat: {fileID: 2100000, guid: a311f36376b2f294ea17cfa21d1c68b7, type: 2}
+  m_Samples: 32
+  m_Attenuation: 0.1
+  m_PhaseG: 0
+--- !u!114 &1914987899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914987895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0aecb4f9b7c86a4a9f932caf1b3bdf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Kind: 2
+  m_Light: {fileID: 0}
+  m_Preset: []
+  m_PresetIdx: 0
 --- !u!1 &1981338830
 GameObject:
   m_ObjectHideFlags: 0

@@ -19,7 +19,8 @@ public class VL_TestScene : MonoBehaviour
     public enum E_VLKind
     {
         First,
-        Second
+        Second,
+        Third
     }
 
     [SerializeField] E_VLKind m_Kind;
@@ -36,6 +37,8 @@ public class VL_TestScene : MonoBehaviour
                 return transform.GetComponent<VL_First>();
             case E_VLKind.Second:
                 return transform.GetComponent<VL_Second>();
+            case E_VLKind.Third:
+                return transform.GetComponent<VL_Third>();
         }
         return null;
     }

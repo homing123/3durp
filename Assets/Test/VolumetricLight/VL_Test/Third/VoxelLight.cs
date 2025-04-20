@@ -188,6 +188,12 @@ public class VoxelLight : MonoBehaviour
         Shader.SetGlobalBuffer("_LightData", m_LightDataGPU);
         Shader.SetGlobalBuffer("_CPUVoxelLight", m_CPUVoxelLightGPU);
         Shader.SetGlobalBuffer("_GPUVoxelLight", m_GPUVoxelLight);
+
+
+        Shader.SetGlobalInteger("_CPUVoxelSize", CPUVoxelSize);
+        Shader.SetGlobalInteger("_CPUVoxelLightMax", CPUVoxelLightMax);
+        Shader.SetGlobalVector("_CamCPUVoxelGridPos", new Vector3(m_CurCPUVoxelGridPos.x, m_CurCPUVoxelGridPos.y, m_CurCPUVoxelGridPos.z));
+        Shader.SetGlobalVector("_CPUVoxelAxisSize", new Vector4(CPUVoxelHorizontalCount, CPUVoxelVerticalCount, CPUVoxelHorizontalCount/2, CPUVoxelVerticalCount/2));//x = horizontal, y = vertical, z = hor / 2, w = ver / 2
     }
     private void Start()
     {
@@ -491,6 +497,8 @@ public class VoxelLight : MonoBehaviour
         m_CurCPUVoxelGridPos = GetCPUVoexlGridPos(Camera.main.transform.position);
         if (m_PreCPUVoexlGridPos != m_CurCPUVoxelGridPos)
         {
+            Shader.SetGlobalVector("_CamCPUVoxelGridPos", new Vector3(m_CurCPUVoxelGridPos.x, m_CurCPUVoxelGridPos.y, m_CurCPUVoxelGridPos.z));
+
             Vector3Int moveGridPos = m_CurCPUVoxelGridPos - m_PreCPUVoexlGridPos;
             //Debug.Log($"¹«ºê {moveGridPos}");
             int[] AxisXChangeIdx = GetCheckAxisIdx(CPUVoxelHorizontalCount, m_CurCPUVoxelGridPos.x, moveGridPos.x);
