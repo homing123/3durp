@@ -8,6 +8,14 @@ struct VoxelLightData
     float3 pos;
 };
 
+struct VoxelLight
+{
+    half3 direction;
+    half3 color;
+    float distanceAttenuation;
+};
+
+
 StructuredBuffer<VoxelLightData> _LightData;
 StructuredBuffer<int> _CPUVoxelLight;
 StructuredBuffer<uint> _GPUVoxelLight;
@@ -17,7 +25,7 @@ int _CPUVoxelSize;
 int4 _CPUVoxelAxisSize; //x = horizontal, y = vertical, z = hor / 2, w = ver / 2
 int _CPUVoxelLightMax;
 
-VoxelLightData GetLight(float3 worldPos, int idx)
+VoxelLight GetVoxelLight(float3 worldPos, int idx)
 {
     //월드위치로 cpu복셀 위치 구하고 해당위치로 cpu복셀 인덱스 구해서 cpu복셀정보 얻고
     //cpu복셀위치와 현재위치로 gpu복셀 인덱스 구하고
@@ -25,6 +33,7 @@ VoxelLightData GetLight(float3 worldPos, int idx)
     //해당 값 리턴
     
     VoxelLightData vLightData = (VoxelLightData)0;
+    VoxelLight vLight = (VoxelLight) 0;
     
     int3 voxelGridPos = floor(worldPos / _CPUVoxelSize);
     int halfHor = _CPUVoxelAxisSize.z;
@@ -34,7 +43,7 @@ VoxelLightData GetLight(float3 worldPos, int idx)
     
     if(absCur2CamGridPos.x > halfHor || absCur2CamGridPos.y > halfVer || absCur2CamGridPos.z > halfHor)
     {
-        return vLightData;
+        return vLight;
     }
     
     int3 remainder = voxelGridPos % _CPUVoxelAxisSize.xyx;
@@ -55,10 +64,23 @@ VoxelLightData GetLight(float3 worldPos, int idx)
     
     if(isLight == false)
     {
-        return vLightData;
+        return vLight;
     }
     
     int lightIdx = _CPUVoxelLight[cpuvoxelLightStartIdx + idx];
-    return _LightData[lightIdx];
+    vLightData = _LightData[lightIdx];
+    
+    float3 pixel2Light = vLightData.pos - worldPos;
+    float disSquare = dot(pixel2Light, pixel2Light);
+    disSquare = disSquare == 0 ? 0.0001f : disSquare;
+    float3 direction = normalize(pixel2Light);
+    float disAtt = saturate(1 - disSquare / (vLightData.range * vLightData.range));
+    
+    vLight.color = vLightData.color.rgb;
+    vLight.direction = direction;
+    vLight.distanceAttenuation = disAtt;
+    return vLight;
+
 }
+
 
