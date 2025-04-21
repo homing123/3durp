@@ -21,10 +21,11 @@ uint _GrassVerticalCount;
 float2 _GridPos; 
 float2 _GridSize;
 
+//bilinear
 float GetHeight(float2 uv)
 {
     int texWidth = _HeightBufferSize.x;
-    float2 uvMulSize = uv * texWidth;
+    float2 uvMulSize = saturate(uv) * texWidth;
     int2 lbot = int2(floor(uvMulSize.x), floor(uvMulSize.y));
     int2 rbot = int2(ceil(uvMulSize.x), floor(uvMulSize.y));
     int2 ltop = int2(floor(uvMulSize.x), ceil(uvMulSize.y));
@@ -42,7 +43,6 @@ float GetHeight(float2 uv)
     
     float height = botHeight * lbotWeight.y + topHeight * (1 - lbotWeight.y);
     return height;
-
 }
 
 [numthreads(GRASS_THREAD_WIDTH, GRASS_THREAD_WIDTH,1)]

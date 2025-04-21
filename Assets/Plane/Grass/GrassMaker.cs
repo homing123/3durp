@@ -135,10 +135,6 @@ public class GrassMaker : MonoBehaviour
         List<ChunkData> l_DrawedChunk = new List<ChunkData>();
         for (int i = 0; i < arr_Chunk.Length; i++)
         {
-            if (arr_Chunk[i].key != m_TestKey)
-            {
-                continue;
-            }
             Vector2 rectMin = arr_Chunk[i].key * MapMaker.ChunkSize;
             Rect rect = new Rect(rectMin, new Vector2(MapMaker.ChunkSize, MapMaker.ChunkSize));
             bool isOut = Camera.main.FrustumCullingInWorld(new Vector3(rect.min.x,-10, rect.min.y), new Vector3(rect.max.x, 10, rect.max.y));
@@ -453,12 +449,14 @@ public class GrassMaker : MonoBehaviour
         CSGrassPosition.SetInts("_HeightBufferSize", new int[2] { heightMapSize.x, heightMapSize.y });
         CSGrassPosition.SetInt("_GrassHorizonCount", grassHorizonCount);
         CSGrassPosition.SetInt("_GrassVerticalCount", grassVerticalCount);
-        CSGrassPosition.SetFloats("_GridPos", new float[2] { option.chunkCenterPos.x - MapMaker.ChunkSize * 0.5f, option.chunkCenterPos.y - MapMaker.ChunkSize * 0.5f });
+        Vector2 chunkMinPos = option.chunkCenterPos - Vector2.one * MapMaker.ChunkSize * 0.5f;
+        CSGrassPosition.SetFloats("_GridPos", new float[2] { chunkMinPos.x, chunkMinPos.y });
         CSGrassPosition.SetFloats("_GridSize", new float[2] { MapMaker.ChunkSize, MapMaker.ChunkSize });
-        CSGrassPosition.Dispatch(0, perlinKernel_x, perlinKernel_y, 1);
+       
+        CSGrassPosition.Dispatch(0, perlinKernel_x, perlinKernel_y, 1);       
 
         int groupCount = grassCount / CullingThreadMax + (grassCount % CullingThreadMax == 0 ? 0 : 1);
-        if(groupCount > 512)
+        if (groupCount > 512)
         {
             Debug.Log($"Group too large {groupCount}");
         }
@@ -475,23 +473,23 @@ public class GrassMaker : MonoBehaviour
     //    Matrix4x4 v = Camera.main.transform.worldToLocalMatrix;
     //    Matrix4x4 VP = p * v;
 
-        //    m_CSFrustumCulling.SetInt("_GrassCount", m_GrassCount);
-        //    m_CSFrustumCulling.SetVector("_CamPos", Camera.main.transform.position);
-        //    m_CSFrustumCulling.SetFloat("_RenderDis", m_RenderDis);
-        //    m_CSFrustumCulling.SetMatrix("_MatVP", VP);
+    //    m_CSFrustumCulling.SetInt("_GrassCount", m_GrassCount);
+    //    m_CSFrustumCulling.SetVector("_CamPos", Camera.main.transform.position);
+    //    m_CSFrustumCulling.SetFloat("_RenderDis", m_RenderDis);
+    //    m_CSFrustumCulling.SetMatrix("_MatVP", VP);
 
-        //    //Cull
-        //    m_CSFrustumCulling.Dispatch(0, m_GroupX, 1, 1);
+    //    //Cull
+    //    m_CSFrustumCulling.Dispatch(0, m_GroupX, 1, 1);
 
-        //    //PrefixSum
-        //    m_CSFrustumCulling.Dispatch(1, m_GroupX, 1, 1);
+    //    //PrefixSum
+    //    m_CSFrustumCulling.Dispatch(1, m_GroupX, 1, 1);
 
-        //    //GroupPrefixSum
-        //    m_CSFrustumCulling.Dispatch(2, 1, 1, 1);
+    //    //GroupPrefixSum
+    //    m_CSFrustumCulling.Dispatch(2, 1, 1, 1);
 
-        //    //GetDrawedIdx
-        //    m_CSFrustumCulling.Dispatch(3, m_GroupX, 1, 1);
-        //}
+    //    //GetDrawedIdx
+    //    m_CSFrustumCulling.Dispatch(3, m_GroupX, 1, 1);
+    //}
 
 
 

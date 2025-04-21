@@ -4015,7 +4015,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c27b6affacfdc8147b2906351d90be7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ChunkTextureWidth: 16
+  m_ChunkTextureWidth: 129
   m_RenterTextureQuality: 1
   m_RenderTextureObj: {fileID: 0}
   m_RenderChunkDis: 1

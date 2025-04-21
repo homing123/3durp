@@ -119,6 +119,7 @@ public class MapMaker : MonoBehaviour
       
         return D_ChunkData[key];
     }
+
     public void CreateChunkData(Vector2Int key)
     {
         ChunkData chunk = new ChunkData();
@@ -218,7 +219,6 @@ public class MapMaker : MonoBehaviour
             }
         }
 
-        CreateChunkData(m_CurChunkKey);
 
     }
 
