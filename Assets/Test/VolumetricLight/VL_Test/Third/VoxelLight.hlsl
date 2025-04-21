@@ -28,6 +28,7 @@ int _CPUVoxelHalfHor;
 int _CPUVoxelHalfVer;
 int _CPUVoxelLightMax;
 
+
 VoxelLight GetVoxelLight(float3 worldPos, int idx)
 {
     //월드위치로 cpu복셀 위치 구하고 해당위치로 cpu복셀 인덱스 구해서 cpu복셀정보 얻고
@@ -80,7 +81,13 @@ VoxelLight GetVoxelLight(float3 worldPos, int idx)
     float disSquare = dot(pixel2Light, pixel2Light);
     disSquare = disSquare == 0 ? 0.0001f : disSquare;
     float3 direction = normalize(pixel2Light);
-    float disAtt = saturate(1 - disSquare / (vLightData.range * vLightData.range));
+
+    float rcpRangeSquare = rcp(vLightData.range * vLightData.range);
+    float factor = disSquare * rcpRangeSquare;
+    float smoothFactor = saturate(1 - factor * factor);
+    smoothFactor = smoothFactor * smoothFactor;
+
+    float disAtt = rcp(disSquare) * smoothFactor;
     
     vLight.color = vLightData.color.rgb;
     vLight.direction = direction;
