@@ -31,7 +31,7 @@ public class VL_Third : MonoBehaviour, I_VLSetting
     }
     public bool IsActive()
     {
-        return enabled;
+        return VL_TestScene.Ins.m_Actives;
     }
     public Material GetMat()
     {

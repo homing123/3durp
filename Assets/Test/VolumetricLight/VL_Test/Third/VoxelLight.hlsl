@@ -22,7 +22,10 @@ StructuredBuffer<uint> _GPUVoxelLight;
 
 int3 _CamCPUVoxelGridPos;
 int _CPUVoxelSize;
-int4 _CPUVoxelAxisSize; //x = horizontal, y = vertical, z = hor / 2, w = ver / 2
+int _CPUVoxelHorizontal;
+int _CPUVoxelVertical;
+int _CPUVoxelHalfHor;
+int _CPUVoxelHalfVer;
 int _CPUVoxelLightMax;
 
 VoxelLight GetVoxelLight(float3 worldPos, int idx)
@@ -36,8 +39,8 @@ VoxelLight GetVoxelLight(float3 worldPos, int idx)
     VoxelLight vLight = (VoxelLight) 0;
     
     int3 voxelGridPos = floor(worldPos / _CPUVoxelSize);
-    int halfHor = _CPUVoxelAxisSize.z;
-    int halfVer = _CPUVoxelAxisSize.w;
+    int halfHor = _CPUVoxelHalfHor;
+    int halfVer = _CPUVoxelHalfVer;
     int3 cur2CamGridPos = _CamCPUVoxelGridPos - voxelGridPos;
     int3 absCur2CamGridPos = abs(cur2CamGridPos);
     
@@ -46,21 +49,24 @@ VoxelLight GetVoxelLight(float3 worldPos, int idx)
         return vLight;
     }
     
-    int3 remainder = voxelGridPos % _CPUVoxelAxisSize.xyx;
-    remainder.x = remainder.x < 0 ? remainder.x + _CPUVoxelAxisSize.x : remainder.x;
-    remainder.y = remainder.y < 0 ? remainder.y + _CPUVoxelAxisSize.y : remainder.y;
-    remainder.z = remainder.z < 0 ? remainder.z + _CPUVoxelAxisSize.x : remainder.z;
+    int3 remainder = voxelGridPos % int3(_CPUVoxelHorizontal, _CPUVoxelVertical, _CPUVoxelHorizontal);
+    remainder.x = remainder.x < 0 ? remainder.x + _CPUVoxelHorizontal : remainder.x;
+    remainder.y = remainder.y < 0 ? remainder.y + _CPUVoxelVertical : remainder.y;
+    remainder.z = remainder.z < 0 ? remainder.z + _CPUVoxelHorizontal : remainder.z;
         
-    int cpuvoxelIdx = remainder.x + remainder.y * _CPUVoxelAxisSize.x + remainder.z * _CPUVoxelAxisSize.x * _CPUVoxelAxisSize.y;
+    int cpuvoxelIdx = remainder.x + remainder.y * _CPUVoxelHorizontal + remainder.z * _CPUVoxelHorizontal * _CPUVoxelVertical;
     int cpuvoxelLightStartIdx = cpuvoxelIdx * _CPUVoxelLightMax;
         
     int3 gpuVoxelPos = floor(worldPos);
     int3 gpuVoxelIdx3 = gpuVoxelPos - voxelGridPos * _CPUVoxelSize;
-    int gpuVoxelIdx = gpuVoxelIdx3.x + gpuVoxelIdx3.y * _CPUVoxelSize + gpuVoxelIdx3.z * _CPUVoxelSize * _CPUVoxelSize;
+    int gpuVoxelIdxInCPUIdx = cpuvoxelIdx * _CPUVoxelSize * _CPUVoxelSize * _CPUVoxelSize;
+    int gpuVoxelIdxOnlyGPUIdx = gpuVoxelIdx3.x + gpuVoxelIdx3.y * _CPUVoxelSize + gpuVoxelIdx3.z * _CPUVoxelSize * _CPUVoxelSize;
+    int gpuVoxelIdx = gpuVoxelIdxOnlyGPUIdx + gpuVoxelIdxInCPUIdx;
     gpuVoxelIdx /= 4; //4voxel => 4byte
         
     uint curGPUVoxelLight = _GPUVoxelLight[gpuVoxelIdx];
-    bool isLight = (curGPUVoxelLight & (uint) (1 << (idx + 8 * (gpuVoxelIdx3.x % 4)))) > 0 ? true : false;
+    int bitIdx = idx + 8 * (gpuVoxelIdx3.x % 4);
+    bool isLight = (curGPUVoxelLight & (uint) (1 << bitIdx)) > 0 ? true : false;
     
     if(isLight == false)
     {

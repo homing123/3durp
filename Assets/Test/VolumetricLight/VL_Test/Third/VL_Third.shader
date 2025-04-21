@@ -140,7 +140,7 @@ Shader "VLTest/Third"
             }
 
             //Henyey-Greenstein
-            float PhaseFunction(float3 p2v, float l2p)
+            float PhaseFunction(float3 p2v, float3 l2p)
             {
                 float _cos = dot(p2v, l2p);
                 float squareG = _PhaseG * _PhaseG;
@@ -182,6 +182,7 @@ Shader "VLTest/Third"
                 float moveDis = 0;
                 float4 shadowCoord = float4(0, 0, 0, 0);
                 float shadowmapDis = 0;
+                int additionalLightCount = GetAdditionalLightsCount();
 
                 float Tr = exp(-_Attenuation * raymarchDistance);
                 color = color * Tr;
@@ -199,26 +200,26 @@ Shader "VLTest/Third"
                         float tr = exp(-_Attenuation * p2vDis);
 
                         float f = PhaseFunction(stepDir, -lightDir);
-                        color += disAtt * shadow * tr * f * stepsize * vLight.color;
-                        raymarchPos += stepsize * stepDir;
-
+                        half3 additionalColor = disAtt * shadow * tr * f * stepsize * vLight.color;
+                        color += additionalColor;
                     }
-                    // for (int lightIdx = 0; lightIdx < additionalLightCount; lightIdx++)
-                    // {
-                    //     Light light = GetAdditionalLight(lightIdx, raymarchPos, half4(1, 1, 1, 1));
-                    //     float shadow = light.shadowAttenuation;
-                    //     float shadowTr = exp(-_Attenuation * length(_AdditionalLightsPosition[lightIdx] - raymarchPos));
-                    //     shadow = shadow == 0 ? saturate(pow(length(_AdditionalLightsPosition[lightIdx] - raymarchPos) / 40, 2)) : shadow * shadowTr;
-                    //     float lightAttenuation = light.distanceAttenuation;
-                    //     float3 p2lDir = light.direction;
-                    //     float p2vDis = raymarchDistance - stepsize * idx;
+                    raymarchPos += stepsize * stepDir;
+                     /*for (int lightIdx = 0; lightIdx < additionalLightCount; lightIdx++)
+                     {
+                         Light light = GetAdditionalLight(lightIdx, raymarchPos, half4(1, 1, 1, 1));
+                         float shadow = light.shadowAttenuation;
+                         float shadowTr = exp(-_Attenuation * length(_AdditionalLightsPosition[lightIdx] - raymarchPos));
+                         shadow = shadow == 0 ? saturate(pow(length(_AdditionalLightsPosition[lightIdx] - raymarchPos) / 40, 2)) : shadow * shadowTr;
+                         float lightAttenuation = light.distanceAttenuation;
+                         float3 p2lDir = light.direction;
+                         float p2vDis = raymarchDistance - stepsize * idx;
 
-                    //     float tr = exp(-_Attenuation * p2vDis);
+                         float tr = exp(-_Attenuation * p2vDis);
 
-                    //     float f = PhaseFunction(stepDir, -p2lDir);
-                    //     color += lightAttenuation * shadow * tr * f * stepsize * light.color;
-                    //     raymarchPos += stepsize * stepDir;
-                    // }
+                         float f = PhaseFunction(stepDir, -p2lDir);
+                         color += lightAttenuation * shadow * tr * f * stepsize * light.color;
+                         raymarchPos += stepsize * stepDir;
+                     }*/
                 }
                 return half4(color, 1);
             }

@@ -23,11 +23,13 @@ public class VL_TestScene : MonoBehaviour
         Third
     }
 
+    [SerializeField] public bool m_Actives;
     [SerializeField] E_VLKind m_Kind;
     public static VL_TestScene Ins;
     [SerializeField] public Light m_Light;
     [SerializeField] List<PosRot> m_Preset;
     [SerializeField] int m_PresetIdx;
+    
 
     public I_VLSetting GetVLSetting()
     {

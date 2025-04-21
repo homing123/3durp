@@ -192,8 +192,12 @@ public class VoxelLight : MonoBehaviour
 
         Shader.SetGlobalInteger("_CPUVoxelSize", CPUVoxelSize);
         Shader.SetGlobalInteger("_CPUVoxelLightMax", CPUVoxelLightMax);
+
+        Shader.SetGlobalInteger("_CPUVoxelHorizontal", CPUVoxelHorizontalCount);
+        Shader.SetGlobalInteger("_CPUVoxelVertical", CPUVoxelVerticalCount);
+        Shader.SetGlobalInteger("_CPUVoxelHalfHor", CPUVoxelHorizontalCount / 2);
+        Shader.SetGlobalInteger("_CPUVoxelHalfVer", CPUVoxelVerticalCount / 2);
         Shader.SetGlobalVector("_CamCPUVoxelGridPos", new Vector3(m_CurCPUVoxelGridPos.x, m_CurCPUVoxelGridPos.y, m_CurCPUVoxelGridPos.z));
-        Shader.SetGlobalVector("_CPUVoxelAxisSize", new Vector4(CPUVoxelHorizontalCount, CPUVoxelVerticalCount, CPUVoxelHorizontalCount/2, CPUVoxelVerticalCount/2));//x = horizontal, y = vertical, z = hor / 2, w = ver / 2
     }
     private void Start()
     {
@@ -1159,7 +1163,7 @@ public struct LightData
     public LightData(Light light)
     {
         Type = (int)light.type;
-        Color = light.color;
+        Color = light.color * light.intensity;
         Pos = light.transform.position;
         Range = light.range;
         padding = Vector3Int.zero;

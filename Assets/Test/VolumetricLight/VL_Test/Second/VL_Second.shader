@@ -139,7 +139,7 @@ Shader "VLTest/Second"
             }
 
             //Henyey-Greenstein
-            float PhaseFunction(float3 p2v, float l2p)
+            float PhaseFunction(float3 p2v, float3 l2p)
             {
                 float _cos = dot(p2v, l2p);
                 float squareG = _PhaseG * _PhaseG;
