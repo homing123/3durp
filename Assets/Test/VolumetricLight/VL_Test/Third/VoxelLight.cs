@@ -97,8 +97,11 @@ public class VoxelLight : MonoBehaviour
     float m_MoveVoxelGizmoTime;
     
     [SerializeField] bool m_DrawMoveVoxel;
+
+    public static VoxelLight Ins;
     private void Awake()
     {
+        Ins = this;
         m_Lights = new Light[MaxLightCount];
         m_LightDataCPU = new LightData[MaxLightCount];
         m_LightDataGPU = new ComputeBuffer(MaxLightCount, HMUtil.StructSize(typeof(LightData)));
@@ -235,9 +238,10 @@ public class VoxelLight : MonoBehaviour
         m_ArgsBuffer.Release();
     }
     #region InitData
+
     void LightDataInit()
     {
-        Light[] arr_Light = FindObjectsByType<Light>(FindObjectsSortMode.None);
+        Light[] arr_Light = FindObjectsOfType<Light>(true) ;
         int lightIdx = 0;
         for (int i = 0; i < arr_Light.Length; i++)
         {
@@ -472,7 +476,7 @@ public class VoxelLight : MonoBehaviour
         for (int i = 0; i < MaxLightCount; i++)
         {
 
-            if (m_Lights[i] == null && m_LightDataCPU[i].isOff() == false)
+            if ((m_Lights[i] == null || m_Lights[i].gameObject.activeSelf == false) && m_LightDataCPU[i].isOff() == false)
             {
                 //이번 프레임에 제거된 경우
                 l_RemoveLightIdx.Add(i);
@@ -480,7 +484,7 @@ public class VoxelLight : MonoBehaviour
             }
             else
             {
-                if (m_Lights[i] == null)
+                if (m_Lights[i] == null || m_Lights[i].gameObject.activeSelf == false)
                 {
                     continue;
                 }
@@ -689,8 +693,6 @@ public class VoxelLight : MonoBehaviour
 
     #endregion
     #region Light
-    //라이트업데이트 만든 후, 무브그리드에도 비트마스크를 이용한 갱신으로 변경함과 동시에 둘다 업데이트로 실행되니 같이 실행되도록 즉
-    //cpu에서 업데이트 목록을 만들어서 보내면 gpu에서 한번에 처리되도록 해야함
     
     public void AddLight(Light light)
     {
@@ -699,17 +701,6 @@ public class VoxelLight : MonoBehaviour
             if (m_Lights[i] == null)
             {
                 m_Lights[i] = light;
-                break;
-            }
-        }
-    }
-    public void RemoveLight(Light light)
-    {
-        for (int i = 0; i < MaxLightCount; i++)
-        {
-            if (m_Lights[i] == light)
-            {
-                m_Lights[i] = null;
                 break;
             }
         }

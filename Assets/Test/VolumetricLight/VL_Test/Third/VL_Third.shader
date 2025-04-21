@@ -204,22 +204,6 @@ Shader "VLTest/Third"
                         color += additionalColor;
                     }
                     raymarchPos += stepsize * stepDir;
-                     /*for (int lightIdx = 0; lightIdx < additionalLightCount; lightIdx++)
-                     {
-                         Light light = GetAdditionalLight(lightIdx, raymarchPos, half4(1, 1, 1, 1));
-                         float shadow = light.shadowAttenuation;
-                         float shadowTr = exp(-_Attenuation * length(_AdditionalLightsPosition[lightIdx] - raymarchPos));
-                         shadow = shadow == 0 ? saturate(pow(length(_AdditionalLightsPosition[lightIdx] - raymarchPos) / 40, 2)) : shadow * shadowTr;
-                         float lightAttenuation = light.distanceAttenuation;
-                         float3 p2lDir = light.direction;
-                         float p2vDis = raymarchDistance - stepsize * idx;
-
-                         float tr = exp(-_Attenuation * p2vDis);
-
-                         float f = PhaseFunction(stepDir, -p2lDir);
-                         color += lightAttenuation * shadow * tr * f * stepsize * light.color;
-                         raymarchPos += stepsize * stepDir;
-                     }*/
                 }
                 return half4(color, 1);
             }
