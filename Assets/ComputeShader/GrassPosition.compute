@@ -18,7 +18,7 @@ RWStructuredBuffer<GrassData> _GrassBuffer;
 uint2 _HeightBufferSize;
 uint _GrassHorizonCount;
 uint _GrassVerticalCount;
-float2 _GridPos; 
+float2 _GridPos; //min
 float2 _GridSize;
 
 //bilinear

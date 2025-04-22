@@ -220,7 +220,11 @@ public static class HMUtilEx
             }
             //Debug.Log(i + " " + arr_Plane[i].normal + " " + arr_Plane[i].d + " " + nearPoint + " " + dis + " " + (dis <= 0));
         }
-        //Debug.Log(boxMin + " " + boxMax + " " + isIn);
+        if (boxMin.x == 0 && boxMin.z == -32)
+        {
+            Debug.Log(boxMin + " " + boxMax + " " + isOut);
+        }
+
         return isOut;
     }
 

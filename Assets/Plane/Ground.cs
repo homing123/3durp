@@ -8,7 +8,6 @@ public class Ground : MonoBehaviour
     {
         Ground ground = Instantiate(Prefabs.Ins.G_Ground, MapMaker.Ins.transform).GetComponent<Ground>();
         Vector2 groundPos = new Vector2(terrainMeshGridKey.x, terrainMeshGridKey.y) * TerrainMaker.Ins.TerrainMeshGridSize;
-        Debug.Log(terrainMeshGridKey+ " " +groundPos);
         ground.m_Pos = groundPos;
         ground.m_Quality = quality;
         return ground;

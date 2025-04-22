@@ -129,12 +129,24 @@ public class GrassMaker : MonoBehaviour
 
     }
     [SerializeField] Vector2Int m_TestKey;
+    [SerializeField] bool m_UseTestKey;
 
     public void DrawGrass(ChunkData[] arr_Chunk)
     {
         List<ChunkData> l_DrawedChunk = new List<ChunkData>();
         for (int i = 0; i < arr_Chunk.Length; i++)
         {
+            if(m_UseTestKey)
+            {
+                if(arr_Chunk[i].key == m_TestKey)
+                {
+                    l_DrawedChunk.Add(arr_Chunk[i]);
+                }
+                else
+                {
+                    continue;
+                }
+            }
             Vector2 rectMin = arr_Chunk[i].key * MapMaker.ChunkSize;
             Rect rect = new Rect(rectMin, new Vector2(MapMaker.ChunkSize, MapMaker.ChunkSize));
             bool isOut = Camera.main.FrustumCullingInWorld(new Vector3(rect.min.x,-10, rect.min.y), new Vector3(rect.max.x, 10, rect.max.y));
@@ -147,6 +159,19 @@ public class GrassMaker : MonoBehaviour
 
         arr_Chunk = l_DrawedChunk.ToArray();
 
+        for(int i=0;i<arr_Chunk.Length;i++)
+        {
+            if(arr_Chunk[i].key == new Vector2Int(0, -2))
+            {
+                Debug.Log("있따");
+                break;
+            }
+            if(i == arr_Chunk.Length - 1)
+            {
+                Debug.Log("없따");
+            }
+
+        }
         //청크갯수제한최대 32개다 청크 절두체컬링으로 안보이는청크 다짤라야겠따.
         if (arr_Chunk.Length > GrassBufferCount)
         {
@@ -452,8 +477,13 @@ public class GrassMaker : MonoBehaviour
         Vector2 chunkMinPos = option.chunkCenterPos - Vector2.one * MapMaker.ChunkSize * 0.5f;
         CSGrassPosition.SetFloats("_GridPos", new float[2] { chunkMinPos.x, chunkMinPos.y });
         CSGrassPosition.SetFloats("_GridSize", new float[2] { MapMaker.ChunkSize, MapMaker.ChunkSize });
-       
-        CSGrassPosition.Dispatch(0, perlinKernel_x, perlinKernel_y, 1);       
+
+        CSGrassPosition.Dispatch(0, perlinKernel_x, perlinKernel_y, 1);
+
+        float size = (float)MapMaker.ChunkSize;
+        float dVertex = (float)MapMaker.ChunkSize / 128;
+        Vector2 pos = chunkMinPos + 0.5f * size * Vector2.one - new Vector2(dVertex, dVertex) * 0.5f; ;
+        RenderTextureObject.Create(pos, size, option.heightTexture);
 
         int groupCount = grassCount / CullingThreadMax + (grassCount % CullingThreadMax == 0 ? 0 : 1);
         if (groupCount > 512)

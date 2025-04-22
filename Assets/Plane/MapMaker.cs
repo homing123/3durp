@@ -7,7 +7,7 @@ using System;
 
 public struct ChunkData
 {
-    public Vector2Int key;
+    public Vector2Int key; //min 값임
     public RenderTexture heightTexture;
     public RenderTexture normalTexture;
     public Chunk_GrassData grassData;
@@ -50,7 +50,6 @@ public class MapMaker : MonoBehaviour
     public static MapMaker Ins;
 
     public const int ChunkSize = 16;
-    [SerializeField] [Range(16, 512)] int m_ChunkTextureWidth;
     [SerializeField] int m_RenterTextureQuality;
     [SerializeField] RenderTextureObject m_RenderTextureObj;
     [SerializeField][Range(1, 7)] int m_RenderChunkDis;
@@ -125,8 +124,8 @@ public class MapMaker : MonoBehaviour
         ChunkData chunk = new ChunkData();
         chunk.key = key;
         GrassMakerOption grassOption = new GrassMakerOption();
-        chunk.heightTexture = new RenderTexture(m_ChunkTextureWidth, m_ChunkTextureWidth, 0, RenderTextureFormat.RFloat);
-        chunk.normalTexture = new RenderTexture(m_ChunkTextureWidth, m_ChunkTextureWidth, 0, RenderTextureFormat.ARGBFloat);
+        chunk.heightTexture = new RenderTexture(TerrainMaker.Ins.m_TexWidth, TerrainMaker.Ins.m_TexWidth, 0, RenderTextureFormat.RFloat);
+        chunk.normalTexture = new RenderTexture(TerrainMaker.Ins.m_TexWidth, TerrainMaker.Ins.m_TexWidth, 0, RenderTextureFormat.ARGBFloat);
         chunk.heightTexture.enableRandomWrite = true;
         chunk.normalTexture.enableRandomWrite = true;
         chunk.heightTexture.filterMode = MapMaker.HeightFilter;
@@ -142,7 +141,7 @@ public class MapMaker : MonoBehaviour
     }
     void MergeHeightNormalTexture(Vector2Int chunkKey,ref RenderTexture heightMergeTexture, ref RenderTexture normalMergeTexture)
     {
-        int texWidth = m_ChunkTextureWidth;
+        int texWidth = TerrainMaker.Ins.m_TexWidth;
         Vector2 curSize = new Vector2(ChunkSize, ChunkSize);
         Vector2 curCenterPosXZ = chunkKey * ChunkSize + curSize * 0.5f;
 
@@ -166,6 +165,10 @@ public class MapMaker : MonoBehaviour
             for (int x = minTerrainKey.x; x <= maxTerrainKey.x; x++)
             {
                 Vector2Int curKey = new Vector2Int(x, y);
+                if(chunkKey == new Vector2Int(0, -3))
+                {
+                    Debug.Log($"curKey : {curKey}");
+                }
                 arr_Data[idx] = MapMaker.Ins.GetTerrainData(1, curKey);
                 m_CSTextureMerge.SetTexture(0, "_HeightMap" + idx, arr_Data[idx].heightTexture);
                 m_CSTextureMerge.SetTexture(0, "_NormalMap" + idx, arr_Data[idx].normalTexture);
@@ -228,9 +231,11 @@ public class MapMaker : MonoBehaviour
         List<ChunkData> l_GrassRenderChunk = new List<ChunkData>();
         foreach (Vector2Int key in D_ChunkData.Keys)
         {
-            Vector2 rectMin = new Vector2((key.x - 0.5f) * ChunkSize, (key.y - 0.5f) *ChunkSize);
+            Vector2 rectMin = key * ChunkSize;
             Rect rect = new Rect(rectMin.x, rectMin.y, ChunkSize, ChunkSize);
             Vector2[] vertex = new Vector2[4];
+            
+            //xz평면 4꼭지점
             vertex[0] = new Vector2(rect.xMin, rect.yMin);
             vertex[1] = new Vector2(rect.xMin, rect.yMax);
             vertex[2] = new Vector2(rect.xMax, rect.yMin);
@@ -240,17 +245,18 @@ public class MapMaker : MonoBehaviour
 
             float grassRenderDisSquare = GrassMaker.Ins.m_GrassRenderDis * GrassMaker.Ins.m_GrassRenderDis;
             bool isDrawed = false;
-            for(int i=0;i<4;i++)
+            for (int i = 0; i < 4; i++)
             {
                 float curVertexDisSquare = Mathf.Pow(vertex[i].x - camPosXZ.x, 2) + Mathf.Pow(vertex[i].y - camPosXZ.y, 2);
-                if(curVertexDisSquare < grassRenderDisSquare)
+                //4꼭지점중 하나라도 잔디렌더거리안에 들어온다면  그림
+                if (curVertexDisSquare < grassRenderDisSquare)
                 {
                     isDrawed = true;
                     break;
                 }
             }
 
-            if(isDrawed)
+            if (isDrawed)
             {
                 l_GrassRenderChunk.Add(D_ChunkData[key]);
             }
