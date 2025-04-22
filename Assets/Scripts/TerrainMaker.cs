@@ -63,6 +63,7 @@ public class TerrainMaker : MonoBehaviour
         m_Mesh = new Mesh();
         int verticesCount = m_VertexWidth * m_VertexWidth;
         Vector3[] vertices = new Vector3[verticesCount]; //버텍스는 기본적으로 넣어줘야한다고하네
+        Debug.Log($"버텍스갯수 {vertices.Length}");
 
         int indicesCount = (m_VertexWidth - 1) * (m_VertexWidth - 1) * 2 * 3; // *2 는 한 네모칸에 삼각형은 2개씩 붙어있음, *3은 삼각형하나에 점3개
         int[] indices = new int[indicesCount];

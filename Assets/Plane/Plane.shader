@@ -9,10 +9,6 @@ Shader "Terrain/Plane"
         _NoiseColor("NoiseColor", Color) = (1,1,1,1)
         _NoiseTex("NoiseTex", 2D) = "white"{}
         _NoiseBias("NoiseBias" , Range(0,1)) = 1
-    
-        _HeightMap("heightMap", 2D) = "white"{}
-        _NormalMap("normalMap", 2D) = "white"{}
-
     }
     SubShader
     {
@@ -24,6 +20,7 @@ Shader "Terrain/Plane"
         }
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        #include "Assets/Plane/PlaneHeight.hlsl"
         #pragma enable_d3d11_debug_symbols
 
         struct appdata
@@ -40,8 +37,6 @@ Shader "Terrain/Plane"
         };
 
         sampler2D _NoiseTex;
-        sampler2D _HeightMap;
-        sampler2D _NormalMap;
 
         CBUFFER_START(UnityPerMaterial)
         half4 _Color;
@@ -66,14 +61,19 @@ Shader "Terrain/Plane"
             float dTexUV = 1 / _VertexCount;
             float2 texUV = meshUV * (1 - dTexUV) + (dTexUV * 0.5f);
             o.uv = texUV;
+
             o.posWS = TransformObjectToWorld(i.posModel.xyz);
-            o.posWS.y = tex2Dlod(_HeightMap, float4(o.uv * _HeightMap_ST.xy + _HeightMap_ST.zw, 0, 0)).r;
-            float2 temp = abs(o.uv - 0.5f); //0.5로 부터 uv거리
-            float2 weight = saturate(temp * -4 + 1) * 10; //0.5 ~ 0 => -1 ~ 1, 0.25 ~ 0 => 0 ~ 1
+            o.posWS.y = GetHeight(o.posWS.xz, _Quality);
+
+            //퀄리티 2이상부터는 uv 0.25~0.75 일때 높이를 낮춰야함  0 ~ 0.26 ~ 0.5 ~ 0.74 ~ 1 =>  0 ~ 0 ~ 1 ~ 0 ~ 0
+            float2 temp = abs(meshUV- 0.5f); //0.5로 부터 uv거리  0.5 ~ 0.24 ~ 0 ~ 0.24 ~ 0.5
+            float2 weight = temp - 0.24f; //0.26 ~ 0 ~ -0.24 ~ 0 ~ 0.26
+            weight = saturate(-weight); //0 ~ 0 ~ 0.24 ~ 0 ~ 0
+            weight *= 100 / (float)24; //0 ~ 0 ~ 1 ~ 0 ~ 0
+            weight *= 10;
             o.posWS.y -= min(weight.x, weight.y) * (_Quality > 1 ? 1 : 0);
             o.posCS = TransformWorldToHClip(o.posWS);
-            o.normal = tex2Dlod(_NormalMap, float4(o.uv * _NormalMap_ST.xy + _NormalMap_ST.zw, 0, 0)).rbg;                
-
+            o.normal = GetNormal(o.posWS.xz, _Quality);
             return o;
         }
         ENDHLSL

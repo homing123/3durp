@@ -50,6 +50,17 @@ public class Ground : MonoBehaviour
 
         SetHeightBuffer();
         CamMove.ev_TerrainPosUpdate += Move;
+
+        if(m_Quality == 1)
+        {
+            Shader.SetGlobalTexture("_HeightMap_1", m_HeightBuffer);
+            Shader.SetGlobalTexture("_NormalMap_1", m_NormalBuffer);
+        }
+        else if(m_Quality == 2)
+        {
+            Shader.SetGlobalTexture("_HeightMap_2", m_HeightBuffer);
+            Shader.SetGlobalTexture("_NormalMap_2", m_NormalBuffer);
+        }
     }
     private void OnDestroy()
     {
@@ -64,10 +75,14 @@ public class Ground : MonoBehaviour
         //SetHeightBuffer();
     }
     void Move(Vector2 pos)
-    { //각자 그리드 크기에 맞춰서 이동해야함
-
+    { 
+        //각자 그리드 크기에 맞춰서 이동해야함
         transform.position = new Vector3(pos.x, 0, pos.y);
         SetHeightBuffer();
+        if(m_Quality == 1)
+        {
+            Shader.SetGlobalVector("_TexCenterPosXZ", transform.position.Vt2XZ());
+        }
     }
     void SetHeightBuffer()
     {
@@ -104,7 +119,7 @@ public class Ground : MonoBehaviour
         float duv = 1 / (float)dataTexWidth;
         Vector2 uvMin = (minWorld - heightMapMinWorld) / (groundSize / (float)dataTexWidth) * duv + duv * new Vector2(0.5f, 0.5f);
         Vector2 uvMax = (maxWorld - heightMapMinWorld) / (groundSize / (float)dataTexWidth) * duv + duv * new Vector2(0.5f, 0.5f);
-        //Debug.Log($"{heightMapMinWorld} {heightMapMaxWorld} {minWorld} {maxWorld} {uvMin} {uvMax} {duv}");
+        //Debug.Log($"{heightMapMinWorld} {heightMapMaxWorld} {minWorld} {maxWorld} {minGrid} {maxGrid} {minKey} {maxKey} {uvMin} {uvMax} {duv} {m_Quality}");
 
         m_CSTextureMerge.SetInts("_MergeTexSize", new int[2] { mergeTexWidth, mergeTexWidth });
         m_CSTextureMerge.SetInts("_DataTexSize", new int[2] { dataTexWidth , dataTexWidth });
@@ -113,8 +128,6 @@ public class Ground : MonoBehaviour
         m_CSTextureMerge.SetFloats("_UVMax", new float[2] { uvMax.x, uvMax.y });
         m_CSTextureMerge.SetTexture(0, "_HeightMergeMap", m_HeightBuffer);
         m_CSTextureMerge.SetTexture(0, "_NormalMergeMap", m_NormalBuffer);
-        m_Mat.SetTexture("_HeightMap", m_HeightBuffer);
-        m_Mat.SetTexture("_NormalMap", m_NormalBuffer);
 
         int groupx = mergeTexWidth / Thread_Width + (mergeTexWidth % Thread_Width == 0 ? 0 : 1);
         m_CSTextureMerge.Dispatch(0, groupx, groupx, 1);

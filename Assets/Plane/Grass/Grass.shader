@@ -82,6 +82,8 @@ Shader "Terrain/Grass"
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+                #include "Assets/Plane/PlaneHeight.hlsl"
+
                 #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
                 #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
                 #pragma multi_compile _ _ADDITIONAL_LIGHTS
@@ -139,6 +141,7 @@ Shader "Terrain/Grass"
 
                     VertexOut o;
                     float3 pivotPosWS = _GrassBuffer[instanceID].position;
+                    pivotPosWS.y = GetHeight(pivotPosWS.xz, 1);
                     float3 camPosWS = GetCameraPositionWS(); 
 
                     float3 bill_front = normalize(pivotPosWS - camPosWS);

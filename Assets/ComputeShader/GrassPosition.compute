@@ -12,38 +12,39 @@ struct GrassData
     float3 position;
 };
 
-RWTexture2D<float> _HeightMap;
 
 RWStructuredBuffer<GrassData> _GrassBuffer;
-uint2 _HeightBufferSize;
+
 uint _GrassHorizonCount;
 uint _GrassVerticalCount;
 float2 _GridPos; //min
 float2 _GridSize;
 
-//bilinear
-float GetHeight(float2 uv)
-{
-    int texWidth = _HeightBufferSize.x;
-    float2 uvMulSize = saturate(uv) * texWidth;
-    int2 lbot = int2(floor(uvMulSize.x), floor(uvMulSize.y));
-    int2 rbot = int2(ceil(uvMulSize.x), floor(uvMulSize.y));
-    int2 ltop = int2(floor(uvMulSize.x), ceil(uvMulSize.y));
-    int2 rtop = int2(ceil(uvMulSize.x), ceil(uvMulSize.y));
-    
-    float lbotHeight = _HeightMap[lbot];
-    float rbotHeight = _HeightMap[rbot];
-    float ltopHeight = _HeightMap[ltop];
-    float rtopHeight = _HeightMap[rtop];
-    
-    float2 lbotWeight = 1 - (uvMulSize - lbot);
-    
-    float botHeight = lbotHeight * lbotWeight.x + rbotHeight * (1 - lbotWeight.x);
-    float topHeight = ltopHeight * lbotWeight.x + rtopHeight * (1 - lbotWeight.x);
-    
-    float height = botHeight * lbotWeight.y + topHeight * (1 - lbotWeight.y);
-    return height;
-}
+//RWTexture2D<float> _HeightMap;
+//uint2 _HeightBufferSize;
+////bilinear
+//float GetHeight(float2 uv)
+//{
+//    int texWidth = _HeightBufferSize.x;
+//    float2 uvMulSize = saturate(uv) * texWidth;
+//    int2 lbot = int2(floor(uvMulSize.x), floor(uvMulSize.y));
+//    int2 rbot = int2(ceil(uvMulSize.x), floor(uvMulSize.y));
+//    int2 ltop = int2(floor(uvMulSize.x), ceil(uvMulSize.y));
+//    int2 rtop = int2(ceil(uvMulSize.x), ceil(uvMulSize.y));
+//    
+//    float lbotHeight = _HeightMap[lbot];
+//    float rbotHeight = _HeightMap[rbot];
+//    float ltopHeight = _HeightMap[ltop];
+//    float rtopHeight = _HeightMap[rtop];
+//    
+//    float2 lbotWeight = 1 - (uvMulSize - lbot);
+//    
+//    float botHeight = lbotHeight * lbotWeight.x + rbotHeight * (1 - lbotWeight.x);
+//    float topHeight = ltopHeight * lbotWeight.x + rtopHeight * (1 - lbotWeight.x);
+//    
+//    float height = botHeight * lbotWeight.y + topHeight * (1 - lbotWeight.y);
+//    return height;
+//}
 
 [numthreads(GRASS_THREAD_WIDTH, GRASS_THREAD_WIDTH,1)]
 void GetPosition(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
@@ -79,14 +80,14 @@ void GetPosition(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
     curPos += randomAdditionalPos * float3(dis_x, (dis_x + dis_y) * 0.05f, dis_y);
 
     float2 gridUV = (curPos.xz - minxz) / _GridSize;
-    float dTexUV = 1 / (float) _HeightBufferSize.x;
-    float2 texUV = gridUV * (1 - dTexUV) + 0.5f * dTexUV;
-    float height = GetHeight(texUV);
-    curPos.y += height;
+    //float dTexUV = 1 / (float) _HeightBufferSize.x;
+    //float2 texUV = gridUV * (1 - dTexUV) + 0.5f * dTexUV;
+    //float height = GetHeight(texUV);
+    //curPos.y += height;
     
     GrassData grass;
     grass.position = curPos;
-    grass.chunkUV = texUV;
+    grass.chunkUV = gridUV;
 
     _GrassBuffer[idx] = grass;
 }

@@ -4427,7 +4427,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CSTerrainMaker: {fileID: 7200000, guid: 60afc950ce852b146b3c5752ed4e4a7a, type: 3}
   m_MeshSize: 40
-  m_VertexWidth: 65
+  m_VertexWidth: 129
   m_GradientRadianMul: 1
   m_Amplitude: 2.85
   m_Freaquency: 0.052
@@ -4469,7 +4469,7 @@ MonoBehaviour:
   m_GrassCountPerOne: 22
   m_GrassRenderDis: 16
   m_TestKey: {x: 0, y: -3}
-  m_UseTestKey: 1
+  m_UseTestKey: 0
 --- !u!1 &1959000363 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3586728633960674748, guid: 4c24864bced7ba64696cc88d5412ef2b,

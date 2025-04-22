@@ -70,6 +70,9 @@ public class MapMaker : MonoBehaviour
     private void Start()
     {
         MapInit();
+        float texWorldSize_1 = TerrainMaker.Ins.m_MeshSize + TerrainMaker.Ins.m_MeshSize / TerrainMaker.Ins.m_VertexWidth;
+        float texWorldSize_2 = (TerrainMaker.Ins.m_MeshSize + TerrainMaker.Ins.m_MeshSize / TerrainMaker.Ins.m_VertexWidth) * 2;
+        Shader.SetGlobalVector("_TexWorldSize", new Vector2(texWorldSize_1, texWorldSize_2));
     }
 
     private void Update()
@@ -139,7 +142,7 @@ public class MapMaker : MonoBehaviour
         chunk.grassData = GrassMaker.Ins.GetChunkGrassData(grassOption);
         D_ChunkData[key] = chunk;
     }
-    void MergeHeightNormalTexture(Vector2Int chunkKey,ref RenderTexture heightMergeTexture, ref RenderTexture normalMergeTexture)
+    void MergeHeightNormalTexture(Vector2Int chunkKey, ref RenderTexture heightMergeTexture, ref RenderTexture normalMergeTexture)
     {
         int texWidth = TerrainMaker.Ins.m_TexWidth;
         Vector2 curSize = new Vector2(ChunkSize, ChunkSize);
@@ -152,12 +155,12 @@ public class MapMaker : MonoBehaviour
         Vector2 minChunkGrid = minWorld / ChunkSize;
         Vector2 maxChunkGrid = maxWorld / ChunkSize;
         Vector2Int minTerrainKey = new Vector2Int(Mathf.FloorToInt(minTerrainGrid.x), Mathf.FloorToInt(minTerrainGrid.y));
-        Vector2Int maxTerrainKey = new Vector2Int(Mathf.FloorToInt(maxTerrainGrid.x), Mathf.FloorToInt(maxTerrainGrid.y)); 
+        Vector2Int maxTerrainKey = new Vector2Int(Mathf.FloorToInt(maxTerrainGrid.x), Mathf.FloorToInt(maxTerrainGrid.y));
         Vector2Int minChunkKey = new Vector2Int(Mathf.FloorToInt(minChunkGrid.x), Mathf.FloorToInt(minChunkGrid.y));
         Vector2Int maxChunkKey = new Vector2Int(Mathf.FloorToInt(maxChunkGrid.x), Mathf.FloorToInt(maxChunkGrid.y));
         Vector2Int dataSize = new Vector2Int(maxTerrainKey.x - minTerrainKey.x + 1, maxTerrainKey.y - minTerrainKey.y + 1);
         TerrainData[] arr_Data = new TerrainData[dataSize.x * dataSize.y];
-        //Debug.Log($"chunk mergetextue {minWorld} {maxWorld} {minGrid} {maxGrid} {minKey} {maxKey}");
+
 
         int idx = 0;
         for (int y = minTerrainKey.y; y <= maxTerrainKey.y; y++)
@@ -165,7 +168,7 @@ public class MapMaker : MonoBehaviour
             for (int x = minTerrainKey.x; x <= maxTerrainKey.x; x++)
             {
                 Vector2Int curKey = new Vector2Int(x, y);
-                if(chunkKey == new Vector2Int(0, -3))
+                if (chunkKey == new Vector2Int(0, -3))
                 {
                     Debug.Log($"curKey : {curKey}");
                 }
@@ -182,7 +185,10 @@ public class MapMaker : MonoBehaviour
         Vector2 uvMax = (maxWorld - heightMapMinWorld) / (heightMapMaxWorld - heightMapMinWorld);
         uvMin = uvMin * dataSize;
         uvMax = uvMax * dataSize;
-        //Debug.Log($"{heightMapMinWorld} {heightMapMaxWorld} {minWorld} {maxWorld} {uvMin} {uvMax}");
+        if (chunkKey == new Vector2Int(0, -3))
+        {
+            Debug.Log($"{heightMapMinWorld} {heightMapMaxWorld} {minWorld} {maxWorld} {uvMin} {uvMax}");
+        }
 
         m_CSTextureMerge.SetInts("_MergeTexSize", new int[2] { texWidth, texWidth });
         m_CSTextureMerge.SetInts("_DataTexSize", new int[2] { TerrainMaker.Ins.m_TexWidth, TerrainMaker.Ins.m_TexWidth });
@@ -318,7 +324,7 @@ public class MapMaker : MonoBehaviour
         foreach (Vector2Int key in D_TerrainData[m_RenterTextureQuality].Keys)
         {
             Vector2 pos = new Vector2(key.x + 0.5f, key.y + 0.5f) * size - new Vector2(dVertex, dVertex) * 0.5f;
-
+            Debug.Log(key + " " + pos);
             L_Objs.Add(RenderTextureObject.Create(pos, size, D_TerrainData[m_RenterTextureQuality][key].heightTexture));
         }
 

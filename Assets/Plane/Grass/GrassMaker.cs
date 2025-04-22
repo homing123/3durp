@@ -159,19 +159,6 @@ public class GrassMaker : MonoBehaviour
 
         arr_Chunk = l_DrawedChunk.ToArray();
 
-        for(int i=0;i<arr_Chunk.Length;i++)
-        {
-            if(arr_Chunk[i].key == new Vector2Int(0, -2))
-            {
-                Debug.Log("있따");
-                break;
-            }
-            if(i == arr_Chunk.Length - 1)
-            {
-                Debug.Log("없따");
-            }
-
-        }
         //청크갯수제한최대 32개다 청크 절두체컬링으로 안보이는청크 다짤라야겠따.
         if (arr_Chunk.Length > GrassBufferCount)
         {
@@ -469,9 +456,9 @@ public class GrassMaker : MonoBehaviour
 
         data.grassBuffer = new ComputeBuffer(grassCount, structSize); //컬링 전 grassbuffer
 
-        CSGrassPosition.SetTexture(0, "_HeightMap", option.heightTexture);
+        //CSGrassPosition.SetTexture(0, "_HeightMap", option.heightTexture);
         CSGrassPosition.SetBuffer(0, "_GrassBuffer", data.grassBuffer);
-        CSGrassPosition.SetInts("_HeightBufferSize", new int[2] { heightMapSize.x, heightMapSize.y });
+        //CSGrassPosition.SetInts("_HeightBufferSize", new int[2] { heightMapSize.x, heightMapSize.y });
         CSGrassPosition.SetInt("_GrassHorizonCount", grassHorizonCount);
         CSGrassPosition.SetInt("_GrassVerticalCount", grassVerticalCount);
         Vector2 chunkMinPos = option.chunkCenterPos - Vector2.one * MapMaker.ChunkSize * 0.5f;
@@ -480,10 +467,10 @@ public class GrassMaker : MonoBehaviour
 
         CSGrassPosition.Dispatch(0, perlinKernel_x, perlinKernel_y, 1);
 
-        float size = (float)MapMaker.ChunkSize;
-        float dVertex = (float)MapMaker.ChunkSize / 128;
-        Vector2 pos = chunkMinPos + 0.5f * size * Vector2.one - new Vector2(dVertex, dVertex) * 0.5f; ;
-        RenderTextureObject.Create(pos, size, option.heightTexture);
+        //float size = (float)MapMaker.ChunkSize;
+        //float dVertex = (float)MapMaker.ChunkSize / 128;
+        //Vector2 pos = chunkMinPos + 0.5f * size * Vector2.one - new Vector2(dVertex, dVertex) * 0.5f; ;
+        //RenderTextureObject.Create(pos, size, option.heightTexture);
 
         int groupCount = grassCount / CullingThreadMax + (grassCount % CullingThreadMax == 0 ? 0 : 1);
         if (groupCount > 512)
