@@ -141,7 +141,7 @@ Shader "Terrain/Grass"
 
                     VertexOut o;
                     float3 pivotPosWS = _GrassBuffer[instanceID].position;
-                    pivotPosWS.y = GetHeight(pivotPosWS.xz, 1);
+                    //pivotPosWS.y = GetHeight(pivotPosWS.xz, 1);
                     float3 camPosWS = GetCameraPositionWS(); 
 
                     float3 bill_front = normalize(pivotPosWS - camPosWS);

@@ -6,6 +6,7 @@ using static UnityEngine.GUILayout;
 using System.Collections.Generic;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEditor;
+using Unity.Mathematics;
 
 public class GrassMaker : MonoBehaviour
 {
@@ -456,9 +457,12 @@ public class GrassMaker : MonoBehaviour
 
         data.grassBuffer = new ComputeBuffer(grassCount, structSize); //ÄÃ¸µ Àü grassbuffer
 
-        //CSGrassPosition.SetTexture(0, "_HeightMap", option.heightTexture);
+
+
+        MapMaker.Ins.SetGroundHeightTexture(CSGrassPosition, 0, "_HeightMap", 1);
+        CSGrassPosition.SetFloat("_TexWorldSize", MapMaker.Ins.GroundHeightMapTexWorldSize.x);
+        CSGrassPosition.SetVector("_TexCenterPosXZ", MapMaker.Ins.GroundHeightMapCenterPos);
         CSGrassPosition.SetBuffer(0, "_GrassBuffer", data.grassBuffer);
-        //CSGrassPosition.SetInts("_HeightBufferSize", new int[2] { heightMapSize.x, heightMapSize.y });
         CSGrassPosition.SetInt("_GrassHorizonCount", grassHorizonCount);
         CSGrassPosition.SetInt("_GrassVerticalCount", grassVerticalCount);
         Vector2 chunkMinPos = option.chunkCenterPos - Vector2.one * MapMaker.ChunkSize * 0.5f;

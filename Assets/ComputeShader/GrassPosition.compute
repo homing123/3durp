@@ -20,9 +20,12 @@ uint _GrassVerticalCount;
 float2 _GridPos; //min
 float2 _GridSize;
 
-//RWTexture2D<float> _HeightMap;
-//uint2 _HeightBufferSize;
-////bilinear
+Texture2D<float> _HeightMap;
+SamplerState sampler_HeightMap;
+float _TexWorldSize; //quality 1 size
+float2 _TexCenterPosXZ;
+
+//bilinear
 //float GetHeight(float2 uv)
 //{
 //    int texWidth = _HeightBufferSize.x;
@@ -80,10 +83,14 @@ void GetPosition(uint3 t_id : SV_GroupThreadID, uint3 g_id : SV_GroupID)
     curPos += randomAdditionalPos * float3(dis_x, (dis_x + dis_y) * 0.05f, dis_y);
 
     float2 gridUV = (curPos.xz - minxz) / _GridSize;
-    //float dTexUV = 1 / (float) _HeightBufferSize.x;
-    //float2 texUV = gridUV * (1 - dTexUV) + 0.5f * dTexUV;
-    //float height = GetHeight(texUV);
-    //curPos.y += height;
+
+    float2 worldXZ = curPos.xz;
+    float2 texMin = _TexCenterPosXZ - _TexWorldSize * 0.5f;
+    float2 texMax = _TexCenterPosXZ + _TexWorldSize * 0.5f;
+    float2 worldHeightMapUV = saturate((worldXZ - texMin) / (texMax - texMin));
+
+    float height = _HeightMap.SampleLevel(sampler_HeightMap, worldHeightMapUV, 0).r;
+    curPos.y += height;
     
     GrassData grass;
     grass.position = curPos;
