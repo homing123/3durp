@@ -453,14 +453,9 @@ public class GrassMaker : MonoBehaviour
         int structSize = HMUtil.StructSize(typeof(GrassData));
 
 
-        Vector2Int heightMapSize = TerrainMaker.Ins.HeightMapSize;
-
         data.grassBuffer = new ComputeBuffer(grassCount, structSize); //ÄÃ¸µ Àü grassbuffer
-
-
-
-        MapMaker.Ins.SetGroundHeightTexture(CSGrassPosition, 0, "_HeightMap", 1);
-        CSGrassPosition.SetFloat("_TexWorldSize", MapMaker.Ins.GroundHeightMapTexWorldSize.x);
+        MapMaker.Ins.SetGroundHeightTexture(CSGrassPosition, 0, "_HeightMap", 2);
+        CSGrassPosition.SetFloat("_TexWorldSize", MapMaker.Ins.GroundHeightMapTexWorldSize.y);
         CSGrassPosition.SetVector("_TexCenterPosXZ", MapMaker.Ins.GroundHeightMapCenterPos);
         CSGrassPosition.SetBuffer(0, "_GrassBuffer", data.grassBuffer);
         CSGrassPosition.SetInt("_GrassHorizonCount", grassHorizonCount);

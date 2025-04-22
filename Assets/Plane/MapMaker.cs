@@ -4,6 +4,7 @@ using UnityEngine;
 using static GrassMaker;
 using static TerrainMaker;
 using System;
+using static UnityEditor.PlayerSettings;
 
 public struct ChunkData
 {
@@ -77,24 +78,20 @@ public class MapMaker : MonoBehaviour
     }
     private void Start()
     {
-        MapInit();
         Shader.SetGlobalVector("_TexWorldSize", GroundHeightMapTexWorldSize);
-        CamMove.ev_TerrainPosUpdate += Ev_CamMove;
+        MapInit();
+        CamMove.ev_TerrainPosUpdate += Ev_TerrainPosMove;
     }
 
     private void Update()
     {
-        Vector2Int chunkMoveDisIdxCoord = ChunkMoveCheck();
-        if (chunkMoveDisIdxCoord != Vector2Int.zero)
-        {
-            ChunkMove(chunkMoveDisIdxCoord);
-        }
+        ChunkMoveCheck();
         GrassMaker.Ins.DrawGrass(GetDrawGrassChunks());
 
     }
     private void OnDestroy()
     {
-        CamMove.ev_TerrainPosUpdate -= Ev_CamMove;
+        CamMove.ev_TerrainPosUpdate -= Ev_TerrainPosMove;
 
         for (int i = 0; i < TerrainCount; i++)
         {
@@ -116,7 +113,7 @@ public class MapMaker : MonoBehaviour
             }
         }
     }
-    void Ev_CamMove(Vector2 pos)
+    void Ev_TerrainPosMove(Vector2 pos)
     {
         GroundHeightMapCenterPos = pos;
         for (int i = 1; i <= TerrainCount; i++)
@@ -163,9 +160,11 @@ public class MapMaker : MonoBehaviour
     void MapInit()
     {
         Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
-        Vector2Int curTerrainMeshGridKey = TerrainMaker.Ins.GetTerrainMeshGridKey(CamMove.Ins.transform.position.Vt2XZ());
+        Vector2Int curTerrainMeshGridKey = TerrainMaker.Ins.GetTerrainMeshGridKey(camPosXZ);
         GroundHeightMapCenterPos.x = curTerrainMeshGridKey.x * TerrainMaker.Ins.TerrainMeshGridSize;
         GroundHeightMapCenterPos.y = curTerrainMeshGridKey.y * TerrainMaker.Ins.TerrainMeshGridSize;
+        Shader.SetGlobalVector("_TexCenterPosXZ", GroundHeightMapCenterPos);
+
         //create terrain
         for (int i = 1; i <= TerrainCount; i++)
         {
@@ -190,9 +189,11 @@ public class MapMaker : MonoBehaviour
         }
 
         //create chunk data
-        m_CurChunkKey = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / ChunkSize), Mathf.FloorToInt(camPosXZ.y / ChunkSize)); //현재 카메라위치가 속한 청크의 키
+        m_CurChunkKey = GetChunkGridKey(camPosXZ); //현재 카메라위치가 속한 청크의 키
         int chunkWidth = m_RenderChunkDis * 2 + 1;
         Vector2Int chunkKeyMin = m_CurChunkKey - new Vector2Int(m_RenderChunkDis, m_RenderChunkDis);
+
+        //RenderTextureObject.Create(GroundHeightMapCenterPos, GroundHeightMapTexWorldSize.x, L_GroundHeightMap[0]);
         for (int y = 0; y < chunkWidth; y++)
         {
             for (int x = 0; x < chunkWidth; x++)
@@ -289,19 +290,32 @@ public class MapMaker : MonoBehaviour
         return l_GrassRenderChunk.ToArray();  
     }
   
-    Vector2Int ChunkMoveCheck()
+    void ChunkMoveCheck()
     {
-        //Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
-        //Vector2Int centerGridIdxCoord = new Vector2Int(Mathf.FloorToInt(camPosXZ.x / Chunk.ChunkSize.x), Mathf.FloorToInt(camPosXZ.y / Chunk.ChunkSize.y)); //중심이 되는 그리드 인덱스좌표
-        //if (m_CurCenterChunkIdxCoord != centerGridIdxCoord)
-        //{
-        //    return centerGridIdxCoord - m_CurCenterChunkIdxCoord;
-        //}
-        return Vector2Int.zero;
-    }
-    void ChunkMove(Vector2Int chunkMoveDisIdxCoord)
-    {
+        Vector2 camPosXZ = Camera.main.transform.position.Vt2XZ();
+        Vector2Int curChunkGridKey = GetChunkGridKey(camPosXZ);
+        
+        if (m_CurChunkKey != curChunkGridKey)
+        {
+            m_CurChunkKey = curChunkGridKey;
+            int chunkWidth = m_RenderChunkDis * 2 + 1;
+            Vector2Int chunkKeyMin = m_CurChunkKey - new Vector2Int(m_RenderChunkDis, m_RenderChunkDis);
 
+            for (int y = 0; y < chunkWidth; y++)
+            {
+                for (int x = 0; x < chunkWidth; x++)
+                {
+                    Vector2Int curChunkKey = new Vector2Int(x, y) + chunkKeyMin;
+                    GetChunkData(curChunkKey);
+                }
+            }
+        }
+    }
+
+    public Vector2Int GetChunkGridKey(Vector2 vt2xz)
+    {
+        Vector2 quotient = vt2xz / ChunkSize;
+        return new Vector2Int(Mathf.FloorToInt(quotient.x), Mathf.FloorToInt(quotient.y));
     }
 
     public void SetGroundHeightTexture(ComputeShader cs, int bufferIdx, string bufferName, int quality)
