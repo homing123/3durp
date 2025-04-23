@@ -15,13 +15,16 @@ MonoBehaviour:
   active: 1
   m_Intensity:
     m_OverrideState: 1
-    m_Value: 0.056
+    m_Value: 1
   m_NearDis:
     m_OverrideState: 1
-    m_Value: 7.67
+    m_Value: 11
   m_FarDis:
     m_OverrideState: 1
-    m_Value: 26.7
+    m_Value: 27.16
+  m_Height:
+    m_OverrideState: 1
+    m_Value: 1.8
   m_FogColor:
     m_OverrideState: 1
     m_Value: {r: 0.66215736, g: 0.9031191, b: 0.9056604, a: 1}

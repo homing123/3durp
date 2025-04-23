@@ -92,6 +92,7 @@ public class DeferredFogPass : ScriptableRenderPass
             m_Setting.Update();
             m_Mat.SetFloat("_NearDis", m_Setting.m_NearDis.value);
             m_Mat.SetFloat("_FarDis", m_Setting.m_FarDis.value);
+            m_Mat.SetFloat("_Height", m_Setting.m_Height.value);
             m_Mat.SetFloat("_Intensity", m_Setting.m_Intensity.value);
             m_Mat.SetColor("_FogColor", m_Setting.m_FogColor.value);
         }

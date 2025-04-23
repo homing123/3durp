@@ -42,6 +42,7 @@ Shader "PostProcessing/DeferredFog"
             float4 _MainTex_ST;
             float _NearDis;
             float _FarDis;
+            float _Height;
             float _Intensity;
             half3 _FogColor;
             CBUFFER_END
@@ -74,12 +75,20 @@ Shader "PostProcessing/DeferredFog"
 
                 float4 posVS = mul(UNITY_MATRIX_I_P, float4(posCS,1));
                 posVS = posVS / posVS.w;
-                
-                float near = GetNear();
-                float far = GetFar();
-                float depthVS = -posVS.z;
-                float linearDepth = 1 - (depthVS - near) / (far - near);
-                float fog = saturate((depthVS - _NearDis) / (_FarDis - _NearDis)) * _Intensity;
+                posVS.yz *= -1;
+                float4 posWS = mul(unity_CameraToWorld, posVS);
+                float3 camPosWS = GetCameraPositionWS();
+
+                float camFar = GetFar();
+                float farDis = _FarDis >= camFar ? camFar : _FarDis;
+
+                float dis = length(posWS.xyz - camPosWS);
+                float disFactor = saturate((dis - _NearDis) / (farDis - _NearDis));
+                disFactor = disFactor * disFactor;
+                float disFogFactor = disFactor;
+
+                float heightFogFactor = saturate(pow(1.1f, _Height - posWS.y));
+                float fog = disFogFactor * heightFogFactor * _Intensity;
                 col.rgb = _FogColor * fog + color * (1 - fog);
                 // apply fog
                 return col;
