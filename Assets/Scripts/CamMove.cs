@@ -17,6 +17,7 @@ public class CamMove : MonoBehaviour
 
 
     [SerializeField] float m_MouseSensitivity; //마우스감도
+    [SerializeField] bool m_MoveMode = true;
     float m_CurMouseX;
     float m_CurMouseY;
 
@@ -41,6 +42,10 @@ public class CamMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            m_MoveMode = !m_MoveMode;
+        }
         CharacterMoveMode();
         Vector2Int curCamTerrainMeshGridKey = TerrainMaker.Ins.GetTerrainMeshGridKey(transform.position.Vt2XZ());
         if (m_TerrainMeshGridKey != curCamTerrainMeshGridKey)
@@ -53,6 +58,10 @@ public class CamMove : MonoBehaviour
 
     void CharacterMoveMode()
     {
+        if(m_MoveMode == false)
+        {
+            return;
+        }
         if(m_Character == null)
         {
             return;
