@@ -699,11 +699,11 @@ Light:
   m_GameObject: {fileID: 135499926}
   m_Enabled: 1
   serializedVersion: 10
-  m_Type: 0
+  m_Type: 2
   m_Shape: 0
   m_Color: {r: 0, g: 1, b: 0.7987695, a: 1}
-  m_Intensity: 250
-  m_Range: 44.3
+  m_Intensity: 22
+  m_Range: 35
   m_SpotAngle: 70.66049
   m_InnerSpotAngle: 40.56846
   m_CookieSize: 10
@@ -761,7 +761,7 @@ Transform:
   m_GameObject: {fileID: 135499926}
   serializedVersion: 2
   m_LocalRotation: {x: 0.22243375, y: 0.15912066, z: -0.036823668, w: 0.9611701}
-  m_LocalPosition: {x: -6.56, y: -6.7, z: -20.36}
+  m_LocalPosition: {x: -3.2, y: -6.7, z: -2.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1977,6 +1977,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0aecb4f9b7c86a4a9f932caf1b3bdf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Actives: 1
   m_Kind: 1
   m_Light: {fileID: 135499928}
   m_Preset:

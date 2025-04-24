@@ -21,6 +21,7 @@ Shader "VLTest/Third"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
             #include "Assets/Test/VolumetricLight/VL_Test/Third/VoxelLight.hlsl"
+            #include "Assets/PostProcess/HMMatrix.hlsl"
 
             #pragma enable_d3d11_debug_symbols
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
@@ -65,14 +66,6 @@ Shader "VLTest/Third"
                 return o;
             }
 
-            float GetFar()
-            {
-                return unity_CameraProjection[2][3] / (unity_CameraProjection[2][2] + 1);
-            }
-            float GetNear()
-            {
-                return unity_CameraProjection[2][3] / (unity_CameraProjection[2][2] - 1);
-            }
             float GetDepth(float2 uv)
             {
                 return tex2D(_CameraDepthTexture, uv).r;
@@ -93,27 +86,7 @@ Shader "VLTest/Third"
                 float linearDepth = (posVS.z - near) / (far - near); //near = 0, far = 1
                 return linearDepth;
             }
-            float4x4 GetProjectionMat10(float near, float far) //view.z 안뒤집어도 됨
-            {
-                float FminusN_RCP = 1 / (far - near);
-                return float4x4(unity_CameraProjection[0][0], 0, 0, 0,
-                    0, unity_CameraProjection[1][1], 0, 0,
-                    0, 0, -near * FminusN_RCP, near * far * FminusN_RCP,
-                    0, 0, 1, 0);
-            }
-            float4x4 GetInvProjectionMat10(float4x4 projmat)
-            {
-                float ARCP = 1 / projmat[0][0];
-                float BRCP = 1 / projmat[1][1];
-                float C = projmat[2][2];
-                float DRCP = 1 / projmat[2][3];
-                float ERCP = 1 / projmat[3][2];
-
-                return float4x4(ARCP, 0, 0, 0,
-                    0, BRCP, 0, 0,
-                    0, 0, 0, ERCP,
-                    0, 0, DRCP, -C * ERCP * DRCP);
-            }
+          
 
             float4x4 GetSpotLightProjectionMat10(float fov_degree, float near, float far)
             {
@@ -156,13 +129,9 @@ Shader "VLTest/Third"
             { 
 
                 float3 camPosWS = GetCameraPositionWS();
-                float near = GetNear();
-                float far = GetFar();
-                float4x4 projMat = GetProjectionMat10(near, far);
-                float4x4 invProjMat = GetInvProjectionMat10(projMat);
                 float4x4 shadowProj = GetSpotLightProjectionMat10(_SpotlightFov, _SpotlightNear, _SpotlightFar);
                 float4x4 shadowInvProj = GetSpotLightInvProjectionMat10(shadowProj);
-                float4x4 invViewProjMat = mul(unity_CameraToWorld, invProjMat);
+                float4x4 invViewProjMat = mul(unity_CameraToWorld, _InvProjMat10);
                 float sampleRCP = 1 / _Samples;
                 float PI_RCP = 1 / PI;
 
@@ -174,7 +143,7 @@ Shader "VLTest/Third"
                 float3 posWS = posWS4.xyz / posWS4.w;
 
                 float3 raymarchPos = posWS;
-                float raymarchDistance = length(raymarchPos - camPosWS) - near;
+                float raymarchDistance = length(raymarchPos - camPosWS) - _CamNear;
                 float stepsize = raymarchDistance * sampleRCP;
                 float3 stepDir = normalize(camPosWS - raymarchPos);
 

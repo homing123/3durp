@@ -7,41 +7,38 @@ using UnityEngine.Rendering.Universal;
 [System.Serializable, VolumeComponentMenu("DepthOfFieldCustom")]
 public class DepthOfFieldSetting : VolumeComponent, IPostProcessComponent
 {
-    public ClampedFloatParameter m_DOFIntensity = new ClampedFloatParameter(0, 0, 10);
-    public ClampedFloatParameter m_BlurIntensity = new ClampedFloatParameter(0, 0, 15);
-    public ClampedFloatParameter m_Depth = new ClampedFloatParameter(0, 0, 1);
+    public ClampedFloatParameter m_BlurIntensity = new ClampedFloatParameter(0, 0, 25);
+    public ClampedFloatParameter m_FocusDepth = new ClampedFloatParameter(0, 0, 1);
+    public ClampedFloatParameter m_FocusDepthSize = new ClampedFloatParameter(0, 0, 1);
     public MaterialParameter m_DofMat = new MaterialParameter(null);
-    public MaterialParameter m_BlurMat = new MaterialParameter(null);
 
-
-    float m_LastDOFIntensity;
     float m_LastBlurIntensity;
-    float m_LastDepth;
+    float m_LastFocusDepth;
+    float m_LastFocusDepthSize;
     public bool IsUpdate()
     {
-        return m_LastDOFIntensity != m_DOFIntensity.value || m_LastBlurIntensity != m_BlurIntensity.value || m_LastDepth != m_Depth.value;
+        return m_LastBlurIntensity != m_BlurIntensity.value || m_LastFocusDepth != m_FocusDepth.value || m_LastFocusDepthSize != m_FocusDepthSize.value;
     }
     public void Update()
     {
-        m_LastDOFIntensity = m_DOFIntensity.value;
         m_LastBlurIntensity = m_BlurIntensity.value;
-        m_LastDepth = m_Depth.value;
-        m_DofMat.value.SetFloat("_DOFIntensity", m_DOFIntensity.value);
-        m_DofMat.value.SetFloat("_Depth", m_Depth.value);
-
-        m_BlurMat.value.SetFloat("_Spread", m_BlurIntensity.value);
-
-        int gridSize = Mathf.CeilToInt(m_BlurIntensity.value * 6.0f);
+        m_LastFocusDepth = m_FocusDepth.value;
+        m_LastFocusDepthSize = m_FocusDepthSize.value;
+        m_DofMat.value.SetFloat("_Spread", m_BlurIntensity.value);
+        m_DofMat.value.SetFloat("_FocusDepth", m_FocusDepth.value);
+        m_DofMat.value.SetFloat("_FocusDepthSize", m_FocusDepthSize.value);
+        int gridSize = Mathf.CeilToInt(m_BlurIntensity.value * 6);
         gridSize = gridSize < 3 ? 3 : gridSize;
-        if (gridSize % 2 == 0)
+        if(gridSize % 2 == 0)
         {
             gridSize++;
         }
-        m_BlurMat.value.SetInteger("_GridSize", gridSize);
+        m_DofMat.value.SetFloat("_GridSize", gridSize);
+
     }
     public bool IsActive()
     {
-        return (m_DOFIntensity.value > 0.0f) && active;
+        return (m_BlurIntensity.value > 0.0f) && active;
     }
 
     public bool IsTileCompatible()
@@ -63,6 +60,8 @@ public class DepthOfFieldCustomPass : ScriptableRenderPass
 
     bool m_Init;
     bool m_Active;
+
+    Material m_Mat;
     void Init()
     {
         m_Setting = VolumeManager.instance.stack.GetComponent<DepthOfFieldSetting>();
@@ -71,10 +70,33 @@ public class DepthOfFieldCustomPass : ScriptableRenderPass
         m_Init = true;
         if (m_Init)
         {
+            m_Mat = m_Setting.m_DofMat.value;
             RenderTextureDescriptor desc = new RenderTextureDescriptor(Screen.width, Screen.height, RenderTextureFormat.ARGB32);
-            m_RTDestBlurX = RTHandles.Alloc(desc);
-            m_RTDestBlurY = RTHandles.Alloc(desc);
-            m_RTSourceCopy = RTHandles.Alloc(desc);
+            m_RTDestBlurX = RTHandles.Alloc(
+                 Vector2.one, // 스크린 크기의 100% (1.0, 1.0)
+                 dimension: TextureDimension.Tex2D,
+                 colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat,
+                 useDynamicScale: true, // 동적 스케일링 지원
+                 name: Name,
+                 wrapMode: TextureWrapMode.Clamp
+             );
+            m_RTDestBlurY = RTHandles.Alloc(
+                Vector2.one, // 스크린 크기의 100% (1.0, 1.0)
+                dimension: TextureDimension.Tex2D,
+                colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat,
+                useDynamicScale: true, // 동적 스케일링 지원
+                name: Name,
+                wrapMode: TextureWrapMode.Clamp
+            );
+            m_RTSourceCopy = RTHandles.Alloc(
+                Vector2.one, // 스크린 크기의 100% (1.0, 1.0)
+                dimension: TextureDimension.Tex2D,
+                colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat,
+                useDynamicScale: true, // 동적 스케일링 지원
+                name: Name,
+                wrapMode: TextureWrapMode.Clamp
+            );
+            //m_RTSourceCopy = RTHandles.Alloc(desc);
         }
     }
 
@@ -109,7 +131,7 @@ public class DepthOfFieldCustomPass : ScriptableRenderPass
         {
             return;
         }
-        m_Setting.m_DofMat.value.SetTexture("_OriginTex", m_RTSourceCopy);
+        m_Mat.SetTexture("_OriginTex", m_RTSourceCopy);
 
         base.Configure(cmd, cameraTextureDescriptor);
     }
@@ -127,9 +149,9 @@ public class DepthOfFieldCustomPass : ScriptableRenderPass
             m_Setting.Update();
         }
         cmd.Blit(m_Source, m_RTSourceCopy);
-        cmd.Blit(m_Source, m_RTDestBlurX, m_Setting.m_BlurMat.value, 0);
-        cmd.Blit(m_RTDestBlurX, m_RTDestBlurY, m_Setting.m_BlurMat.value, 1);
-        cmd.Blit(m_RTDestBlurY, m_Source, m_Setting.m_DofMat.value, 1);
+        cmd.Blit(m_Source, m_RTDestBlurX, m_Mat, 0);
+        cmd.Blit(m_RTDestBlurX, m_RTDestBlurY, m_Mat, 1);
+        cmd.Blit(m_RTDestBlurY, m_Source, m_Mat, 2);
         context.ExecuteCommandBuffer(cmd);
         cmd.Clear();
         CommandBufferPool.Release(cmd);

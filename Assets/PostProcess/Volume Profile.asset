@@ -43,7 +43,7 @@ MonoBehaviour:
   active: 1
   m_Intensity:
     m_OverrideState: 1
-    m_Value: 0.894
+    m_Value: 0
   m_NearDis:
     m_OverrideState: 1
     m_Value: 11
@@ -116,19 +116,16 @@ MonoBehaviour:
   m_Name: DepthOfFieldSetting
   m_EditorClassIdentifier: 
   active: 1
-  m_DOFIntensity:
-    m_OverrideState: 1
-    m_Value: 0.213
   m_BlurIntensity:
     m_OverrideState: 1
     m_Value: 2.87
-  m_Depth:
-    m_OverrideState: 1
-    m_Value: 0.62
-  m_DofMat:
+  m_FocusDepth:
     m_OverrideState: 0
-    m_Value: {fileID: 0}
-  m_BlurMat:
+    m_Value: 0
+  m_FocusDepthSize:
+    m_OverrideState: 0
+    m_Value: 0
+  m_DofMat:
     m_OverrideState: 0
     m_Value: {fileID: 0}
 --- !u!114 &11400000
@@ -177,21 +174,18 @@ MonoBehaviour:
   m_Name: DepthOfFieldSetting
   m_EditorClassIdentifier: 
   active: 1
-  m_DOFIntensity:
-    m_OverrideState: 1
-    m_Value: 0.709
   m_BlurIntensity:
     m_OverrideState: 1
-    m_Value: 7.7
-  m_Depth:
+    m_Value: 25
+  m_FocusDepth:
     m_OverrideState: 1
-    m_Value: 0.445
+    m_Value: 0.09
+  m_FocusDepthSize:
+    m_OverrideState: 1
+    m_Value: 0.096
   m_DofMat:
     m_OverrideState: 1
     m_Value: {fileID: 2100000, guid: 9a4326ec38be76941acb3de50f74e621, type: 2}
-  m_BlurMat:
-    m_OverrideState: 1
-    m_Value: {fileID: 2100000, guid: 8f19f4addfefd9f4dbf8a942b0aafb92, type: 2}
 --- !u!114 &9069585958661855262
 MonoBehaviour:
   m_ObjectHideFlags: 3
