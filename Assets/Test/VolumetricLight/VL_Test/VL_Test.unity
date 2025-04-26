@@ -2002,7 +2002,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Mat: {fileID: 2100000, guid: 8c150a4fbceea2f4f97379416b307e8f, type: 2}
   m_Samples: 32
-  m_Attenuation: 0.01
+  m_Attenuation: 0.015
   m_PhaseG: 0.2
 --- !u!114 &1914987900
 MonoBehaviour:

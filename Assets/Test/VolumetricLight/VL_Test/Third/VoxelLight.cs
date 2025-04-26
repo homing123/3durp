@@ -54,7 +54,7 @@ public class VoxelLight : MonoBehaviour
     public const int CPUVoxelLightMax = 8; //복셀1칸에 최대 라이트 갯수
     public const int CPUVoxelSize = 8; //cpu 복셀 월드기준 크기
     public const int CPUVoxelHalfSize = CPUVoxelSize / 2;
-    public const int CPUVoxelHorizontalCount = 7; //cpu 복셀 xz축 갯수
+    public const int CPUVoxelHorizontalCount = 9; //cpu 복셀 xz축 갯수
     public const int CPUVoxelVerticalCount = 3; //cpu 복셀 y축 갯수
     public const int GPUVoxelSize = 1; //gpu 복셀 월드기준 크기
     public const int GPUVoxelAxisCount = 8; //gpu 복셀 각 축의 갯수 ex 32 = 32 * 32 * 32 = 1 cpu 복셀

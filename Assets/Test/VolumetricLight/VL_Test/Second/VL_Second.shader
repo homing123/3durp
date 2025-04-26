@@ -189,8 +189,6 @@ Shader "VLTest/Second"
                 {
                     Light light = GetAdditionalLight(0, raymarchPos, half4(1, 1, 1, 1));
                     float shadow = light.shadowAttenuation;
-                    float shadowTr = exp(-_Attenuation * length(_AdditionalLightsPosition[0] - raymarchPos));
-                    shadow = shadow == 0 ? saturate(pow(length(_AdditionalLightsPosition[0] - raymarchPos) / 40, 2)) : shadow * shadowTr;
                     float lightAttenuation = light.distanceAttenuation;
                     float3 p2lDir = light.direction;
                     float p2vDis = raymarchDistance - stepsize * idx;
@@ -207,3 +205,5 @@ Shader "VLTest/Second"
         }
     }
 }
+//float sampleTr = exp(-_Attenuation * length(_AdditionalLightsPosition[0] - raymarchPos));
+                   //shadow = shadow == 0 ? saturate(pow(length(_AdditionalLightsPosition[0] - raymarchPos) / 40, 2)) : shadow * sampleTr;

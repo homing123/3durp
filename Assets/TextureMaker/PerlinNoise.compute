@@ -21,7 +21,7 @@ uint DRandomXORShift(uint seed)
 }
 uint Vector2IntToSeed(int2 vt2Int)
 {
-    uint seed = ((uint)vt2Int.x * 73856093u) ^ ((uint)vt2Int.y * 19349663u) + 104395301u;;
+    uint seed = ((uint)vt2Int.x * 73856093u) ^ ((uint)vt2Int.y * 19349663u) + 104395301u;
     return seed;
 }
 
@@ -64,7 +64,6 @@ float PerlinNoise(uint idx_x, uint idx_y)
         int2 grid_rtop = int2(i_x + 1, i_y + 1);
 
         float gradientMul = PI * 2 * _GradientRadianMul;
-
         float gradient_lbot = DRandomXORShift(Vector2IntToSeed(grid_lbot)) / (float)UINT_MAX;
         float gradient_ltop = DRandomXORShift(Vector2IntToSeed(grid_ltop)) / (float)UINT_MAX;
         float gradient_rbot = DRandomXORShift(Vector2IntToSeed(grid_rbot)) / (float)UINT_MAX;

@@ -43,7 +43,7 @@ MonoBehaviour:
   active: 1
   m_Intensity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 0.901
   m_NearDis:
     m_OverrideState: 1
     m_Value: 11
@@ -145,6 +145,39 @@ MonoBehaviour:
   - {fileID: 5049906193492304491}
   - {fileID: -2778795145780591774}
   - {fileID: 7231087321376096189}
+  - {fileID: 4343959311633866640}
+--- !u!114 &4343959311633866640
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe769f3936ea44f44bb92af8aeb35a6c, type: 3}
+  m_Name: ScanEffect
+  m_EditorClassIdentifier: 
+  active: 1
+  m_Mat:
+    m_OverrideState: 1
+    m_Value: {fileID: 2100000, guid: 8a12f6b3b8b9b004ea84bd063abd1eef, type: 2}
+  m_Color:
+    m_OverrideState: 1
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
+  m_Range:
+    m_OverrideState: 1
+    m_Value: 10
+  m_TotalTime:
+    m_OverrideState: 1
+    m_Value: 1
+  m_LineWidth:
+    m_OverrideState: 1
+    m_Value: 1
+  m_GridColor:
+    m_OverrideState: 1
+    m_Value: {r: 0.18427375, g: 0.9528302, b: 0.8369599, a: 1}
+  m_CurTime: 0
 --- !u!114 &5049906193492304491
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -176,7 +209,7 @@ MonoBehaviour:
   active: 1
   m_BlurIntensity:
     m_OverrideState: 1
-    m_Value: 25
+    m_Value: 0
   m_FocusDepth:
     m_OverrideState: 1
     m_Value: 0.09
