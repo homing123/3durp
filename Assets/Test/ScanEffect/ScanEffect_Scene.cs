@@ -13,7 +13,7 @@ public class ScanEffect_Scene : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.E))
         {
-            ScanEffect.Ins.Scan();
+            ScanEffectM.Ins.Scan();
         }
     }
 }

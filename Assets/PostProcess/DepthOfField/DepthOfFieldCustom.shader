@@ -1,4 +1,4 @@
-Shader "PostProcessing/DepthOfField"
+Shader "PostProcessing/DepthOfFieldCustom"
 {
     Properties
     {

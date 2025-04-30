@@ -43,7 +43,7 @@ MonoBehaviour:
   active: 1
   m_Intensity:
     m_OverrideState: 1
-    m_Value: 0.901
+    m_Value: 0.882
   m_NearDis:
     m_OverrideState: 1
     m_Value: 11
@@ -145,7 +145,6 @@ MonoBehaviour:
   - {fileID: 5049906193492304491}
   - {fileID: -2778795145780591774}
   - {fileID: 7231087321376096189}
-  - {fileID: 4343959311633866640}
 --- !u!114 &4343959311633866640
 MonoBehaviour:
   m_ObjectHideFlags: 3

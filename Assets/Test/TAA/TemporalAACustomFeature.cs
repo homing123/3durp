@@ -7,7 +7,7 @@ public class TemporalAACustomFeature : HMScriptableRenderFeature
 
     public override void Create()
     {
-        if (HMUtil.IsPlay())
+        if (IsPlay())
         {
             m_Pass = new TemporalAACustomPass(m_Mat);
             name = Name;
@@ -20,14 +20,15 @@ public class TemporalAACustomFeature : HMScriptableRenderFeature
         RTHandle m_LastFrameSource;
 
         bool m_LastFrameSourceInit;
-        bool m_Active;
-        float m_LastWeight;
+        float m_CurWeight;
 
-        Material m_Mat; //마테리얼 캐싱안해두니까 null오류가 가끔씩 생긴다.
+        Material m_Mat;
 
         public TemporalAACustomPass(Material mat)
         {
             m_Mat = mat;
+            renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+
             //RenderTextureDescriptor des = new RenderTextureDescriptor(Screen.width, Screen.height, RenderTextureFormat.ARGB32);
             m_LastFrameSource = RTHandles.Alloc(
                 Vector2.one,
@@ -40,21 +41,22 @@ public class TemporalAACustomFeature : HMScriptableRenderFeature
 
         public override bool SetUp(ScriptableRenderer renderer)
         {
-            TemporalAACustomSetting m_Setting = VolumeManager.instance.stack.GetComponent<TemporalAACustomSetting>();
-            if(m_Setting == null)
+            TemporalAACustomSetting setting = VolumeManager.instance.stack.GetComponent<TemporalAACustomSetting>();
+            m_Source = renderer.cameraColorTargetHandle;
+            if (setting == null)
             {
                 return false;
             }
-            bool isActive = m_Setting.IsActive();
+            bool isActive = setting.IsActive();
 
-            if (m_LastWeight != m_Setting.m_Weight.value)
+            if (m_CurWeight != setting.m_Weight.value)
             {
-                m_LastWeight = m_Setting.m_Weight.value;
-                m_Mat.SetFloat("_Weight", m_LastWeight);
+                m_CurWeight = setting.m_Weight.value;
+                m_Mat.SetFloat("_Weight", m_CurWeight);
             }
             if (isActive)
             {
-                if (Camera.main.depthTextureMode != DepthTextureMode.Depth || Camera.main.depthTextureMode != DepthTextureMode.DepthNormals)
+                if (Camera.main.depthTextureMode != DepthTextureMode.Depth && Camera.main.depthTextureMode != DepthTextureMode.DepthNormals)
                 {
                     Debug.Log("TemporalAACustom must has depth");
                     return false;
@@ -65,20 +67,11 @@ public class TemporalAACustomFeature : HMScriptableRenderFeature
 
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
-            if (m_Active == false)
-            {
-                return;
-            }
             m_Mat.SetTexture("_LastFrameSource", m_LastFrameSource);
             base.Configure(cmd, cameraTextureDescriptor);
         }
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-
-            if (m_Active == false)
-            {
-                return;
-            }
             if (m_LastFrameSourceInit == false)
             {
                 m_LastFrameSourceInit = true;

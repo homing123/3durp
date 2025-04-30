@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DepthOfField
+  m_Name: DepthOfFieldCustom
   m_Shader: {fileID: 4800000, guid: 471add7ebe61d6548b9bf5b41644312e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0

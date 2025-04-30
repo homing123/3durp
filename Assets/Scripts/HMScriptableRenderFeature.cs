@@ -6,37 +6,42 @@ public class HMScriptableRenderFeature : ScriptableRendererFeature
 {
     protected HMScriptableRenderPass m_Pass;
     public Material m_Mat;
+    protected bool m_Setting;
 
     public override void Create()
     {
-        //if (HMUtil.IsPlay())
-        //{
-        //    m_Pass = new HMScriptableRenderPass();
-            
-        //}
+
     }
-    bool m_Active;
     public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
     {
-        if (HMUtil.IsPlay())
+        if (IsPlay())
         {
-            m_Active = m_Pass.SetUp(renderer);
+            m_Setting = m_Pass.SetUp(renderer) && m_Mat!= null;
+        }
+        else
+        {
+            m_Setting = false;
         }
     }
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        if (HMUtil.IsPlay() && m_Active)
+        if (IsPlay() && m_Setting)
         {
             renderer.EnqueuePass(m_Pass);
         }
     }
     protected override void Dispose(bool disposing)
     {
-        if (m_Pass != null)
-        {
-            m_Pass.Dispose();
-        }
+        m_Pass?.Dispose();
         base.Dispose(disposing);
+    }
+
+    public static bool IsPlay()
+    {
+#if UNITY_EDITOR
+        return Application.isPlaying;
+#endif 
+        return true;
     }
 }
 public abstract class HMScriptableRenderPass : ScriptableRenderPass

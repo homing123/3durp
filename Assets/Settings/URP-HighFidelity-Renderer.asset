@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: DeferredFog
   m_EditorClassIdentifier: 
   m_Active: 1
+  m_Mat: {fileID: 2100000, guid: 994b0250013715242a21ea4a6829a4af, type: 2}
 --- !u!114 &-7057376924922627289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26,6 +27,7 @@ MonoBehaviour:
   m_Name: DepthOfFieldCustom
   m_EditorClassIdentifier: 
   m_Active: 1
+  m_Mat: {fileID: 2100000, guid: 9a4326ec38be76941acb3de50f74e621, type: 2}
 --- !u!114 &-5306372216077305935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36,9 +38,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 572ff87a54473f44bbe337c4f02e45e1, type: 3}
-  m_Name: Blur
+  m_Name: GaussianBlur
   m_EditorClassIdentifier: 
   m_Active: 1
+  m_Mat: {fileID: 2100000, guid: 8f19f4addfefd9f4dbf8a942b0aafb92, type: 2}
 --- !u!114 &-2034592541744555630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52,6 +55,7 @@ MonoBehaviour:
   m_Name: ScanEffect
   m_EditorClassIdentifier: 
   m_Active: 1
+  m_Mat: {fileID: 2100000, guid: 8a12f6b3b8b9b004ea84bd063abd1eef, type: 2}
 --- !u!114 &-1878332245247344467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,7 +101,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 419d0d2915d5acf4d859a5e519adf8d7, type: 3}
-  m_Name: TemporalAA
+  m_Name: TemporalAACustom
   m_EditorClassIdentifier: 
   m_Active: 1
   m_Mat: {fileID: 2100000, guid: 1eace0e9ad1226b4db4d7088fae26721, type: 2}
@@ -114,6 +118,7 @@ MonoBehaviour:
   m_Name: DepthOfFieldCustom
   m_EditorClassIdentifier: 
   m_Active: 1
+  m_Mat: {fileID: 0}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
