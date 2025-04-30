@@ -87,6 +87,20 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 3302065f671a8450b82c9ddf07426f3a, type: 3}
   - {fileID: 2800000, guid: 56a77a3e8d64f47b6afe9e3c95cb57d5, type: 3}
   m_Shader: {fileID: 4800000, guid: 0849e84e3d62649e8882e9d6f056a017, type: 3}
+--- !u!114 &-959257667414989875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 419d0d2915d5acf4d859a5e519adf8d7, type: 3}
+  m_Name: TemporalAA
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  m_Mat: {fileID: 2100000, guid: 1eace0e9ad1226b4db4d7088fae26721, type: 2}
 --- !u!114 &-920976090896285703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,7 +139,8 @@ MonoBehaviour:
   - {fileID: 8601162496262469935}
   - {fileID: -2034592541744555630}
   - {fileID: -7057376924922627289}
-  m_RendererFeatureMap: adc0de57c6d2eee52e66abee8f1a675cb1b7b57695fa5bb6a3a7cc29fa40f78afa84cc879cd29e522ff9222db8775d779219a8eedcacc3e327bbf20f14290f9e
+  - {fileID: -959257667414989875}
+  m_RendererFeatureMap: adc0de57c6d2eee52e66abee8f1a675cb1b7b57695fa5bb6a3a7cc29fa40f78afa84cc879cd29e522ff9222db8775d779219a8eedcacc3e327bbf20f14290f9ecde3a8dd3b08b0f2
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}

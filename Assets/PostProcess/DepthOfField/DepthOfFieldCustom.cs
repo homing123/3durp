@@ -66,9 +66,18 @@ public class DepthOfFieldCustomPass : ScriptableRenderPass
     {
         m_Setting = VolumeManager.instance.stack.GetComponent<DepthOfFieldSetting>();
         renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+#if UNITY_EDITOR
+        if (Application.isPlaying == false)
+        {
+            return;
+        }
+#else
+#endif
+        m_Init = m_Setting.active;
 
-        m_Init = true;
-        if (m_Init)
+        Debug.Log("이닛왜불림?" + (m_Setting == null) + " " + (m_Init == false));
+
+        if (m_Init == true)
         {
             m_Mat = m_Setting.m_DofMat.value;
             RenderTextureDescriptor desc = new RenderTextureDescriptor(Screen.width, Screen.height, RenderTextureFormat.ARGB32);
@@ -96,6 +105,7 @@ public class DepthOfFieldCustomPass : ScriptableRenderPass
                 name: Name,
                 wrapMode: TextureWrapMode.Clamp
             );
+            Debug.Log("생성 dof" + m_Init);
             //m_RTSourceCopy = RTHandles.Alloc(desc);
         }
     }
