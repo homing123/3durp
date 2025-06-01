@@ -47,12 +47,13 @@ public class MapMaker : MonoBehaviour
     public static MapMaker Ins;
 
     public const int ChunkSize = 16;
+    public const int TerrainCount = 2;
+    const int Thread_Width = 32;
+
     [SerializeField] int m_RenterTextureQuality;
     [SerializeField] RenderTextureObject m_RenderTextureObj;
     [SerializeField][Range(1, 7)] int m_RenderChunkDis;
     [SerializeField] ComputeShader m_CSTextureMerge;
-    public const int TerrainCount = 2;
-    const int Thread_Width = 32;
 
     List<RenderTextureObject> L_Objs = new List<RenderTextureObject>();
 
@@ -63,6 +64,8 @@ public class MapMaker : MonoBehaviour
     List<Ground> L_Ground = new List<Ground>();
     List<RenderTexture> L_GroundHeightMap = new List<RenderTexture>();
     List<RenderTexture> L_GroundNormalMap = new List<RenderTexture>();
+    public Vector2 GroundHeightMapCenterPos;
+
     public Vector2 GroundHeightMapTexWorldSize
     {
         get
@@ -71,7 +74,6 @@ public class MapMaker : MonoBehaviour
             return new Vector2(texWorldSize, texWorldSize * 2);
         }
     }
-    public Vector2 GroundHeightMapCenterPos;
     private void Awake()
     {
         Ins = this;

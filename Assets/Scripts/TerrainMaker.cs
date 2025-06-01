@@ -11,14 +11,17 @@ public class TerrainMaker : MonoBehaviour
         NormalMap = 1,
     }
 
-    public Mesh m_Mesh { get; private set; }
-    RenderTexture m_HeightMapForNormalMap;
-    int m_LastHeightMapForNormalWidth = 0;
-    [SerializeField] ComputeShader m_CSTerrainMaker;
+    const int Kernel_Width = 32;
+    public static TerrainMaker Ins;
 
+    [SerializeField] ComputeShader m_CSTerrainMaker;
     [Range(10, 100)] public int m_MeshSize;
     [SerializeField][Range(5, 257)] public int m_VertexWidth;
+
+    public Mesh m_Mesh { get; private set; }
     public int m_TexWidth { get; private set; }
+    RenderTexture m_HeightMapForNormalMap;
+    int m_LastHeightMapForNormalWidth = 0;
 
     [Space(10)]
     [Header("Map")]
@@ -43,9 +46,6 @@ public class TerrainMaker : MonoBehaviour
             return (m_MeshSize * (1 << (MapMaker.TerrainCount - 1))) / (float)(m_VertexWidth - 1);
         }
     }
-    const int Kernel_Width = 32;
-
-    public static TerrainMaker Ins;
     private void Awake()
     {
         Ins = this;
